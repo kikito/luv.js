@@ -1,0 +1,24 @@
+{
+  "name": "luv",
+  "version": "0.0.1",
+  "author": "Enrique Garcia Cota <kikito@gmail.com>",
+  "description": "Minimal HTML5 game development lib",
+  "scripts": {
+    "test": "mocha"
+  },
+  "main": "./luv.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kikito/luv.js"
+  },
+  "keywords": [
+    "game",
+    "html5"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "1.8.1",
+    "chai": "1.4.2"
+  },
+  "license": "MIT"
+}
