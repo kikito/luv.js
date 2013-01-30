@@ -1,8 +1,10 @@
 {
   "name": "luv",
   "version": "0.0.1",
-  "author": "Enrique Garcia Cota <kikito@gmail.com>",
+  "author": "Enrique Garcia Cota",
   "description": "Minimal HTML5 game development lib",
+  "homepage": "https://github.com/kikito/luv.js",
+  "bugs": "https://github.com/kikito/luv.js/issues",
   "scripts": {
     "test": "mocha"
   },
@@ -17,8 +19,13 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "mocha": "1.8.1",
-    "chai": "1.4.2"
+    "mocha": "1.8.x",
+    "chai": "1.4.x",
+    "grunt": "~0.4.0",
+    "grunt-contrib-concat": "~0.1.0",
+    "grunt-contrib-uglify": "~0.1.0",
+    "grunt-contrib-jshint": "~0.1.0",
+    "grunt-simple-mocha": "~0.3.2"
   },
   "license": "MIT"
 }
