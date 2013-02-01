@@ -1,5 +1,8 @@
 module.exports = function(grunt) {
 
+  var srcFiles  = ["src/core.js", "src/graphics.js"];
+  var testFiles = "src/**/*.js";
+
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -7,10 +10,14 @@ module.exports = function(grunt) {
             "/*! <%= pkg.description %> */\n" +
             "/*! <%= pkg.author %> */\n",
     jshint: {
-      files: ['src/*.js', 'src/**/*.js', 'test/*.js', 'test/**/*.js']
+      src: srcFiles,
+      test: {
+        options: {expr: true}, // needed for sinon-grunt
+        files: testFiles
+      }
     },
     simplemocha: {
-      all: { src: "test/**/*.js" }
+      all: { src: 'test/**/*.js' }
     },
     concat: {
       options: { banner: '<%= banner %>' },
