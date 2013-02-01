@@ -16,11 +16,11 @@ The minimal example requires one two files: `luv.js` and `index.html`. You can d
 </head>
 <body>
   <script>
-    luv.run({
-      "draw": function(){
-        luv.graphics.print("Hello, my luv", 200, 300);
-      }
-    });
+    var game = luv.newGame();
+
+    function game.draw() {
+      game.graphics.print("Hello, my luv", 200, 300);
+    }
   </script>
 </body>
 </html>
