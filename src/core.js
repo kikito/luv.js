@@ -1,6 +1,5 @@
 luv = {};
 
-luv.run = function(options) {
+luv.newGame = function(options) {
   options = options || {};
-  if(options.load) { options.load(); }
 };

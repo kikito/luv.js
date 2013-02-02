@@ -22,12 +22,13 @@
     "mocha": "1.8.x",
     "chai": "1.4.x",
     "sinon-chai": "2.3.x",
-    "sinon": "~1.5.2",
+    "sinon": "1.5.x",
     "grunt": "0.4.0rc7",
     "grunt-contrib-concat": "0.1.2rc6",
     "grunt-contrib-uglify": "0.1.1rc6",
     "grunt-contrib-jshint": "0.1.1rc6",
-    "grunt-simple-mocha": "0.3.2"
+    "grunt-simple-mocha": "0.3.2",
+    "zombie": "1.4.x"
   },
   "license": "MIT"
 }
