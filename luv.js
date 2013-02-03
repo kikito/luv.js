@@ -36,4 +36,6 @@ luv.Graphics = function(el, width, height) {
   this.el = el;
   this.width = width;
   this.height = height;
+
+  this.context = el.getContext('2d');
 };

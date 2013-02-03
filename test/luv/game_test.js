@@ -1,25 +1,4 @@
-var chai      = require("chai"),
-    sinonChai = require("sinon-chai"),
-    expect    = chai.expect,
-    sinon     = require("sinon"),
-    Browser   = require("zombie");
-
-chai.use(sinonChai);
-
-require("../../luv.js");
-
-document = null;
-
 describe("luv.Game", function(){
-  before(function(done){
-    var browser = new Browser();
-    browser
-      .visit("../pages/empty.html")
-      .then(function() { document = browser.document; })
-      .then(done,done);
-  });
-  after(function(){ document = null; });
-
   describe("constructor", function(){
     it("exists", function() {
       expect(new luv.Game).to.be.a('object');
