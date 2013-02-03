@@ -1,4 +1,4 @@
-luv.Graphics = function(el, width, height) {
+Luv.Graphics = function(el, width, height) {
   if(el) {
     if(!width  && el.getAttribute('width'))  { width = parseInt(el.getAttribute('width'), 10); }
     if(!height && el.getAttribute('height')) { height = parseInt(el.getAttribute('height'), 10); }

@@ -1,4 +1,4 @@
-luv.Game = function(options) {
+Luv = function(options) {
   options = options || {};
   var el     = options.el,
       el_id  = options.el_id,
@@ -7,6 +7,5 @@ luv.Game = function(options) {
 
   if(!el && el_id) { el = document.getElementById(el_id); }
 
-  this.graphics = new luv.Graphics(el, width, height);
+  this.graphics = new Luv.Graphics(el, width, height);
 };
-

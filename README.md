@@ -1,4 +1,4 @@
-Luv.js
+luv.js
 ======
 A javascript/coffeescript html5 game library heavily inspired by [LÖVE](http://love2d.org).
 
@@ -16,10 +16,10 @@ The minimal example requires one two files: `luv.js` and `index.html`. You can d
 </head>
 <body>
   <script>
-    var game = luv.newGame();
+    var luv = new Luv();
 
-    function game.draw() {
-      game.graphics.print("Hello, my luv", 200, 300);
+    function luv.draw() {
+      luv.graphics.print("Hello, my luv", 200, 300);
     }
   </script>
 </body>
