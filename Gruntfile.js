@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
 
-  var srcFiles  = ["src/Luv.js", "src/graphics.js"];
+  var srcFiles  = ["src/Luv.js", "src/graphics.js", "src/polyfills/*.js"];
   var testFiles = "src/**/*.js";
   var shell = require('shelljs');
 
@@ -19,7 +19,7 @@ module.exports = function(grunt) {
     concat: {
       options: { banner: '<%= banner %>' },
       dist: {
-         src:  'src/*.js',
+         src:  srcFiles,
          dest: '<%= pkg.name %>.js'
       }
     },

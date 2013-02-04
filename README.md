@@ -18,9 +18,11 @@ The minimal example requires one two files: `luv.js` and `index.html`. You can d
   <script>
     var luv = new Luv();
 
-    function luv.draw() {
+    luv.draw = function() {
       luv.graphics.print("Hello, my luv", 200, 300);
     }
+
+    luv.run();
   </script>
 </body>
 </html>

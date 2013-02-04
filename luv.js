@@ -13,6 +13,23 @@ Luv = function(options) {
   this.graphics = new Luv.Graphics(el, width, height);
 };
 
+Luv.prototype.update = function(dt) {};
+Luv.prototype.draw   = function() {};
+Luv.prototype.load   = function() {};
+Luv.prototype.run    = function() {
+  var luv = this;
+
+  luv.load();
+
+  window.requestAnimationFrame(function(dt){
+    luv.update(dt);
+    luv.draw();
+  });
+
+};
+
+
+
 Luv.Graphics = function(el, width, height) {
   if(el) {
     if(!width  && el.getAttribute('width'))  { width = parseInt(el.getAttribute('width'), 10); }
@@ -36,3 +53,35 @@ Luv.Graphics = function(el, width, height) {
 Luv.Graphics.prototype.print = function(str,x,y) {
   this.ctx.fillText(str, x, y);
 };
+
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+//
+// requestAnimationFrame polyfill by Erik Möller
+// fixes from Paul Irish and Tino Zijdel
+
+(function() {
+  var lastTime = 0;
+  var vendors = ['ms', 'moz', 'webkit', 'o'];
+
+  for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+    window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+    window.cancelAnimationFrame  = window[vendors[x]+'CancelAnimationFrame'] ||
+                                   window[vendors[x]+'CancelRequestAnimationFrame'];
+  }
+
+  if (!window.requestAnimationFrame) {
+    window.requestAnimationFrame = function(callback, element) {
+      var currTime = new Date().getTime();
+      var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+      var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+                                 timeToCall);
+      lastTime = currTime + timeToCall;
+      return id;
+    };
+  }
+
+  if (!window.cancelAnimationFrame) {
+    window.cancelAnimationFrame = function(id) { clearTimeout(id); };
+  }
+}());
