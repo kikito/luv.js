@@ -28,6 +28,16 @@ describe("Luv.Graphics", function(){
     });
   });
 
+  describe(".clear", function(){
+    it("clears the canvas", function() {
+      var gr        = new Luv.Graphics();
+      var clearRect = sinon.spy(gr.ctx, 'clearRect');
+
+      gr.clear();
+      expect(clearRect).to.have.been.calledWith(0,0,gr.width,gr.height);
+    });
+  });
+
   describe(".print", function() {
     it("prints using the context", function() {
       var gr       = new Luv.Graphics();

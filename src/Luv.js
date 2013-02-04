@@ -22,6 +22,7 @@ luv.run    = function() {
 
   window.requestAnimationFrame(function(dt){
     luv.update(dt);
+    luv.graphics.clear();
     luv.draw();
   });
 };

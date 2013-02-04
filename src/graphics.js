@@ -20,6 +20,10 @@ Luv.Graphics = function(el, width, height) {
 
 var graphics = Luv.Graphics.prototype;
 
+graphics.clear = function() {
+  this.ctx.clearRect(0, 0, this.width, this.height);
+};
+
 graphics.print = function(str,x,y) {
   this.ctx.fillText(str, x, y);
 };

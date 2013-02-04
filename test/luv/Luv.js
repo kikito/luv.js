@@ -22,10 +22,11 @@ describe("Luv", function(){
   });
 
   describe("Luv.run", function() {
-    it("invokes load, draw, update as required", function() {
+    it("invokes luv callbacks as expected", function() {
       var luv = new Luv();
       var frame  = sinon.stub(window, 'requestAnimationFrame', function(f){ f(1); });
       var load   = sinon.spy(luv, 'load');
+      var clear  = sinon.spy(luv.graphics, 'clear');
       var draw   = sinon.spy(luv, 'draw');
       var update = sinon.spy(luv, 'update');
 
@@ -33,6 +34,7 @@ describe("Luv", function(){
 
       expect(frame).to.have.been.called;
       expect(load).to.have.been.called;
+      expect(clear).to.have.been.called;
       expect(draw).to.have.been.called;
       expect(update).to.have.been.calledWith(1);
 
