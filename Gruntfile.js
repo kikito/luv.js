@@ -17,10 +17,21 @@ module.exports = function(grunt) {
       }
     },
     concat: {
-      options: { banner: '<%= banner %>' },
       dist: {
          src:  srcFiles,
          dest: '<%= pkg.name %>.js'
+      },
+      banner: {
+        options: { banner: '<%= banner %>' },
+        src: '<%= pkg.name %>.js',
+        dest: '<%= pkg.name %>.js'
+      }
+    },
+    wrap: {
+      dist: {
+        src: ['<%= pkg.name %>.js'],
+        dest: ['<%= pkg.name %>.js'],
+        wrapper: ['(function(){\n', '\n})();']
       }
     },
     uglify: {
@@ -34,6 +45,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-wrap');
   grunt.loadNpmTasks('grunt-contrib-uglify');
 
   grunt.registerTask('mocha', 'Run all tests using mocha-phantomjs (needs mocha-phantomjs to be installed globally)', function(){
@@ -41,5 +53,5 @@ module.exports = function(grunt) {
   });
 
   // Default task(s).
-  grunt.registerTask('default', ['jshint', 'concat', 'mocha', 'uglify']);
+  grunt.registerTask('default', ['jshint', 'concat:dist', 'wrap', 'concat:banner', 'mocha', 'uglify']);
 }

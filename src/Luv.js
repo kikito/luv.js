@@ -10,10 +10,12 @@ Luv = function(options) {
   this.graphics = new Luv.Graphics(el, width, height);
 };
 
-Luv.prototype.update = function(dt) {};
-Luv.prototype.draw   = function() {};
-Luv.prototype.load   = function() {};
-Luv.prototype.run    = function() {
+var luv = Luv.prototype;
+
+luv.update = function(dt) {};
+luv.draw   = function() {};
+luv.load   = function() {};
+luv.run    = function() {
   var luv = this;
 
   luv.load();
@@ -22,7 +24,6 @@ Luv.prototype.run    = function() {
     luv.update(dt);
     luv.draw();
   });
-
 };
 
 

@@ -18,6 +18,8 @@ Luv.Graphics = function(el, width, height) {
   this.ctx = el.getContext('2d');
 };
 
-Luv.Graphics.prototype.print = function(str,x,y) {
+var graphics = Luv.Graphics.prototype;
+
+graphics.print = function(str,x,y) {
   this.ctx.fillText(str, x, y);
 };

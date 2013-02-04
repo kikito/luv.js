@@ -1,6 +1,7 @@
 /*! luv 0.0.1 (2013-02-04) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
+(function(){
 Luv = function(options) {
   options = options || {};
   var el     = options.el,
@@ -13,10 +14,12 @@ Luv = function(options) {
   this.graphics = new Luv.Graphics(el, width, height);
 };
 
-Luv.prototype.update = function(dt) {};
-Luv.prototype.draw   = function() {};
-Luv.prototype.load   = function() {};
-Luv.prototype.run    = function() {
+var luv = Luv.prototype;
+
+luv.update = function(dt) {};
+luv.draw   = function() {};
+luv.load   = function() {};
+luv.run    = function() {
   var luv = this;
 
   luv.load();
@@ -25,7 +28,6 @@ Luv.prototype.run    = function() {
     luv.update(dt);
     luv.draw();
   });
-
 };
 
 
@@ -50,7 +52,9 @@ Luv.Graphics = function(el, width, height) {
   this.ctx = el.getContext('2d');
 };
 
-Luv.Graphics.prototype.print = function(str,x,y) {
+var graphics = Luv.Graphics.prototype;
+
+graphics.print = function(str,x,y) {
   this.ctx.fillText(str, x, y);
 };
 
@@ -85,3 +89,5 @@ Luv.Graphics.prototype.print = function(str,x,y) {
     window.cancelAnimationFrame = function(id) { clearTimeout(id); };
   }
 }());
+
+})();
