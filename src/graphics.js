@@ -23,3 +23,25 @@ var graphics = Luv.Graphics.prototype;
 graphics.print = function(str,x,y) {
   this.ctx.fillText(str, x, y);
 };
+
+var isArray = function(x) {
+  return Object.prototype.toString.call(x) === '[object Array]';
+};
+
+graphics.line = function() {
+  this.ctx.beginPath();
+
+  var args = isArray(arguments[0]) ? arguments[0] : arguments;
+
+  if(args.length < 4) { throw new Error("luv.graphics.line requires at least 4 parameters"); }
+  if(args.length % 2 == 1) { throw new Error("luv.graphics.line requires an even number of parameters"); }
+
+
+  this.ctx.moveTo(args[0],args[1]);
+
+  for (var i=2; i<args.length; i=i+2) {
+    this.ctx.lineTo(args[i],args[i+1]);
+  }
+
+  this.ctx.stroke();
+};

@@ -38,4 +38,53 @@ describe("Luv.Graphics", function(){
     });
   });
 
+  describe(".line", function(){
+    var gr=null, beginPath=null, moveTo=null, lineTo=null, stroke=null;
+
+    before(function() {
+      gr        = new Luv.Graphics();
+      beginPath = sinon.spy(gr.ctx, 'beginPath');
+      moveTo    = sinon.spy(gr.ctx, 'moveTo');
+      lineTo    = sinon.spy(gr.ctx, 'lineTo');
+      stroke    = sinon.spy(gr.ctx, 'stroke');
+    });
+
+    it("draws a line given 4 points", function() {
+     gr.line(10,20,30,40);
+
+     expect(beginPath).to.have.been.called;
+     expect(moveTo).to.have.been.calledWith(10, 20);
+     expect(lineTo).to.have.been.calledWith(30, 40);
+     expect(stroke).to.have.been.called;
+    });
+
+    it("draws a polyline given 6 points", function() {
+     gr.line(10,20,30,40,50,60);
+
+     expect(beginPath).to.have.been.called;
+     expect(moveTo).to.have.been.calledWith(10, 20);
+     expect(lineTo).to.have.been.calledWith(30, 40);
+     expect(lineTo).to.have.been.calledWith(50, 60);
+     expect(stroke).to.have.been.called;
+    });
+
+    it("draws a polyline when given an array of points", function() {
+     gr.line([10,20,30,40,50,60]);
+
+     expect(beginPath).to.have.been.called;
+     expect(moveTo).to.have.been.calledWith(10, 20);
+     expect(lineTo).to.have.been.calledWith(30, 40);
+     expect(lineTo).to.have.been.calledWith(50, 60);
+     expect(stroke).to.have.been.called;
+    });
+
+    it("throws an error if given less than 4 points", function() {
+     expect(function(){ gr.line(1,2); }).to.Throw(Error);
+    });
+
+    it("throws an error if given an uneven number of coordinates", function() {
+     expect(function(){ gr.line(1,2,3,4,5); }).to.Throw(Error);
+    });
+  });
+
 });
