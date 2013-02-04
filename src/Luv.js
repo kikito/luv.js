@@ -9,3 +9,7 @@ Luv = function(options) {
 
   this.graphics = new Luv.Graphics(el, width, height);
 };
+
+Luv.prototype.update = function(dt) {}
+Luv.prototype.draw   = function() {}
+Luv.prototype.run    = function() {}

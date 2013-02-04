@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-02-03) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-02-04) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 Luv = function(options) {
@@ -30,5 +30,9 @@ Luv.Graphics = function(el, width, height) {
   this.width = width;
   this.height = height;
 
-  this.context = el.getContext('2d');
+  this.ctx = el.getContext('2d');
+};
+
+Luv.Graphics.prototype.print = function(str,x,y) {
+  this.ctx.fillText(str, x, y);
 };
