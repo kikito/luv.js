@@ -6,9 +6,13 @@ describe("Luv.Graphics", function(){
   describe("constructor", function() {
     it("initializes parameters", function(){
       var gr = new Luv.Graphics();
+
       expect(gr.el).to.be.ok;
       expect(gr.width).to.be.equal(800);
       expect(gr.height).to.be.equal(600);
+
+      expect(gr.getColor()).to.deep.equal([255,255,255,255]);
+      expect(gr.getBackgroundColor()).to.deep.equal([0,0,0,255]);
     });
 
     it("accepts an dom element, a width and a height", function() {
@@ -29,12 +33,12 @@ describe("Luv.Graphics", function(){
   });
 
   describe(".clear", function(){
-    it("clears the canvas", function() {
-      var gr        = new Luv.Graphics();
-      var clearRect = sinon.spy(gr.ctx, 'clearRect');
+    it("clears the canvas with the background color", function() {
+      var gr             = new Luv.Graphics();
+      var fillRect = sinon.spy(gr.ctx, 'fillRect');
 
       gr.clear();
-      expect(clearRect).to.have.been.calledWith(0,0,gr.width,gr.height);
+      expect(fillRect).to.have.been.calledWith(0,0,gr.width,gr.height);
     });
   });
 

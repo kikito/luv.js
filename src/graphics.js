@@ -14,23 +14,56 @@ Luv.Graphics = function(el, width, height) {
   this.el = el;
   this.width = width;
   this.height = height;
+  this.color = {};
+  this.backgroundColor = {};
+
+  this.setColor(255,255,255);
+  this.setBackgroundColor(0,0,0);
 
   this.ctx = el.getContext('2d');
 };
 
+var isArray = function(x) {
+  return Object.prototype.toString.call(x) === '[object Array]';
+};
+
 var graphics = Luv.Graphics.prototype;
 
+var setColor = function(color, r,g,b,a) {
+  if(isArray(r)) {
+    color.r = r[0];
+    color.g = r[1];
+    color.b = r[2];
+    color.a = r[3] || 255;
+  } else {
+    color.r = r;
+    color.g = g;
+    color.b = b;
+    color.a = a || 255;
+  }
+};
+var getColor = function(color) {
+  return [color.r, color.g, color.b, color.a ];
+};
+var colorToStyle = function(color) {
+  return ["rgba(",color.r, color.g, color.b, color.a/255, ")"].join();
+};
+
+graphics.setColor = function(r,g,b,a) { setColor(this.color, r,g,b,a); };
+graphics.getColor = function() { return getColor(this.color); };
+
+graphics.setBackgroundColor = function(r,g,b,a) { setColor(this.backgroundColor, r,g,b,a); };
+graphics.getBackgroundColor = function() { return getColor(this.backgroundColor); };
+
 graphics.clear = function() {
-  this.ctx.clearRect(0, 0, this.width, this.height);
+  this.ctx.fillStyle = colorToStyle(this.backgroundColor);
+  this.ctx.fillRect(0, 0, this.width, this.height);
 };
 
 graphics.print = function(str,x,y) {
   this.ctx.fillText(str, x, y);
 };
 
-var isArray = function(x) {
-  return Object.prototype.toString.call(x) === '[object Array]';
-};
 
 graphics.line = function() {
   this.ctx.beginPath();
