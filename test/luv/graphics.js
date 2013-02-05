@@ -34,20 +34,24 @@ describe("Luv.Graphics", function(){
 
   describe(".clear", function(){
     it("clears the canvas with the background color", function() {
-      var gr             = new Luv.Graphics();
+      var gr       = new Luv.Graphics();
+      gr.setBackgroundColor(255,0,0);
       var fillRect = sinon.spy(gr.ctx, 'fillRect');
 
       gr.clear();
+      expect(gr.ctx.fillStyle).to.equal("#ff0000");
       expect(fillRect).to.have.been.calledWith(0,0,gr.width,gr.height);
     });
   });
 
   describe(".print", function() {
-    it("prints using the context", function() {
+    it("prints the given string with the correct color", function() {
       var gr       = new Luv.Graphics();
       var fillText = sinon.spy(gr.ctx, 'fillText');
+      gr.setColor(0,0,255);
 
       gr.print("hello, luv", 100, 200);
+      expect(gr.ctx.fillStyle).to.equal("#0000ff");
       expect(fillText).to.have.been.calledWith('hello, luv', 100, 200);
     });
   });
@@ -63,13 +67,15 @@ describe("Luv.Graphics", function(){
       stroke    = sinon.spy(gr.ctx, 'stroke');
     });
 
-    it("draws a line given 4 points", function() {
+    it("draws a line given 4 points, with the chosen color", function() {
+     gr.setColor(0,255,0);
      gr.line(10,20,30,40);
 
      expect(beginPath).to.have.been.called;
      expect(moveTo).to.have.been.calledWith(10, 20);
      expect(lineTo).to.have.been.calledWith(30, 40);
      expect(stroke).to.have.been.called;
+     expect(gr.ctx.strokeStyle).to.equal('#00ff00');
     });
 
     it("draws a polyline given 6 points", function() {

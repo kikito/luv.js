@@ -108,6 +108,8 @@ graphics.line = function() {
 
   var args = isArray(arguments[0]) ? arguments[0] : arguments;
 
+  this.ctx.strokeStyle = this.colorStyle;
+
   if(args.length < 4) { throw new Error("luv.graphics.line requires at least 4 parameters"); }
   if(args.length % 2 == 1) { throw new Error("luv.graphics.line requires an even number of parameters"); }
 
