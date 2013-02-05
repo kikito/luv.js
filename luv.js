@@ -64,7 +64,8 @@ var isArray = function(x) {
 
 var graphics = Luv.Graphics.prototype;
 
-var setColor = function(color, r,g,b,a) {
+var setColor = function(self, name, r,g,b,a) {
+  var color = self[name];
   if(isArray(r)) {
     color.r = r[0];
     color.g = r[1];
@@ -76,26 +77,25 @@ var setColor = function(color, r,g,b,a) {
     color.b = b;
     color.a = a || 255;
   }
+  self[name + 'Style'] = ["rgba(",color.r, color.g, color.b, color.a/255, ")"].join();
 };
 var getColor = function(color) {
   return [color.r, color.g, color.b, color.a ];
 };
-var colorToStyle = function(color) {
-  return ["rgba(",color.r, color.g, color.b, color.a/255, ")"].join();
-};
 
-graphics.setColor = function(r,g,b,a) { setColor(this.color, r,g,b,a); };
+graphics.setColor = function(r,g,b,a) { setColor(this, 'color', r,g,b,a); };
 graphics.getColor = function() { return getColor(this.color); };
 
-graphics.setBackgroundColor = function(r,g,b,a) { setColor(this.backgroundColor, r,g,b,a); };
+graphics.setBackgroundColor = function(r,g,b,a) { setColor(this, 'backgroundColor', r,g,b,a); };
 graphics.getBackgroundColor = function() { return getColor(this.backgroundColor); };
 
 graphics.clear = function() {
-  this.ctx.fillStyle = colorToStyle(this.backgroundColor);
+  this.ctx.fillStyle = this.backgroundColorStyle;
   this.ctx.fillRect(0, 0, this.width, this.height);
 };
 
 graphics.print = function(str,x,y) {
+  this.ctx.fillStyle = this.colorStyle;
   this.ctx.fillText(str, x, y);
 };
 
