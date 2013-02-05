@@ -18,8 +18,8 @@ module.exports = function(grunt) {
     },
     concat: {
       dist: {
-         src:  srcFiles,
-         dest: '<%= pkg.name %>.js'
+        src:  srcFiles,
+        dest: '<%= pkg.name %>.js'
       },
       banner: {
         options: { banner: '<%= banner %>' },
@@ -41,7 +41,7 @@ module.exports = function(grunt) {
         dest:  '<%= pkg.name %>.min.js'
       }
     }
-  })
+  });
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
@@ -54,4 +54,4 @@ module.exports = function(grunt) {
 
   // Default task(s).
   grunt.registerTask('default', ['jshint', 'concat:dist', 'wrap', 'concat:banner', 'mocha', 'uglify']);
-}
+};
