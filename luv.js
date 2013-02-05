@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-02-05) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-02-06) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 (function(){
@@ -102,7 +102,6 @@ graphics.print = function(str,x,y) {
   this.ctx.fillText(str, x, y);
 };
 
-
 graphics.line = function() {
   this.ctx.beginPath();
 
@@ -122,6 +121,25 @@ graphics.line = function() {
 
   this.ctx.stroke();
 };
+
+graphics.rect = function(mode, left, top, width, height) {
+
+  this.ctx.rect(left, top, width, height);
+  switch(mode){
+  case 'fill':
+    this.ctx.fillStyle = this.colorStyle;
+    this.ctx.fill();
+    break;
+  case 'line':
+    this.ctx.strokeStyle = this.colorStyle;
+    this.ctx.stroke();
+    break;
+  default:
+    throw new Error('Invalid mode: [' + mode + ']. Should be "fill" or "line"');
+  }
+};
+
+
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating

@@ -84,4 +84,21 @@ graphics.line = function() {
   this.ctx.stroke();
 };
 
+graphics.rect = function(mode, left, top, width, height) {
+
+  this.ctx.rect(left, top, width, height);
+  switch(mode){
+  case 'fill':
+    this.ctx.fillStyle = this.colorStyle;
+    this.ctx.fill();
+    break;
+  case 'line':
+    this.ctx.strokeStyle = this.colorStyle;
+    this.ctx.stroke();
+    break;
+  default:
+    throw new Error('Invalid mode: [' + mode + ']. Should be "fill" or "line"');
+  }
+};
+
 

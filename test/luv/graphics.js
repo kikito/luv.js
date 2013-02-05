@@ -68,34 +68,34 @@ describe("Luv.Graphics", function(){
     });
 
     it("draws a line given 4 points, with the chosen color", function() {
-     gr.setColor(0,255,0);
-     gr.line(10,20,30,40);
+      gr.setColor(0,255,0);
+      gr.line(10,20,30,40);
 
-     expect(beginPath).to.have.been.called;
-     expect(moveTo).to.have.been.calledWith(10, 20);
-     expect(lineTo).to.have.been.calledWith(30, 40);
-     expect(stroke).to.have.been.called;
-     expect(gr.ctx.strokeStyle).to.equal('#00ff00');
+      expect(beginPath).to.have.been.called;
+      expect(moveTo).to.have.been.calledWith(10, 20);
+      expect(lineTo).to.have.been.calledWith(30, 40);
+      expect(stroke).to.have.been.called;
+      expect(gr.ctx.strokeStyle).to.equal('#00ff00');
     });
 
     it("draws a polyline given 6 points", function() {
-     gr.line(10,20,30,40,50,60);
+      gr.line(10,20,30,40,50,60);
 
-     expect(beginPath).to.have.been.called;
-     expect(moveTo).to.have.been.calledWith(10, 20);
-     expect(lineTo).to.have.been.calledWith(30, 40);
-     expect(lineTo).to.have.been.calledWith(50, 60);
-     expect(stroke).to.have.been.called;
+      expect(beginPath).to.have.been.called;
+      expect(moveTo).to.have.been.calledWith(10, 20);
+      expect(lineTo).to.have.been.calledWith(30, 40);
+      expect(lineTo).to.have.been.calledWith(50, 60);
+      expect(stroke).to.have.been.called;
     });
 
     it("draws a polyline when given an array of points", function() {
-     gr.line([10,20,30,40,50,60]);
+      gr.line([10,20,30,40,50,60]);
 
-     expect(beginPath).to.have.been.called;
-     expect(moveTo).to.have.been.calledWith(10, 20);
-     expect(lineTo).to.have.been.calledWith(30, 40);
-     expect(lineTo).to.have.been.calledWith(50, 60);
-     expect(stroke).to.have.been.called;
+      expect(beginPath).to.have.been.called;
+      expect(moveTo).to.have.been.calledWith(10, 20);
+      expect(lineTo).to.have.been.calledWith(30, 40);
+      expect(lineTo).to.have.been.calledWith(50, 60);
+      expect(stroke).to.have.been.called;
     });
 
     it("throws an error if given less than 4 points", function() {
@@ -104,6 +104,39 @@ describe("Luv.Graphics", function(){
 
     it("throws an error if given an uneven number of coordinates", function() {
      expect(function(){ gr.line(1,2,3,4,5); }).to.Throw(Error);
+    });
+  });
+
+  describe(".rectangle", function(){
+    var gr=null, stroke=null, fill=null, rect=null;
+
+    before(function() {
+      gr     = new Luv.Graphics();
+      stroke = sinon.spy(gr.ctx, 'stroke');
+      fill   = sinon.spy(gr.ctx, 'fill');
+      rect   = sinon.spy(gr.ctx, 'rect');
+    });
+
+    it("draws a colored rectangle when the mode is 'fill'", function() {
+      gr.setColor(255, 255, 0);
+      gr.rect('fill', 10, 10, 20, 20);
+
+      expect(rect).to.have.been.calledWith(10, 10, 20, 20);
+      expect(fill).to.have.been.called;
+      expect(gr.ctx.fillStyle).to.equal('#ffff00');
+    });
+
+    it("draws a colored rectangle outline the mode is 'line'", function() {
+      gr.setColor(255, 0, 255);
+      gr.rect('line', 10, 10, 20, 20);
+
+      expect(rect).to.have.been.calledWith(10, 10, 20, 20);
+      expect(stroke).to.have.been.called;
+      expect(gr.ctx.strokeStyle).to.equal('#ff00ff');
+    });
+
+    it("throws en error if given an invalid mode", function() {
+      expect(function(){ gr.rect('foo', 1,2,3,4); }).to.Throw(Error);
     });
   });
 
