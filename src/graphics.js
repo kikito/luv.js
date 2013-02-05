@@ -42,7 +42,7 @@ var setColor = function(self, name, r,g,b,a) {
     color.b = b;
     color.a = a || 255;
   }
-  self[name + 'Style'] = ["rgba(",color.r, color.g, color.b, color.a/255, ")"].join();
+  self[name + 'Style'] = "rgba(" + [color.r, color.g, color.b, color.a/255].join() + ")";
 };
 var getColor = function(color) {
   return [color.r, color.g, color.b, color.a ];

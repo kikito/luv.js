@@ -24,11 +24,14 @@ luv.run    = function() {
 
   luv.load();
 
-  window.requestAnimationFrame(function(dt){
+  var loop = function(dt) {
     luv.update(dt);
     luv.graphics.clear();
     luv.draw();
-  });
+    window.requestAnimationFrame(loop);
+  };
+
+  loop(0);
 };
 
 
@@ -77,7 +80,7 @@ var setColor = function(self, name, r,g,b,a) {
     color.b = b;
     color.a = a || 255;
   }
-  self[name + 'Style'] = ["rgba(",color.r, color.g, color.b, color.a/255, ")"].join();
+  self[name + 'Style'] = "rgba(" + [color.r, color.g, color.b, color.a/255].join() + ")";
 };
 var getColor = function(color) {
   return [color.r, color.g, color.b, color.a ];

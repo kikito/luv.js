@@ -20,11 +20,14 @@ luv.run    = function() {
 
   luv.load();
 
-  window.requestAnimationFrame(function(dt){
+  var loop = function(dt) {
     luv.update(dt);
     luv.graphics.clear();
     luv.draw();
-  });
+    window.requestAnimationFrame(loop);
+  };
+
+  loop(0);
 };
 
 
