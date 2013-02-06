@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+  <title>Refreshing Bubbles!</title>
+  <script src="../luv.js"></script>
+</head>
+<body>
+  <script>
+    function rand(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    var luv = new Luv();
+    var bubbles = [];
+
+    var Bubble = function() {
+      this.x = rand(25,775);
+      this.y = rand(650,800);
+      this.r = rand(10, 40);
+      this.vy = rand(30, 80);
+    };
+
+    Bubble.prototype.update = function(dt) {
+      this.y -= this.vy * dt;
+    };
+
+    Bubble.prototype.reachedTop = function() {
+      return this.y < -50;
+    };
+
+    Bubble.prototype.draw = function() {
+      luv.graphics.setColor(255,98,0);
+      luv.graphics.circle('fill', this.x, this.y, this.r);
+
+      luv.graphics.setLineWidth(this.r/7.0);
+      luv.graphics.setColor(255,225,200);
+      luv.graphics.circle('line', this.x, this.y, this.r);
+
+      luv.graphics.circle('fill',
+        this.x - this.r/2,
+        this.y - this.r/2.5,
+        this.r / 3);
+
+    };
+
+    luv.load = function() {
+      for(var i=1; i<100; i++) {
+        bubbles.push(new Bubble());
+      }
+      luv.graphics.setBackgroundColor(255,0,30);
+    };
+
+    luv.draw = function() {
+      for(var i=0; i<bubbles.length; i++) {
+        bubbles[i].draw();
+      }
+    };
+
+    luv.update = function(dt) {
+      for(var i=0; i < bubbles.length; i++) {
+        bubbles[i].update(dt);
+        if(bubbles[i].reachedTop()) {
+          bubbles[i] = new Bubble();
+        }
+      }
+    };
+
+    luv.run();
+  </script>
+</body>
+</html>
