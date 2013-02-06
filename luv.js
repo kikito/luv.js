@@ -24,14 +24,19 @@ luv.run    = function() {
 
   luv.load();
 
-  var loop = function(dt) {
+  var time = new Date().getTime();
+
+  var loop = function(newTime) {
+    var dt = Math.max(0, (newTime - time)/1000);
+    time = newTime;
+
     luv.update(dt);
     luv.graphics.clear();
     luv.draw();
     window.requestAnimationFrame(loop);
   };
 
-  loop(0);
+  loop(time);
 };
 
 
