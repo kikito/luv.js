@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <title>Colored rectangles with luv</title>
+  <script src="../luv.js"></script>
+</head>
+<body>
+  <script>
+    function rand(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    var luv = new Luv();
+    var rectangles = [];
+
+    luv.load = function() {
+      for(i=0; i<200; i++) {
+        rectangles[i] = {
+          l: rand(0,750), t: rand(0,550), w: rand(50,100), h: rand(50,100),
+          r: rand(50,255), g: rand(50,255), b: rand(50,255),
+          mode: rand(0,1) ? 'fill' : 'line'
+        };
+      }
+
+    };
+
+    luv.draw = function() {
+      var rect = null;
+      for(i=0; i<rectangles.length; i++) {
+        rect = rectangles[i];
+        luv.graphics.setColor(rect.r, rect.g, rect.b);
+        luv.graphics.rectangle(rect.mode, rect.l, rect.t, rect.w, rect.h);
+      }
+    };
+
+    luv.run();
+  </script>
+</body>
+</html>
