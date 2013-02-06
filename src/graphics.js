@@ -23,6 +23,8 @@ Luv.Graphics = function(el, width, height) {
   this.ctx = el.getContext('2d');
 };
 
+var twoPI = Math.PI * 2;
+
 var isArray = function(x) {
   return Object.prototype.toString.call(x) === '[object Array]';
 };
@@ -123,6 +125,13 @@ graphics.polygon = function() {
   drawPolyLine.call(this, 'luv.graphics.polygon', 6, coords);
   drawPath.call(this, mode);
 
+  this.ctx.closePath();
+};
+
+graphics.circle = function(mode, x,y,radius) {
+  this.ctx.beginPath();
+  this.ctx.arc(x,y,radius, 0, twoPI, false);
+  drawPath.call(this, mode);
   this.ctx.closePath();
 };
 
