@@ -124,6 +124,25 @@ graphics.getColor = function() { return getColor(this.color); };
 graphics.setBackgroundColor = function(r,g,b,a) { setColor(this, 'backgroundColor', r,g,b,a); };
 graphics.getBackgroundColor = function() { return getColor(this.backgroundColor); };
 
+graphics.setLineWidth = function(width) {
+  this.ctx.lineWidth = width;
+};
+
+graphics.getLineWidth = function() {
+  return this.ctx.lineWidth;
+};
+
+graphics.setLineCap = function(cap) {
+  if(cap != "butt" && cap != "round" && cap != "square") {
+    throw new Error("Line cap must be either 'butt', 'round' or 'square'");
+  }
+  this.ctx.lineCap = cap;
+};
+
+graphics.getLineCap = function() {
+  return this.ctx.lineCap;
+};
+
 graphics.clear = function() {
   this.ctx.fillStyle = this.backgroundColorStyle;
   this.ctx.fillRect(0, 0, this.width, this.height);
