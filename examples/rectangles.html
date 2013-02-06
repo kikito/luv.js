@@ -14,19 +14,18 @@
     var rectangles = [];
 
     luv.load = function() {
-      for(i=0; i<200; i++) {
+      for(var i=0; i<200; i++) {
         rectangles[i] = {
           l: rand(0,750), t: rand(0,550), w: rand(50,100), h: rand(50,100),
           r: rand(50,255), g: rand(50,255), b: rand(50,255),
           mode: rand(0,1) ? 'fill' : 'line'
         };
       }
-
     };
 
     luv.draw = function() {
       var rect = null;
-      for(i=0; i<rectangles.length; i++) {
+      for(var i=0; i<rectangles.length; i++) {
         rect = rectangles[i];
         luv.graphics.setColor(rect.r, rect.g, rect.b);
         luv.graphics.rectangle(rect.mode, rect.l, rect.t, rect.w, rect.h);
