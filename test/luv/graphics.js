@@ -215,5 +215,29 @@ describe("Luv.Graphics", function(){
       });
     });
 
+    describe(".arc", function() {
+      it("draws a filled arc when the mode is 'fill'", function(){
+        gr.setColor(0,255,0);
+        gr.arc('fill', 10, 10, 20, 0, Math.PI);
+
+        expect(beginPath).to.have.been.called;
+        expect(arc).to.have.been.calledWith(10, 10, 20, 0, Math.PI, false);
+        expect(closePath).to.have.been.called;
+        expect(fill).to.have.been.called;
+        expect(gr.ctx.fillStyle).to.equal('#00ff00');
+      });
+
+      it("draws a stroked circle when the mode is 'line'", function(){
+        gr.setColor(0,255,0);
+        gr.arc('line', 10, 10, 20, 0, Math.PI);
+
+        expect(beginPath).to.have.been.called;
+        expect(arc).to.have.been.calledWith(10, 10, 20, 0, 2 * Math.PI, false);
+        expect(closePath).to.have.been.called;
+        expect(stroke).to.have.been.called;
+        expect(gr.ctx.fillStyle).to.equal('#00ff00');
+      });
+    });
+
   }); // .methods
 });

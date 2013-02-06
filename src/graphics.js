@@ -129,10 +129,14 @@ graphics.polygon = function() {
 };
 
 graphics.circle = function(mode, x,y,radius) {
-  this.ctx.beginPath();
-  this.ctx.arc(x,y,radius, 0, twoPI, false);
-  drawPath.call(this, mode);
+  this.arc(mode, x, y, radius, 0, twoPI);
   this.ctx.closePath();
+};
+
+graphics.arc = function(mode, x,y,radius, startAngle, endAngle) {
+  this.ctx.beginPath();
+  this.ctx.arc(x,y,radius, startAngle, endAngle, false);
+  drawPath.call(this, mode);
 };
 
 
