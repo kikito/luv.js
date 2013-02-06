@@ -55,21 +55,16 @@ graphics.setBackgroundColor = function(r,g,b,a) { setColor(this, 'backgroundColo
 graphics.getBackgroundColor = function() { return getColor(this.backgroundColor); };
 
 graphics.clear = function() {
-  this.ctx.save();
   this.ctx.fillStyle = this.backgroundColorStyle;
   this.ctx.fillRect(0, 0, this.width, this.height);
-  this.ctx.restore();
 };
 
 graphics.print = function(str,x,y) {
-  this.ctx.save();
   this.ctx.fillStyle = this.colorStyle;
   this.ctx.fillText(str, x, y);
-  this.ctx.restore();
 };
 
 graphics.line = function() {
-  this.ctx.save();
   this.ctx.beginPath();
 
   var args = isArray(arguments[0]) ? arguments[0] : arguments;
@@ -87,12 +82,10 @@ graphics.line = function() {
   }
 
   this.ctx.stroke();
-  this.ctx.restore();
 };
 
 graphics.rectangle = function(mode, left, top, width, height) {
 
-  this.ctx.save();
   this.ctx.beginPath();
   this.ctx.rect(left, top, width, height);
   switch(mode){
@@ -108,7 +101,6 @@ graphics.rectangle = function(mode, left, top, width, height) {
     throw new Error('Invalid mode: [' + mode + ']. Should be "fill" or "line"');
   }
   this.ctx.closePath();
-  this.ctx.restore();
 };
 
 

@@ -53,7 +53,7 @@ describe("Luv.Graphics", function(){
   });
 
   describe(".line", function(){
-    var gr=null, beginPath=null, moveTo=null, lineTo=null, stroke=null, save=null, restore=null;
+    var gr=null, beginPath=null, moveTo=null, lineTo=null, stroke=null;
 
     before(function() {
       gr        = new Luv.Graphics();
@@ -61,43 +61,41 @@ describe("Luv.Graphics", function(){
       moveTo    = sinon.spy(gr.ctx, 'moveTo');
       lineTo    = sinon.spy(gr.ctx, 'lineTo');
       stroke    = sinon.spy(gr.ctx, 'stroke');
-      save      = sinon.spy(gr.ctx, 'save');
-      restore   = sinon.spy(gr.ctx, 'restore');
     });
 
     it("draws a line given 4 points, with the chosen color", function() {
+      gr.setColor(255,0,0);
       gr.line(10,20,30,40);
 
-      expect(save).to.have.been.called;
       expect(beginPath).to.have.been.called;
       expect(moveTo).to.have.been.calledWith(10, 20);
       expect(lineTo).to.have.been.calledWith(30, 40);
       expect(stroke).to.have.been.called;
-      expect(restore).to.have.been.called;
+      expect(gr.ctx.strokeStyle).to.equal('#ff0000');
     });
 
     it("draws a polyline given 6 points", function() {
+      gr.setColor(0,255,0);
       gr.line(10,20,30,40,50,60);
 
-      expect(save).to.have.been.called;
       expect(beginPath).to.have.been.called;
       expect(moveTo).to.have.been.calledWith(10, 20);
       expect(lineTo).to.have.been.calledWith(30, 40);
       expect(lineTo).to.have.been.calledWith(50, 60);
       expect(stroke).to.have.been.called;
-      expect(restore).to.have.been.called;
+      expect(gr.ctx.strokeStyle).to.equal('#00ff00');
     });
 
     it("draws a polyline when given an array of points", function() {
+      gr.setColor(0,0,255);
       gr.line([10,20,30,40,50,60]);
 
-      expect(save).to.have.been.called;
       expect(beginPath).to.have.been.called;
       expect(moveTo).to.have.been.calledWith(10, 20);
       expect(lineTo).to.have.been.calledWith(30, 40);
       expect(lineTo).to.have.been.calledWith(50, 60);
       expect(stroke).to.have.been.called;
-      expect(restore).to.have.been.called;
+      expect(gr.ctx.strokeStyle).to.equal('#0000ff');
     });
 
     it("throws an error if given less than 4 points", function() {
@@ -110,39 +108,37 @@ describe("Luv.Graphics", function(){
   });
 
   describe(".rectangle", function(){
-    var gr=null, stroke=null, fill=null, rect=null, save=null, restore=null, beginPath=null, closePath=null;
+    var gr=null, stroke=null, fill=null, rect=null, beginPath=null, closePath=null;
 
     before(function() {
       gr        = new Luv.Graphics();
       stroke    = sinon.spy(gr.ctx, 'stroke');
       fill      = sinon.spy(gr.ctx, 'fill');
       rect      = sinon.spy(gr.ctx, 'rect');
-      save      = sinon.spy(gr.ctx, 'save');
-      restore   = sinon.spy(gr.ctx, 'restore');
       beginPath = sinon.spy(gr.ctx, 'beginPath');
       closePath = sinon.spy(gr.ctx, 'closePath');
     });
 
     it("draws a colored rectangle when the mode is 'fill'", function() {
+      gr.setColor(255,0,0);
       gr.rectangle('fill', 10, 10, 20, 20);
 
-      expect(save).to.have.been.called;
       expect(beginPath).to.have.been.called;
       expect(rect).to.have.been.calledWith(10, 10, 20, 20);
       expect(fill).to.have.been.called;
       expect(closePath).to.have.been.called;
-      expect(restore).to.have.been.called;
+      expect(gr.ctx.fillStyle).to.equal('#ff0000');
     });
 
     it("draws a colored rectangle outline the mode is 'line'", function() {
+      gr.setColor(0,255,0);
       gr.rectangle('line', 10, 10, 20, 20);
 
-      expect(save).to.have.been.called;
       expect(beginPath).to.have.been.called;
       expect(rect).to.have.been.calledWith(10, 10, 20, 20);
       expect(stroke).to.have.been.called;
       expect(closePath).to.have.been.called;
-      expect(restore).to.have.been.called;
+      expect(gr.ctx.strokeStyle).to.equal('#00ff00');
     });
 
     it("throws en error if given an invalid mode", function() {
