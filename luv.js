@@ -65,8 +65,6 @@ var isArray = function(x) {
   return Object.prototype.toString.call(x) === '[object Array]';
 };
 
-var graphics = Luv.Graphics.prototype;
-
 var setColor = function(self, name, r,g,b,a) {
   var color = self[name];
   if(isArray(r)) {
@@ -82,9 +80,41 @@ var setColor = function(self, name, r,g,b,a) {
   }
   self[name + 'Style'] = "rgba(" + [color.r, color.g, color.b, color.a/255].join() + ")";
 };
+
 var getColor = function(color) {
   return [color.r, color.g, color.b, color.a ];
 };
+
+var drawPath = function(mode) {
+  switch(mode){
+  case 'fill':
+    this.ctx.fillStyle = this.colorStyle;
+    this.ctx.fill();
+    break;
+  case 'line':
+    this.ctx.strokeStyle = this.colorStyle;
+    this.ctx.stroke();
+    break;
+  default:
+    throw new Error('Invalid mode: [' + mode + ']. Should be "fill" or "line"');
+  }
+};
+
+var drawPolyLine = function(methodName, minLength, coords) {
+
+  if(coords.length < minLength) { throw new Error(methodName + " requires at least 4 parameters"); }
+  if(coords.length % 2 == 1) { throw new Error(methodName + " requires an even number of parameters"); }
+
+  this.ctx.moveTo(coords[0], coords[1]);
+
+  for(var i=2; i<coords.length; i=i+2) {
+    this.ctx.lineTo(coords[i], coords[i+1]);
+  }
+
+  this.ctx.stroke();
+};
+
+var graphics = Luv.Graphics.prototype;
 
 graphics.setColor = function(r,g,b,a) { setColor(this, 'color', r,g,b,a); };
 graphics.getColor = function() { return getColor(this.color); };
@@ -103,43 +133,37 @@ graphics.print = function(str,x,y) {
 };
 
 graphics.line = function() {
+  var coords = isArray(arguments[0]) ? arguments[0] : arguments;
+
   this.ctx.beginPath();
-
-  var args = isArray(arguments[0]) ? arguments[0] : arguments;
-
-  this.ctx.strokeStyle = this.colorStyle;
-
-  if(args.length < 4) { throw new Error("luv.graphics.line requires at least 4 parameters"); }
-  if(args.length % 2 == 1) { throw new Error("luv.graphics.line requires an even number of parameters"); }
-
-
-  this.ctx.moveTo(args[0],args[1]);
-
-  for (var i=2; i<args.length; i=i+2) {
-    this.ctx.lineTo(args[i],args[i+1]);
-  }
-
-  this.ctx.stroke();
+  drawPolyLine.call(this, 'luv.graphics.line', 4, coords);
+  drawPath.call(this, 'line');
 };
 
 graphics.rectangle = function(mode, left, top, width, height) {
-
   this.ctx.beginPath();
   this.ctx.rect(left, top, width, height);
-  switch(mode){
-  case 'fill':
-    this.ctx.fillStyle = this.colorStyle;
-    this.ctx.fill();
-    break;
-  case 'line':
-    this.ctx.strokeStyle = this.colorStyle;
-    this.ctx.stroke();
-    break;
-  default:
-    throw new Error('Invalid mode: [' + mode + ']. Should be "fill" or "line"');
-  }
+  drawPath.call(this, mode);
   this.ctx.closePath();
 };
+
+graphics.polygon = function() {
+  var mode   = arguments[0],
+      coords = arguments[1];
+
+  if(!isArray(coords)) {
+    coords = [];
+    for(var i=1;i<arguments.length;i++) { coords[i-1] = arguments[i]; }
+  }
+
+  this.ctx.beginPath();
+
+  drawPolyLine.call(this, 'luv.graphics.polygon', 6, coords);
+  drawPath.call(this, mode);
+
+  this.ctx.closePath();
+};
+
 
 
 

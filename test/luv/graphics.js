@@ -63,7 +63,7 @@ describe("Luv.Graphics", function(){
       stroke    = sinon.spy(gr.ctx, 'stroke');
     });
 
-    it("draws a line given 4 points, with the chosen color", function() {
+    it("draws a line given 2 points, with the chosen color", function() {
       gr.setColor(255,0,0);
       gr.line(10,20,30,40);
 
@@ -74,7 +74,7 @@ describe("Luv.Graphics", function(){
       expect(gr.ctx.strokeStyle).to.equal('#ff0000');
     });
 
-    it("draws a polyline given 6 points", function() {
+    it("draws a polyline given 3 points", function() {
       gr.setColor(0,255,0);
       gr.line(10,20,30,40,50,60);
 
@@ -145,5 +145,74 @@ describe("Luv.Graphics", function(){
       expect(function(){ gr.rect('foo', 1,2,3,4); }).to.Throw(Error);
     });
   });
+
+  describe(".polygon", function(){
+    var gr=null, stroke=null, fill=null, moveTo=null, lineTo=null, beginPath=null, closePath=null;
+
+    before(function() {
+      gr        = new Luv.Graphics();
+      stroke    = sinon.spy(gr.ctx, 'stroke');
+      fill      = sinon.spy(gr.ctx, 'fill');
+      moveTo    = sinon.spy(gr.ctx, 'moveTo');
+      lineTo    = sinon.spy(gr.ctx, 'lineTo');
+      beginPath = sinon.spy(gr.ctx, 'beginPath');
+      closePath = sinon.spy(gr.ctx, 'closePath');
+    });
+
+    it("draws a colored polygon when the mode is 'fill'", function() {
+      gr.setColor(255,0,0);
+      gr.polygon('fill', 10, 10, 20, 20, 0,50);
+
+      expect(beginPath).to.have.been.called;
+      expect(moveTo).to.have.been.calledWith(10, 10);
+      expect(lineTo).to.have.been.calledWith(20, 20);
+      expect(lineTo).to.have.been.calledWith(0, 50);
+      expect(closePath).to.have.been.called;
+      expect(fill).to.have.been.called;
+      expect(gr.ctx.fillStyle).to.equal('#ff0000');
+    });
+
+    it("draws a colored polygon when the mode is 'fill' and the coords an array", function() {
+      gr.setColor(255,0,0);
+      gr.polygon('fill', [10, 10, 20, 20, 0,50]);
+
+      expect(beginPath).to.have.been.called;
+      expect(moveTo).to.have.been.calledWith(10, 10);
+      expect(lineTo).to.have.been.calledWith(20, 20);
+      expect(lineTo).to.have.been.calledWith(0, 50);
+      expect(closePath).to.have.been.called;
+      expect(fill).to.have.been.called;
+      expect(gr.ctx.fillStyle).to.equal('#ff0000');
+    });
+
+
+    it("draws a colored polygon outline the mode is 'line'", function() {
+      gr.setColor(0,255,0);
+      gr.polygon('fill', 10, 10, 20, 20, 0,50);
+
+      expect(beginPath).to.have.been.called;
+      expect(moveTo).to.have.been.calledWith(10, 10);
+      expect(lineTo).to.have.been.calledWith(20, 20);
+      expect(lineTo).to.have.been.calledWith(0, 50);
+      expect(closePath).to.have.been.called;
+      expect(fill).to.have.been.called;
+      expect(gr.ctx.fillStyle).to.equal('#00ff00');
+    });
+
+    it("throws en error if given an invalid mode", function() {
+      expect(function(){ gr.polygon('foo', 1,2,3,4,5,6); }).to.Throw(Error);
+    });
+
+    it("throws an error if given less than 3 points", function() {
+     expect(function(){ gr.polygon('fill', 1,2,3,4); }).to.Throw(Error);
+    });
+
+    it("throws an error if given an uneven number of coordinates", function() {
+     expect(function(){ gr.polygon('fill', 1,2,3,4,5,6,7); }).to.Throw(Error);
+    });
+  });
+
+
+
 
 });
