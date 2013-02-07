@@ -8,6 +8,7 @@ Luv = function(options) {
   if(!el && el_id) { el = document.getElementById(el_id); }
 
   this.graphics = new Luv.Graphics(el, width, height);
+  this.timer = new Luv.Timer();
 };
 
 var luv = Luv.prototype;
@@ -20,19 +21,15 @@ luv.run    = function() {
 
   luv.load();
 
-  var time = new Date().getTime();
-
-  var loop = function(newTime) {
-    var dt = Math.max(0, (newTime - time)/1000);
-    time = newTime;
-
-    luv.update(dt);
+  var loop = function(time) {
+    luv.timer.step(time);
+    luv.update(luv.timer.getDeltaTime());
     luv.graphics.clear();
     luv.draw();
     window.requestAnimationFrame(loop);
   };
 
-  loop(time);
+  loop(luv.timer.getMicroTime());
 };
 
 

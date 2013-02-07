@@ -1,7 +1,39 @@
-/*! luv 0.0.1 (2013-02-06) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-02-07) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 (function(){
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+//
+// requestAnimationFrame polyfill by Erik Möller
+// fixes from Paul Irish and Tino Zijdel
+
+(function() {
+  var lastTime = 0;
+  var vendors = ['ms', 'moz', 'webkit', 'o'];
+
+  for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+    window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+    window.cancelAnimationFrame  = window[vendors[x]+'CancelAnimationFrame'] ||
+                                   window[vendors[x]+'CancelRequestAnimationFrame'];
+  }
+
+  if (!window.requestAnimationFrame) {
+    window.requestAnimationFrame = function(callback, element) {
+      var currTime = new Date().getTime();
+      var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+      var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+                                 timeToCall);
+      lastTime = currTime + timeToCall;
+      return id;
+    };
+  }
+
+  if (!window.cancelAnimationFrame) {
+    window.cancelAnimationFrame = function(id) { clearTimeout(id); };
+  }
+}());
+
 Luv = function(options) {
   options = options || {};
   var el     = options.el,
@@ -12,6 +44,7 @@ Luv = function(options) {
   if(!el && el_id) { el = document.getElementById(el_id); }
 
   this.graphics = new Luv.Graphics(el, width, height);
+  this.timer = new Luv.Timer();
 };
 
 var luv = Luv.prototype;
@@ -24,19 +57,15 @@ luv.run    = function() {
 
   luv.load();
 
-  var time = new Date().getTime();
-
-  var loop = function(newTime) {
-    var dt = Math.max(0, (newTime - time)/1000);
-    time = newTime;
-
-    luv.update(dt);
+  var loop = function(time) {
+    luv.timer.step(time);
+    luv.update(luv.timer.getDeltaTime());
     luv.graphics.clear();
     luv.draw();
     window.requestAnimationFrame(loop);
   };
 
-  loop(time);
+  loop(0);
 };
 
 
@@ -204,36 +233,30 @@ graphics.arc = function(mode, x,y,radius, startAngle, endAngle) {
 
 
 
-// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
-//
-// requestAnimationFrame polyfill by Erik Möller
-// fixes from Paul Irish and Tino Zijdel
+Luv.Timer = function() {
+  this.microTime = 0;
+  this.deltaTime = 0;
+};
 
-(function() {
-  var lastTime = 0;
-  var vendors = ['ms', 'moz', 'webkit', 'o'];
+var timer = Luv.Timer.prototype;
 
-  for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-    window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-    window.cancelAnimationFrame  = window[vendors[x]+'CancelAnimationFrame'] ||
-                                   window[vendors[x]+'CancelRequestAnimationFrame'];
+timer.step = function(time) {
+  if(time > this.microTime) {
+    this.deltaTime = time - this.microTime;
+    this.microTime = time;
   }
+};
 
-  if (!window.requestAnimationFrame) {
-    window.requestAnimationFrame = function(callback, element) {
-      var currTime = new Date().getTime();
-      var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-      var id = window.setTimeout(function() { callback(currTime + timeToCall); },
-                                 timeToCall);
-      lastTime = currTime + timeToCall;
-      return id;
-    };
-  }
+timer.getMicroTime = function() {
+  return this.microTime;
+};
 
-  if (!window.cancelAnimationFrame) {
-    window.cancelAnimationFrame = function(id) { clearTimeout(id); };
-  }
-}());
+timer.getTime = function() {
+  return this.microTime / 1000;
+};
+
+timer.getDeltaTime = function() {
+  return this.deltaTime / 1000;
+};
 
 }());
