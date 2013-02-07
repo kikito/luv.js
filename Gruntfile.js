@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
 
-  var srcFiles  = ["src/polyfills/*.js", "src/Luv.js", "src/graphics.js", "src/timer.js"];
+  var srcFiles  = ["src/polyfills/*.js", "src/Luv.js", "src/graphics.js", "src/timer.js", "src/keyboard.js"];
   var testFiles = "src/**/*.js";
   var shell = require('shelljs');
 

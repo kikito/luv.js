@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-02-07) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-02-08) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 (function(){
@@ -65,7 +65,7 @@ luv.run    = function() {
     window.requestAnimationFrame(loop);
   };
 
-  loop(0);
+  loop(luv.timer.getMicroTime());
 };
 
 
@@ -234,7 +234,7 @@ graphics.arc = function(mode, x,y,radius, startAngle, endAngle) {
 
 
 Luv.Timer = function() {
-  this.microTime = 0;
+  this.microTime = new Date().getTime();
   this.deltaTime = 0;
 };
 
@@ -257,6 +257,36 @@ timer.getTime = function() {
 
 timer.getDeltaTime = function() {
   return this.deltaTime / 1000;
+};
+
+Luv.Keyboard = function(el) {
+  el.tabIndex = 1;
+  this.keysDown = {};
+
+  var keyboard = this;
+
+  el.onkeydown = function(evt) {
+    var code = evt.which;
+    var key  = String.fromCharCode(code);
+    keyboard.keysDown[key] = true;
+    keyboard.onkeydown(key, code);
+  };
+
+  el.onkeyup = function(evt) {
+    var code = evt.which;
+    var key  = String.fromCharCode(code);
+    keyboard.keysDown[key] = false;
+    keyboard.onkeyup(key, code);
+  };
+};
+
+var keyboard = Luv.Keyboard.prototype;
+
+keyboard.onkeyup   = function(key, code) {};
+keyboard.onkeydown = function(key, code) {};
+
+keyboard.isDown    = function(key) {
+  return !!this.keysDown[key];
 };
 
 }());
