@@ -24,6 +24,10 @@ timer.getDeltaTime = function() {
   return this.deltaTime / 1000;
 };
 
+timer.getFPS = function() {
+  return this.deltaTime === 0 ? 0 : 1000 / this.deltaTime;
+};
+
 timer.nextFrame = function(f) {
   window.requestAnimationFrame(f);
 };

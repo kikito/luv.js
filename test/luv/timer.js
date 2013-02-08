@@ -60,6 +60,21 @@ describe("Luv.Timer", function(){
         expect(timer.getDeltaTime()).to.equal(0.025);
       });
     });
+
+    describe(".getFPS()", function() {
+      it("returns the frames per second", function() {
+        expect(timer.getFPS()).to.equal(0);
+
+        timer.step(50);
+        expect(timer.getFPS()).to.equal(20);
+
+        timer.step(75);
+        expect(timer.getFPS()).to.equal(40);
+
+        timer.step(-10);
+        expect(timer.getFPS()).to.equal(40);
+      });
+    });
   });
 
 });
