@@ -35,6 +35,7 @@ var getKeyFromEvent = function(event) {
 
 Luv.Keyboard = function(el) {
   el.tabIndex = 1;
+  el.focus();
   this.keysDown = {};
 
   var keyboard = this;

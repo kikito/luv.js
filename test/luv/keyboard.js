@@ -8,8 +8,10 @@ describe("luv.keyboard", function() {
 
     beforeEach(function(){
       el = document.createElement('canvas');
+      var focus = sinon.spy(el, 'focus');
       keyboard = new Luv.Keyboard(el);
       expect(el.tabIndex).to.equal(1);
+      expect(focus).to.have.been.called;
     });
 
     describe("constructor", function(){
