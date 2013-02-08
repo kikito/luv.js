@@ -54,6 +54,8 @@
       for(var i=0; i<bubbles.length; i++) {
         bubbles[i].draw();
       }
+      var fps = Math.round(luv.timer.getFPS());
+      luv.graphics.print("FPS: " + fps, 760, 10);
     };
 
     luv.update = function(dt) {
