@@ -241,13 +241,14 @@ graphics.arc = function(mode, x,y,radius, startAngle, endAngle) {
 Luv.Timer = function() {
   this.microTime = 0;
   this.deltaTime = 0;
+  this.deltaTimeLimit = 0.25;
 };
 
 var timer = Luv.Timer.prototype;
 
 timer.step = function(time) {
   if(time > this.microTime) {
-    this.deltaTime = time - this.microTime;
+    this.deltaTime = (time - this.microTime) / 1000;
     this.microTime = time;
   }
 };
@@ -261,11 +262,19 @@ timer.getTime = function() {
 };
 
 timer.getDeltaTime = function() {
-  return this.deltaTime / 1000;
+  return Math.min(this.deltaTime, this.deltaTimeLimit);
+};
+
+timer.getDeltaTimeLimit = function() {
+  return this.deltaTimeLimit;
+};
+
+timer.setDeltaTimeLimit = function(deltaTimeLimit) {
+  this.deltaTimeLimit = deltaTimeLimit;
 };
 
 timer.getFPS = function() {
-  return this.deltaTime === 0 ? 0 : 1000 / this.deltaTime;
+  return this.deltaTime === 0 ? 0 : 1 / this.deltaTime;
 };
 
 timer.nextFrame = function(f) {

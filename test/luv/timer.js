@@ -46,6 +46,17 @@ describe("Luv.Timer", function(){
       });
     });
 
+
+    describe("deltaTimeLimit", function() {
+      it("has a getter and a setter, and defaults to 0.25", function() {
+        expect(timer.getDeltaTimeLimit()).to.equal(0.25);
+
+        timer.setDeltaTimeLimit(0.20);
+
+        expect(timer.getDeltaTimeLimit()).to.equal(0.2);
+      });
+    });
+
     describe(".getDeltaTime()", function() {
       it("returns the time passed between steps, in seconds", function() {
         expect(timer.getDeltaTime()).to.equal(0);
@@ -59,6 +70,18 @@ describe("Luv.Timer", function(){
         timer.step(-10);
         expect(timer.getDeltaTime()).to.equal(0.025);
       });
+
+      it("is limited by maxDeltaTime", function() {
+        timer.step(500);
+        expect(timer.getDeltaTime()).to.equal(0.25);
+
+        timer.setDeltaTimeLimit(0.2);
+        expect(timer.getDeltaTime()).to.equal(0.2);
+
+        timer.setDeltaTimeLimit(0.7);
+        expect(timer.getDeltaTime()).to.equal(0.5);
+      });
+
     });
 
     describe(".getFPS()", function() {
