@@ -1,5 +1,5 @@
 Luv.Timer = function() {
-  this.microTime = new Date().getTime();
+  this.microTime = 0;
   this.deltaTime = 0;
 };
 
@@ -17,7 +17,7 @@ timer.getMicroTime = function() {
 };
 
 timer.getTime = function() {
-  return this.microTime / 1000;
+  return this.getMicroTime() / 1000;
 };
 
 timer.getDeltaTime = function() {
