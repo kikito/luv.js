@@ -8,7 +8,8 @@ Luv = function(options) {
   if(!el && el_id) { el = document.getElementById(el_id); }
 
   this.graphics = new Luv.Graphics(el, width, height);
-  this.timer = new Luv.Timer();
+  this.keyboard = new Luv.Keyboard(this.graphics.el);
+  this.timer    = new Luv.Timer();
 };
 
 var luv = Luv.prototype;
@@ -28,8 +29,7 @@ luv.run    = function() {
     luv.draw();
     window.requestAnimationFrame(loop);
   };
-
-  loop(luv.timer.getMicroTime());
+  window.requestAnimationFrame(loop);
 };
 
 
