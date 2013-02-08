@@ -46,16 +46,27 @@
     };
 
     luv.update = function(dt) {
-      bob.dx = 0;
       bob.dy = 0;
 
+      // up/down is managed via luv.keyboard.isDown
       if(luv.keyboard.isDown('up'))    { bob.dy = -1; }
       if(luv.keyboard.isDown('down'))  { bob.dy = 1; }
-      if(luv.keyboard.isDown('left'))  { bob.dx = -1; }
-      if(luv.keyboard.isDown('right')) { bob.dx = 1; }
 
       bob.x += bob.dx * 60 * dt;
       bob.y += bob.dy * 60 * dt;
+    };
+
+    // left/right is managed via luv.keyboard.onPress & luv.keyboard.onRelease
+    luv.keyboard.onPress = function(key, code) {
+      if(key == 'left')       { bob.dx = -1; }
+      else if(key == 'right') { bob.dx = 1;  }
+    };
+
+    luv.keyboard.onRelease = function(key, code) {
+      if((key == 'left' && bob.dx == -1) ||
+         (key == 'right' && bob.dx == 1)) {
+           bob.dx = 0;
+      }
     };
 
     luv.run();
