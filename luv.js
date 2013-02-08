@@ -313,20 +313,20 @@ Luv.Keyboard = function(el) {
   el.onkeydown = function(evt) {
     var key  = getKeyFromEvent(evt);
     keyboard.keysDown[key] = true;
-    keyboard.onkeydown(key, evt.which);
+    keyboard.onPress(key, evt.which);
   };
 
   el.onkeyup = function(evt) {
     var key  = getKeyFromEvent(evt);
     keyboard.keysDown[key] = false;
-    keyboard.onkeyup(key, evt.which);
+    keyboard.onRelease(key, evt.which);
   };
 };
 
 var keyboard = Luv.Keyboard.prototype;
 
-keyboard.onkeyup   = function(key, code) {};
-keyboard.onkeydown = function(key, code) {};
+keyboard.onPress   = function(key, code) {};
+keyboard.onRelease = function(key, code) {};
 
 keyboard.isDown    = function(key) {
   return !!this.keysDown[key];

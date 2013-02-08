@@ -22,12 +22,12 @@ describe("luv.keyboard", function() {
 
     describe(".onkeydown", function(){
       it("exists by default", function(){
-        expect(keyboard.onkeydown).to.be.a('function');
+        expect(keyboard.onPress).to.be.a('function');
       });
 
       it("gets called if keyup is called", function(){
         var keyPressed, codePressed;
-        keyboard.onkeydown = function(key,code) {
+        keyboard.onPress = function(key,code) {
           keyPressed = key;
           codePressed = code;
         };
@@ -39,12 +39,12 @@ describe("luv.keyboard", function() {
 
     describe(".onkeyup", function(){
       it("exists by default", function(){
-        expect(keyboard.onkeyup).to.be.a('function');
+        expect(keyboard.onRelease).to.be.a('function');
       });
 
       it("gets called if keyup is called", function(){
         var keyReleased, codeReleased;
-        keyboard.onkeyup = function(key,code) {
+        keyboard.onRelease = function(key,code) {
           keyReleased = key;
           codeReleased = code;
         };
