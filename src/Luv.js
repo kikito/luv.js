@@ -17,6 +17,7 @@ var luv = Luv.prototype;
 luv.update = function(dt) {};
 luv.draw   = function() {};
 luv.load   = function() {};
+
 luv.run    = function() {
   var luv = this;
 
@@ -24,12 +25,16 @@ luv.run    = function() {
 
   var loop = function(time) {
     luv.timer.step(time);
-    luv.update(luv.timer.getDeltaTime());
+    var dt = luv.timer.getDeltaTime();
+
+    luv.update(dt);
     luv.graphics.clear();
     luv.draw();
-    window.requestAnimationFrame(loop);
+
+    luv.timer.nextFrame(loop);
   };
-  window.requestAnimationFrame(loop);
+
+  luv.timer.nextFrame(loop);
 };
 
 

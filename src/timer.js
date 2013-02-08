@@ -23,3 +23,7 @@ timer.getTime = function() {
 timer.getDeltaTime = function() {
   return this.deltaTime / 1000;
 };
+
+timer.nextFrame = function(f) {
+  window.requestAnimationFrame(f);
+};

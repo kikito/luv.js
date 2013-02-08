@@ -2,8 +2,8 @@ describe("Luv", function(){
   it("exists", function(){
     expect(Luv).to.be.a('function');
   });
-  describe("constructor options param", function() {
-    describe("when it is empty", function() {
+  describe("constructor", function() {
+    describe("when invoked with no params", function() {
       it("does not throw errors", function() {
         expect(function(){new Luv(); }).to.not.Throw(Error);
       });
@@ -23,4 +23,39 @@ describe("Luv", function(){
       });
     });
   });
+
+  describe("luv.run", function() {
+    it("invokes the expected functions", function() {
+
+      this.clock = sinon.useFakeTimers(0, "setTimeout", "clearTimeout", "Date");
+
+      var luv = new Luv();
+
+      var load      = sinon.spy(luv,'load'),
+          update    = sinon.spy(luv, 'update'),
+          step      = sinon.spy(luv.timer, 'step'),
+          clear     = sinon.spy(luv.graphics, 'clear'),
+          draw      = sinon.spy(luv, 'draw');
+
+      var counter = 0;
+      var nextFrame = sinon.stub(luv.timer, 'nextFrame', function(f) {
+        if(counter !== 0) { return; }
+        counter = counter + 1;
+        f(0);
+      });
+
+      luv.run();
+
+      expect(step).to.have.been.called;
+      expect(load).to.have.been.called;
+      expect(update).to.have.been.called;
+      expect(clear).to.have.been.called;
+      expect(draw).to.have.been.called;
+      expect(nextFrame).to.have.been.called;
+
+      this.clock.restore();
+    });
+  });
+
+
 });
