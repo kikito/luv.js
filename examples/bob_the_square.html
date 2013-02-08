@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+  <title>Who lives in a pineapple under the sea?</title>
+  <script src="../luv.js"></script>
+</head>
+<body>
+  <script>
+    var luv = new Luv();
+
+    var bob = {x: 400, y: 280, dx: 0, dy: 0, w:50, h:50};
+
+    luv.draw = function() {
+      luv.graphics.setColor(255,255,0);
+      var l = bob.x - bob.w/2,
+          t = bob.y - bob.h/2,
+          w = bob.w,
+          h = bob.h;
+      luv.graphics.rectangle("fill", l,t,w,h);
+
+      luv.graphics.setColor(128,128,0);
+      luv.graphics.setLineWidth(3);
+      luv.graphics.rectangle("line", l,t,w,h);
+
+      luv.graphics.setColor(255,255,255);
+
+      var r  = w/5,
+          r2 = w/13;
+
+      var x1 = l + r + r2,
+          y = t + r + r2,
+          x2 = l + w - r - r2;
+
+      luv.graphics.circle("fill", x1, y, r);
+      luv.graphics.circle("fill", x2, y, r);
+
+      luv.graphics.setColor(0,0,0);
+      luv.graphics.setLineWidth(1);
+      luv.graphics.circle("line", x1,y,r);
+      luv.graphics.circle("fill", x1 + bob.dx * r2,y + bob.dy * r2,r2);
+      luv.graphics.circle("line", x2,y,r);
+      luv.graphics.circle("fill", x2 + bob.dx * r2,y + bob.dy * r2,r2);
+
+      luv.graphics.circle('line', bob.x, bob.y, r2);
+      luv.graphics.arc('line', bob.x, bob.y, 2*r, 0, Math.PI);
+    };
+
+    luv.update = function(dt) {
+      bob.dx = 0;
+      bob.dy = 0;
+
+      if(luv.keyboard.isDown('up'))    { bob.dy = -1; }
+      if(luv.keyboard.isDown('down'))  { bob.dy = 1; }
+      if(luv.keyboard.isDown('left'))  { bob.dx = -1; }
+      if(luv.keyboard.isDown('right')) { bob.dx = 1; }
+
+      bob.x += bob.dx * 60 * dt;
+      bob.y += bob.dy * 60 * dt;
+    };
+
+    luv.run();
+  </script>
+</body>
+</html>
