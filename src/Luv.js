@@ -8,7 +8,11 @@ Luv = function(options) {
   if(!el && el_id) { el = document.getElementById(el_id); }
 
   this.graphics = new Luv.Graphics(el, width, height);
-  this.keyboard = new Luv.Keyboard(this.graphics.el);
+
+  el = this.graphics.el;
+
+  this.keyboard = new Luv.Keyboard(el);
+  this.mouse    = new Luv.Mouse(el);
   this.timer    = new Luv.Timer();
 };
 

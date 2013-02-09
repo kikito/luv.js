@@ -1,6 +1,14 @@
 module.exports = function(grunt) {
 
-  var srcFiles  = ["src/polyfills/*.js", "src/Luv.js", "src/graphics.js", "src/timer.js", "src/keyboard.js"];
+  // order of these files is important, that's why you can't do src/*
+  var srcFiles  = [
+    "src/polyfills/*.js",
+    "src/Luv.js",
+    "src/graphics.js",
+    "src/timer.js",
+    "src/keyboard.js",
+    "src/mouse.js"
+  ];
   var testFiles = "src/**/*.js";
   var shell = require('shelljs');
 
