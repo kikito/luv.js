@@ -11,9 +11,10 @@ Luv = function(options) {
 
   el = this.graphics.el;
 
+  this.timer    = new Luv.Timer();
   this.keyboard = new Luv.Keyboard(el);
   this.mouse    = new Luv.Mouse(el);
-  this.timer    = new Luv.Timer();
+  this.media    = new Luv.Media();
 };
 
 var luv = Luv.prototype;

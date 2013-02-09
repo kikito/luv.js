@@ -47,9 +47,10 @@ Luv = function(options) {
 
   el = this.graphics.el;
 
+  this.timer    = new Luv.Timer();
   this.keyboard = new Luv.Keyboard(el);
   this.mouse    = new Luv.Mouse(el);
-  this.timer    = new Luv.Timer();
+  this.media    = new Luv.Media();
 };
 
 var luv = Luv.prototype;
@@ -409,5 +410,30 @@ mouse.getPosition = function() {
 mouse.onPress = function(x,y,button) {};
 
 mouse.onRelease = function(x,y,button) {};
+
+Luv.Media = function() {
+  this.pending = 0;
+
+  var media = this;
+
+  this.Resource = function(source, callback) {
+    var resource = this;
+    media.pending++;
+
+    source.onload = function() {
+      media.pending--;
+      if(callback) { callback(resource); }
+      media.onResourceLoaded(resource);
+      if(media.isLoaded()) { media.onLoaded(); }
+    };
+  };
+};
+
+var media = Luv.Media.prototype;
+
+media.isLoaded         = function() { return this.pending === 0; };
+media.getPending       = function() { return this.pending; };
+media.onResourceLoaded = function(resource) {};
+media.onLoaded         = function() {};
 
 }());

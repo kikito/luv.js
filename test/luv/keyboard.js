@@ -1,4 +1,4 @@
-describe("luv.keyboard", function() {
+describe("Luv.Keyboard", function() {
   it("exists", function(){
     expect(Luv.Keyboard).to.be.a('function');
   });

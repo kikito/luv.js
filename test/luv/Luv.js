@@ -19,7 +19,10 @@ describe("Luv", function(){
         expect(luv.update).to.be.a('function');
         expect(luv.run).to.be.a('function');
 
+        expect(luv.timer).to.be.ok;
         expect(luv.keyboard).to.be.ok;
+        expect(luv.mouse).to.be.ok;
+        expect(luv.media).to.be.ok;
       });
     });
   });

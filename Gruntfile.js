@@ -7,7 +7,8 @@ module.exports = function(grunt) {
     "src/graphics.js",
     "src/timer.js",
     "src/keyboard.js",
-    "src/mouse.js"
+    "src/mouse.js",
+    "src/media.js"
   ];
   var testFiles = "src/**/*.js";
   var shell = require('shelljs');
