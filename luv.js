@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-02-09) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-02-10) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 (function(){
@@ -426,14 +426,20 @@ Luv.Media = function() {
       media.onResourceLoaded(resource);
       if(media.isLoaded()) { media.onLoaded(); }
     };
+
+    source.onerror = function(evt) {
+      media.pending--;
+      media.onLoadError(resource, evt);
+    };
   };
 };
 
 var media = Luv.Media.prototype;
 
-media.isLoaded         = function() { return this.pending === 0; };
-media.getPending       = function() { return this.pending; };
-media.onResourceLoaded = function(resource) {};
-media.onLoaded         = function() {};
+media.isLoaded            = function() { return this.pending === 0; };
+media.getPending          = function() { return this.pending; };
+media.onResourceLoaded    = function(resource) {};
+media.onLoadError         = function(resource) { throw new Error("Could not load " + resource); };
+media.onLoaded            = function() {};
 
 }());

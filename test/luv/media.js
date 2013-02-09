@@ -33,6 +33,20 @@ describe("Luv.Media", function(){
       });
     });
 
+    describe(".onLoadError(resource)", function(){
+      it("throws an error by default", function() {
+        var peter = {toString: function(){return "Peter"; }};
+        expect(function(){ media.onLoadError(peter); }).to.Throw(Error);
+      });
+
+      it("is called when a new resource fails to load", function() {
+        var onLoadError = sinon.stub(media, 'onLoadError');
+        var resource = new media.Resource(source1);
+        source1.onerror();
+        expect(onLoadError).to.have.been.calledWith(resource);
+      });
+    });
+
     describe(".onLoaded()", function(){
       it("is called when all resources are loaded", function() {
         var onLoaded = sinon.spy(media, 'onLoaded'),
