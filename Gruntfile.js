@@ -2,7 +2,6 @@ module.exports = function(grunt) {
 
   // order of these files is important, that's why you can't do src/*
   var srcFiles  = [
-    "src/polyfills/*.js",
     "src/Luv.js",
     "src/graphics.js",
     "src/timer.js",
