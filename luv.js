@@ -5,16 +5,24 @@
 Luv = function(options) {
   options = options || {};
   var el     = options.el,
-      el_id  = options.el_id,
+      id     = options.id,
       width  = options.width,
       height = options.height;
 
-  if(!el && el_id) { el = document.getElementById(el_id); }
+  if(!el && id) { el = document.getElementById(id); }
+  if(el) {
+    if(!width  && el.getAttribute('width'))  { width = parseInt(el.getAttribute('width'), 10); }
+    if(!height && el.getAttribute('height')) { height = parseInt(el.getAttribute('height'), 10); }
+  } else {
+    el = document.createElement('canvas');
+    document.getElementsByTagName('body')[0].appendChild(el);
+  }
+  width = width || 800;
+  height = height || 600;
+  el.setAttribute('width', width);
+  el.setAttribute('height', height);
 
   this.graphics = new Luv.Graphics(el, width, height);
-
-  el = this.graphics.el;
-
   this.timer    = new Luv.Timer();
   this.keyboard = new Luv.Keyboard(el);
   this.mouse    = new Luv.Mouse(el);
@@ -49,18 +57,6 @@ luv.run    = function() {
 
 
 Luv.Graphics = function(el, width, height) {
-  if(el) {
-    if(!width  && el.getAttribute('width'))  { width = parseInt(el.getAttribute('width'), 10); }
-    if(!height && el.getAttribute('height')) { height = parseInt(el.getAttribute('height'), 10); }
-  } else {
-    el = document.createElement('canvas');
-    document.getElementsByTagName('body')[0].appendChild(el);
-  }
-  width = width || 800;
-  height = height || 600;
-  el.setAttribute('width', width);
-  el.setAttribute('height', height);
-
   this.el = el;
   this.width = width;
   this.height = height;

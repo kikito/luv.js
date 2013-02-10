@@ -5,39 +5,31 @@ describe("Luv.Graphics", function(){
 
   describe("constructor", function() {
     it("initializes parameters", function(){
-      var gr = new Luv.Graphics();
-
-      expect(gr.el).to.be.ok;
-      expect(gr.width).to.be.equal(800);
-      expect(gr.height).to.be.equal(600);
+      var el = document.createElement('canvas');
+      var gr = new Luv.Graphics(el, 10, 20);
 
       expect(gr.getColor()).to.deep.equal([255,255,255,255]);
       expect(gr.getBackgroundColor()).to.deep.equal([0,0,0,255]);
     });
 
     it("accepts an dom element, a width and a height", function() {
-      var el = document.createElement('canvas');
-      var setAttribute = sinon.spy(el, 'setAttribute');
-      var getContext   = sinon.spy(el, 'getContext');
+      var el         = document.createElement('canvas');
+      var getContext = sinon.spy(el, 'getContext');
 
       var gr = new Luv.Graphics(el, 10, 20);
       expect(gr.el).to.be.equal(el);
-      expect(setAttribute).to.have.been.calledWith('width', 10);
-      expect(setAttribute).to.have.been.calledWith('height', 20);
-      expect(getContext).to.have.been.calledWith('2d');
-
       expect(gr.ctx).to.be.ok;
-      expect(gr.width).to.be.equal(10);
-      expect(gr.height).to.be.equal(20);
+      expect(getContext).to.have.been.calledWith('2d');
     });
   });
 
   describe(".methods", function(){
 
-    var gr, stroke, fill, moveTo, lineTo, rect, arc, beginPath, closePath;
+    var el, gr, stroke, fill, moveTo, lineTo, rect, arc, beginPath, closePath;
 
     before(function() {
-      gr        = new Luv.Graphics();
+      var el = document.createElement('canvas');
+      gr        = new Luv.Graphics(el, 100, 200);
       stroke    = sinon.spy(gr.ctx, 'stroke');
       fill      = sinon.spy(gr.ctx, 'fill');
       moveTo    = sinon.spy(gr.ctx, 'moveTo');
