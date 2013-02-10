@@ -1,24 +1,40 @@
+
+var Resource = {
+  isPending: function() { return this.status == "pending"; },
+  isLoaded:  function() { return this.status == "loaded"; },
+  isError:   function() { return this.status == "error"; }
+};
+
+
 Luv.Media = function() {
   this.pending = 0;
 
   var media = this;
 
-  this.Resource = function(source, callback) {
-    var resource = this;
+  media.Resource = function(source, loadCallback, errorCallback) {
     media.pending++;
 
-    source.addEventListener("load", function() {
+    var resource = this;
+    resource.source = source;
+    resource.status = "pending";
+
+    resource.registerLoad = function() {
       media.pending--;
-      if(callback) { callback(resource); }
+      resource.status = "loaded";
+      if(loadCallback) { loadCallback(resource); }
       media.onResourceLoaded(resource);
       if(media.isLoaded()) { media.onLoaded(); }
-    });
+    };
 
-    source.addEventListener("error", function(evt) {
+    resource.registerError = function(evt) {
       media.pending--;
+      resource.status = "error";
+      if(errorCallback) { errorCallback(resource); }
       media.onLoadError(resource, evt);
-    });
+    };
   };
+
+  media.Resource.prototype = Resource;
 };
 
 var media = Luv.Media.prototype;

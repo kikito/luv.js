@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-02-10) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-02-11) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 (function(){
@@ -410,27 +410,43 @@ mouse.getY = function() { return this.y; };
 mouse.onPressed  = function(x,y,button) {};
 mouse.onReleased = function(x,y,button) {};
 
+
+var Resource = {
+  isPending: function() { return this.status == "pending"; },
+  isLoaded:  function() { return this.status == "loaded"; },
+  isError:   function() { return this.status == "error"; }
+};
+
+
 Luv.Media = function() {
   this.pending = 0;
 
   var media = this;
 
-  this.Resource = function(source, callback) {
-    var resource = this;
+  media.Resource = function(source, loadCallback, errorCallback) {
     media.pending++;
 
-    source.addEventListener("load", function() {
+    var resource = this;
+    resource.source = source;
+    resource.status = "pending";
+
+    resource.registerLoad = function() {
       media.pending--;
-      if(callback) { callback(resource); }
+      resource.status = "loaded";
+      if(loadCallback) { loadCallback(resource); }
       media.onResourceLoaded(resource);
       if(media.isLoaded()) { media.onLoaded(); }
-    });
+    };
 
-    source.addEventListener("error", function(evt) {
+    resource.registerError = function(evt) {
       media.pending--;
+      resource.status = "error";
+      if(errorCallback) { errorCallback(resource); }
       media.onLoadError(resource, evt);
-    });
+    };
   };
+
+  media.Resource.prototype = Resource;
 };
 
 var media = Luv.Media.prototype;
