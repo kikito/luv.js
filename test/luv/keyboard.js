@@ -20,37 +20,27 @@ describe("Luv.Keyboard", function() {
       });
     });
 
-    describe(".onkeydown", function(){
+    describe(".onPressed", function(){
       it("exists by default", function(){
-        expect(keyboard.onPress).to.be.a('function');
+        expect(keyboard.onPressed).to.be.a('function');
       });
 
       it("gets called if keyup is called", function(){
-        var keyPressed, codePressed;
-        keyboard.onPress = function(key,code) {
-          keyPressed = key;
-          codePressed = code;
-        };
-        el.onkeydown({which: 32});
-        expect(codePressed).to.equal(32);
-        expect(keyPressed).to.equal(' ');
+        var onPressed = sinon.spy(keyboard, 'onPressed');
+        trigger(el, 'keydown', {which: 32});
+        expect(onPressed).to.have.been.calledWith(' ', 32);
       });
     });
 
-    describe(".onkeyup", function(){
+    describe(".onReleased", function(){
       it("exists by default", function(){
-        expect(keyboard.onRelease).to.be.a('function');
+        expect(keyboard.onReleased).to.be.a('function');
       });
 
       it("gets called if keyup is called", function(){
-        var keyReleased, codeReleased;
-        keyboard.onRelease = function(key,code) {
-          keyReleased = key;
-          codeReleased = code;
-        };
-        el.onkeyup({which: 32});
-        expect(codeReleased).to.equal(32);
-        expect(keyReleased).to.equal(' ');
+        var onReleased = sinon.spy(keyboard, 'onReleased');
+        trigger(el, 'keyup', {which: 32});
+        expect(onReleased).to.have.been.calledWith(' ', 32);
       });
     });
 
@@ -58,10 +48,10 @@ describe("Luv.Keyboard", function() {
       it("returns true if a key is pressed, and false otherwise", function(){
         expect(keyboard.isDown(' ')).to.equal(false);
 
-        el.onkeydown({which: 32});
+        trigger(el, 'keydown', {which: 32});
         expect(keyboard.isDown(' ')).to.equal(true);
 
-        el.onkeyup({which: 32});
+        trigger(el, 'keyup', {which: 32});
         expect(keyboard.isDown(' ')).to.equal(false);
       });
     });

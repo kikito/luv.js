@@ -328,23 +328,23 @@ Luv.Keyboard = function(el) {
 
   var keyboard = this;
 
-  el.onkeydown = function(evt) {
+  el.addEventListener('keydown', function(evt) {
     var key  = getKeyFromEvent(evt);
     keyboard.keysDown[key] = true;
-    keyboard.onPress(key, evt.which);
-  };
+    keyboard.onPressed(key, evt.which);
+  });
 
-  el.onkeyup = function(evt) {
+  el.addEventListener('keyup', function(evt) {
     var key  = getKeyFromEvent(evt);
     keyboard.keysDown[key] = false;
-    keyboard.onRelease(key, evt.which);
-  };
+    keyboard.onReleased(key, evt.which);
+  });
 };
 
 var keyboard = Luv.Keyboard.prototype;
 
-keyboard.onPress   = function(key, code) {};
-keyboard.onRelease = function(key, code) {};
+keyboard.onPressed   = function(key, code) {};
+keyboard.onReleased  = function(key, code) {};
 
 keyboard.isDown    = function(key) {
   return !!this.keysDown[key];
@@ -385,20 +385,20 @@ Luv.Mouse = function(el) {
   this.y = 0;
   var mouse = this;
 
-  el.onmousemove = function(evt) {
+  el.addEventListener('mousemove', function(evt) {
     var pos    = getMousePositionFromEvent(evt);
     var offset = getElementOffset(el);
     mouse.x = pos.x - offset.left;
     mouse.y = pos.y - offset.top;
-  };
+  });
 
-  el.onmousedown = function(evt) {
-    mouse.onPress(mouse.x, mouse.y, getButtonFromEvent(evt));
-  };
+  el.addEventListener('mousedown', function(evt) {
+    mouse.onPressed(mouse.x, mouse.y, getButtonFromEvent(evt));
+  });
 
-  el.onmouseup = function(evt) {
-    mouse.onRelease(mouse.x, mouse.y, getButtonFromEvent(evt));
-  };
+  el.addEventListener('mouseup', function(evt) {
+    mouse.onReleased(mouse.x, mouse.y, getButtonFromEvent(evt));
+  });
 };
 
 var mouse = Luv.Mouse.prototype;
@@ -407,9 +407,11 @@ mouse.getPosition = function() {
   return {x: this.x, y: this.y};
 };
 
-mouse.onPress = function(x,y,button) {};
+mouse.getX = function() { return this.x; };
+mouse.getY = function() { return this.y; };
 
-mouse.onRelease = function(x,y,button) {};
+mouse.onPressed  = function(x,y,button) {};
+mouse.onReleased = function(x,y,button) {};
 
 Luv.Media = function() {
   this.pending = 0;
@@ -420,17 +422,17 @@ Luv.Media = function() {
     var resource = this;
     media.pending++;
 
-    source.onload = function() {
+    source.addEventListener("load", function() {
       media.pending--;
       if(callback) { callback(resource); }
       media.onResourceLoaded(resource);
       if(media.isLoaded()) { media.onLoaded(); }
-    };
+    });
 
-    source.onerror = function(evt) {
+    source.addEventListener("error", function(evt) {
       media.pending--;
       media.onLoadError(resource, evt);
-    };
+    });
   };
 };
 

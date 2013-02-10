@@ -40,23 +40,23 @@ Luv.Keyboard = function(el) {
 
   var keyboard = this;
 
-  el.onkeydown = function(evt) {
+  el.addEventListener('keydown', function(evt) {
     var key  = getKeyFromEvent(evt);
     keyboard.keysDown[key] = true;
-    keyboard.onPress(key, evt.which);
-  };
+    keyboard.onPressed(key, evt.which);
+  });
 
-  el.onkeyup = function(evt) {
+  el.addEventListener('keyup', function(evt) {
     var key  = getKeyFromEvent(evt);
     keyboard.keysDown[key] = false;
-    keyboard.onRelease(key, evt.which);
-  };
+    keyboard.onReleased(key, evt.which);
+  });
 };
 
 var keyboard = Luv.Keyboard.prototype;
 
-keyboard.onPress   = function(key, code) {};
-keyboard.onRelease = function(key, code) {};
+keyboard.onPressed   = function(key, code) {};
+keyboard.onReleased  = function(key, code) {};
 
 keyboard.isDown    = function(key) {
   return !!this.keysDown[key];

@@ -7,17 +7,17 @@ Luv.Media = function() {
     var resource = this;
     media.pending++;
 
-    source.onload = function() {
+    source.addEventListener("load", function() {
       media.pending--;
       if(callback) { callback(resource); }
       media.onResourceLoaded(resource);
       if(media.isLoaded()) { media.onLoaded(); }
-    };
+    });
 
-    source.onerror = function(evt) {
+    source.addEventListener("error", function(evt) {
       media.pending--;
       media.onLoadError(resource, evt);
-    };
+    });
   };
 };
 

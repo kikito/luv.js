@@ -33,20 +33,20 @@ Luv.Mouse = function(el) {
   this.y = 0;
   var mouse = this;
 
-  el.onmousemove = function(evt) {
+  el.addEventListener('mousemove', function(evt) {
     var pos    = getMousePositionFromEvent(evt);
     var offset = getElementOffset(el);
     mouse.x = pos.x - offset.left;
     mouse.y = pos.y - offset.top;
-  };
+  });
 
-  el.onmousedown = function(evt) {
-    mouse.onPress(mouse.x, mouse.y, getButtonFromEvent(evt));
-  };
+  el.addEventListener('mousedown', function(evt) {
+    mouse.onPressed(mouse.x, mouse.y, getButtonFromEvent(evt));
+  });
 
-  el.onmouseup = function(evt) {
-    mouse.onRelease(mouse.x, mouse.y, getButtonFromEvent(evt));
-  };
+  el.addEventListener('mouseup', function(evt) {
+    mouse.onReleased(mouse.x, mouse.y, getButtonFromEvent(evt));
+  });
 };
 
 var mouse = Luv.Mouse.prototype;
@@ -55,6 +55,8 @@ mouse.getPosition = function() {
   return {x: this.x, y: this.y};
 };
 
-mouse.onPress = function(x,y,button) {};
+mouse.getX = function() { return this.x; };
+mouse.getY = function() { return this.y; };
 
-mouse.onRelease = function(x,y,button) {};
+mouse.onPressed  = function(x,y,button) {};
+mouse.onReleased = function(x,y,button) {};

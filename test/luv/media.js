@@ -7,8 +7,8 @@ describe("Luv.Media", function(){
     var media, source1, source2;
     beforeEach(function(){
       media   = new Luv.Media();
-      source1 = {};
-      source2 = {};
+      source1 = new Image();
+      source2 = new Image();
     });
 
     describe("Resource", function() {
@@ -19,7 +19,7 @@ describe("Luv.Media", function(){
       it("invokes a custom callback for when a resource is loaded", function(){
         var callback = sinon.spy();
         var resource = new media.Resource(source1, callback);
-        source1.onload();
+        trigger(source1, "load");
         expect(callback).to.have.been.calledWith(resource);
       });
     });
@@ -28,7 +28,7 @@ describe("Luv.Media", function(){
       it("is called when a new resource is loaded", function() {
         var onResourceLoaded = sinon.spy(media, 'onResourceLoaded');
         var resource = new media.Resource(source1);
-        source1.onload();
+        trigger(source1, "load");
         expect(onResourceLoaded).to.have.been.calledWith(resource);
       });
     });
@@ -42,7 +42,7 @@ describe("Luv.Media", function(){
       it("is called when a new resource fails to load", function() {
         var onLoadError = sinon.stub(media, 'onLoadError');
         var resource = new media.Resource(source1);
-        source1.onerror();
+        trigger(source1, "error");
         expect(onLoadError).to.have.been.calledWith(resource);
       });
     });
@@ -53,8 +53,8 @@ describe("Luv.Media", function(){
             r1       = new media.Resource(source1),
             r2       = new media.Resource(source2);
 
-        source1.onload();
-        source2.onload();
+        trigger(source1, "load");
+        trigger(source2, "load");
 
         expect(onLoaded).to.have.been.calledOnce;
       });
@@ -68,10 +68,10 @@ describe("Luv.Media", function(){
 
         expect(media.isLoaded()).to.equal(false);
 
-        source1.onload();
+        trigger(source1, "load");
         expect(media.isLoaded()).to.equal(false);
 
-        source2.onload();
+        trigger(source2, "load");
         expect(media.isLoaded()).to.equal(true);
       });
     });
@@ -84,10 +84,10 @@ describe("Luv.Media", function(){
 
         expect(media.getPending()).to.equal(2);
 
-        source1.onload();
+        trigger(source1, "load");
         expect(media.getPending()).to.equal(1);
 
-        source2.onload();
+        trigger(source2, "load");
         expect(media.getPending()).to.equal(0);
       });
     });
