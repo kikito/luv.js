@@ -146,5 +146,12 @@ graphics.arc = function(mode, x,y,radius, startAngle, endAngle) {
   drawPath.call(this, mode);
 };
 
+graphics.drawImage = function(img, x, y) {
+  if(!img.isLoaded()) {
+    throw new Error("Attepted to draw a non loaded image: " + img);
+  }
+  this.ctx.drawImage(img.source, x, y);
+};
+
 
 

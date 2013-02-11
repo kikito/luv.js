@@ -231,5 +231,28 @@ describe("Luv.Graphics", function(){
       });
     });
 
+    describe(".drawImage", function() {
+      var media;
+      beforeEach(function(){
+        media = new Luv.Media();
+      });
+
+      it("throws an error when attempting to draw a not loaded image", function(){
+        sinon.stub(media, 'onLoadError');
+        var img   = new media.Image();
+        expect(function(){ gr.drawImage(img, 10, 20); }).to.Throw(Error);
+      });
+
+      it("draws an image given two coordinates", function(){
+        var drawImage = sinon.spy(gr.ctx, 'drawImage');
+        // need a real image here, can not stub it
+        var img = new media.Image('img/foo.png', function() {
+          gr.drawImage(img, 10, 20);
+          expect(drawImage).to.have.been.calledWith(img.source, 10, 20);
+        });
+      });
+
+    });
+
   }); // .methods
 });
