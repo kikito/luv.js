@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+  <title>The cat follows the mouse</title>
+  <script src="../luv.js"></script>
+</head>
+<body>
+  <script>
+    var luv = new Luv();
+
+    var cat;
+
+    luv.load = function() {
+      cat     = {x: 400, y: 300};
+      cat.img = new luv.media.Image('img/cat.png');
+    };
+
+    luv.draw = function() {
+      if(!luv.media.isLoaded()) { return; }
+      luv.graphics.drawImage(cat.img, cat.x-128, cat.y-128);
+    };
+
+    luv.update = function(dt) {
+      if(!luv.media.isLoaded()) { return; }
+
+      var pos = luv.mouse.getPosition();
+
+      if      (cat.x < pos.x) { cat.x += dt * 50; }
+      else if (cat.x > pos.x) { cat.x -= dt * 50; }
+
+      if      (cat.y < pos.y) { cat.y += dt * 50; }
+      else if (cat.y > pos.y) { cat.y -= dt * 50; }
+    };
+
+    luv.run();
+  </script>
+</body>
+</html>
