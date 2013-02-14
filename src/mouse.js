@@ -1,17 +1,3 @@
-var getMousePositionFromEvent = function(evt) {
-  var x = 0, y = 0;
-  if (evt.pageX || evt.pageY)   {
-    x = evt.pageX;
-    y = evt.pageY;
-  }
-  else {
-    x = evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-    y = evt.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-  }
-
-  return {x: x, y: y};
-};
-
 var mouseButtonNames = {1: "l", 2: "m", 3: "r"};
 var getButtonFromEvent = function(evt) {
   return mouseButtonNames[evt.which];
@@ -24,10 +10,9 @@ Luv.Mouse = function(el) {
   var mouse = this;
 
   el.addEventListener('mousemove', function(evt) {
-    var pos    = getMousePositionFromEvent(evt);
-    var offset = el.getBoundingClientRect();
-    mouse.x = pos.x - offset.left;
-    mouse.y = pos.y - offset.top;
+    var rect = el.getBoundingClientRect();
+    mouse.x = evt.pageX - rect.left;
+    mouse.y = evt.pageY - rect.top;
   });
 
   el.addEventListener('mousedown', function(evt) {
