@@ -4,26 +4,9 @@ Luv.Media = function() {
   var media = this;
 
   media.Image = function(src, loadCallback, errorCallback) {
-    var image = this,         // Luv image
-        source = new Image(); // html image
-
-    Luv.Media.Resource.call(this, source, loadCallback, errorCallback);
-
-    source.addEventListener('load',  function(){
-      image.markAsLoadWithCallback();
-      media.registerLoad(image);
-    });
-    source.addEventListener('error', function(){
-      image.markAsErrorWithCallback();
-      media.registerError(image);
-    });
-    media.registerNew(this);
-
-    this.source.src = src;
-
+    Luv.Media.Image.call(this, media, src, loadCallback, errorCallback);
   };
-  media.Image.prototype = Luv.Media.Resource.prototype;
-
+  media.Image.prototype = Luv.Media.Image.prototype;
 };
 
 var media = Luv.Media.prototype;
@@ -69,4 +52,33 @@ Luv.Media.Resource.prototype = {
   isPending: function() { return this.status == "pending"; },
   isLoaded:  function() { return this.status == "loaded"; },
   isError:   function() { return this.status == "error"; }
+};
+
+////
+
+Luv.Media.Image = function(media, src, loadCallback, errorCallback) {
+  var image = this,         // Luv image
+      source = new Image(); // html image
+
+  Luv.Media.Resource.call(this, source, loadCallback, errorCallback);
+
+  source.addEventListener('load',  function(){
+    image.markAsLoadWithCallback();
+    media.registerLoad(image);
+  });
+  source.addEventListener('error', function(){
+    image.markAsErrorWithCallback();
+    media.registerError(image);
+  });
+  media.registerNew(this);
+
+  source.src = src;
+};
+
+Luv.Media.Image.prototype = new Luv.Media.Resource();
+
+Luv.Media.Image.prototype.getWidth       = function()  { return this.source.width; };
+Luv.Media.Image.prototype.getHeight      = function() { return this.source.height; };
+Luv.Media.Image.prototype.getDimensions  = function() {
+  return {width: this.source.width, height: this.source.height};
 };
