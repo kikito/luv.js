@@ -17,7 +17,7 @@
 
     luv.draw = function() {
       if(!luv.media.isLoaded()) { return; }
-      luv.graphics.drawImage(cat.img, cat.x-128, cat.y-128);
+      luv.graphics.drawImage(cat.img, cat.x - cat.img.getWidth()/2, cat.y - cat.img.getHeight()/2);
     };
 
     luv.update = function(dt) {
