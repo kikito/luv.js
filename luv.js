@@ -196,16 +196,6 @@ keyboard.isDown    = function(key) {
   return !!this.keysDown[key];
 };
 
-var getElementOffset = function(el) {
-  var l = 0, t = 0;
-  while(el) {
-    l += el.offsetLeft || 0;
-    t += el.offsetTop || 0;
-    el = el.offsetParent;
-  }
-  return { left: l, top: t };
-};
-
 var getMousePositionFromEvent = function(evt) {
   var x = 0, y = 0;
   if (evt.pageX || evt.pageY)   {
@@ -233,7 +223,7 @@ Luv.Mouse = function(el) {
 
   el.addEventListener('mousemove', function(evt) {
     var pos    = getMousePositionFromEvent(evt);
-    var offset = getElementOffset(el);
+    var offset = el.getBoundingClientRect();
     mouse.x = pos.x - offset.left;
     mouse.y = pos.y - offset.top;
   });
