@@ -15,36 +15,33 @@ describe("Luv.Media.Image", function() {
   });
 
   it("invokes a custom callback when fails to load", function(){
-    sinon.stub(media, 'onLoadError');
+    media.onLoadError = sinon.stub();
     var callback = sinon.spy();
     var image = new media.Image(null, null, callback);
     trigger(image.source, 'error');
     expect(callback).to.have.been.calledWith(image);
+    expect(media.onLoadError).to.have.been.calledWith(image);
     expect(image.isError()).to.be.True;
   });
 });
 
 describe("Luv.Media.Resource", function() {
-  var media;
-  beforeEach(function(){ media = new Luv.Media(); });
-
   it("exists", function(){
     expect(Luv.Media.Resource).to.be.a('function');
   });
 
   it("invokes a custom callback when a resource is loaded", function(){
     var callback = sinon.spy();
-    var resource = new Luv.Media.Resource(media, {}, callback);
-    resource.registerLoad();
+    var resource = new Luv.Media.Resource({}, callback);
+    resource.markAsLoadWithCallback();
     expect(callback).to.have.been.calledWith(resource);
     expect(resource.isLoaded()).to.be.True;
   });
 
   it("invokes a custom callback when a resource fails to load", function(){
-    sinon.stub(media, 'onLoadError');
     var callback = sinon.spy();
-    var resource = new Luv.Media.Resource(media, {}, null, callback);
-    resource.registerError();
+    var resource = new Luv.Media.Resource({}, null, callback);
+    resource.markAsErrorWithCallback();
     expect(callback).to.have.been.calledWith(resource);
     expect(resource.isError()).to.be.True;
   });
@@ -61,8 +58,8 @@ describe("Luv.Media", function(){
   describe(".onResourceLoaded(resource)", function(){
     it("is called when a new resource is loaded", function() {
       var onResourceLoaded = sinon.spy(media, 'onResourceLoaded');
-      var resource = new Luv.Media.Resource(media, {});
-      resource.registerLoad();
+      var resource = new Luv.Media.Resource({});
+      media.registerLoad(resource);
       expect(onResourceLoaded).to.have.been.calledWith(resource);
     });
   });
@@ -75,8 +72,8 @@ describe("Luv.Media", function(){
 
     it("is called when a new resource fails to load", function() {
       var onLoadError = sinon.stub(media, 'onLoadError');
-      var resource = new Luv.Media.Resource(media, {});
-      resource.registerError();
+      var resource = new Luv.Media.Resource({});
+      media.registerError(resource);
       expect(onLoadError).to.have.been.calledWith(resource);
     });
   });
@@ -84,10 +81,12 @@ describe("Luv.Media", function(){
   describe(".onLoaded()", function(){
     it("is called when all resources are loaded", function() {
       var onLoaded = sinon.spy(media, 'onLoaded'),
-          r1       = new Luv.Media.Resource(media, {}),
-          r2       = new Luv.Media.Resource(media, {});
-      r1.registerLoad();
-      r2.registerLoad();
+          r1       = media.registerNew(new Luv.Media.Resource({})),
+          r2       = media.registerNew(new Luv.Media.Resource({}));
+
+      media.pending = 2;
+      media.registerLoad(r1);
+      media.registerLoad(r2);
 
       expect(onLoaded).to.have.been.calledOnce;
     });
@@ -96,15 +95,15 @@ describe("Luv.Media", function(){
   describe(".isLoaded()", function(){
     it("returns true when all pending resources are loaded", function() {
       expect(media.isLoaded()).to.equal(true);
-      var r1       = new Luv.Media.Resource(media, {}),
-          r2       = new Luv.Media.Resource(media, {});
+      var r1       = media.registerNew(new Luv.Media.Resource({})),
+          r2       = media.registerNew(new Luv.Media.Resource({}));
 
       expect(media.isLoaded()).to.equal(false);
 
-      r1.registerLoad();
+      media.registerLoad(r1);
       expect(media.isLoaded()).to.equal(false);
 
-      r2.registerLoad();
+      media.registerLoad(r2);
       expect(media.isLoaded()).to.equal(true);
     });
   });
@@ -112,15 +111,14 @@ describe("Luv.Media", function(){
   describe(".getPending()", function(){
     it("is called when all ", function() {
       expect(media.getPending()).to.equal(0);
-      var r1       = new Luv.Media.Resource(media, {}),
-          r2       = new Luv.Media.Resource(media, {});
+      var r1       = media.registerNew(new Luv.Media.Resource({})),
+          r2       = media.registerNew(new Luv.Media.Resource({}));
+      media.pending = 2;
 
-      expect(media.getPending()).to.equal(2);
-
-      r1.registerLoad();
+      media.registerLoad(r1);
       expect(media.getPending()).to.equal(1);
 
-      r2.registerLoad();
+      media.registerLoad(r2);
       expect(media.getPending()).to.equal(0);
     });
   });

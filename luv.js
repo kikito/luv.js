@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-02-11) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-02-14) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 (function(){
@@ -268,12 +268,20 @@ Luv.Media = function() {
     var image = this,         // Luv image
         source = new Image(); // html image
 
-    Luv.Media.Resource.call(this, media, source, loadCallback, errorCallback);
+    Luv.Media.Resource.call(this, source, loadCallback, errorCallback);
 
-    source.addEventListener('load',  function() { image.registerLoad(); });
-    source.addEventListener('error', function() { image.registerError(); });
+    source.addEventListener('load',  function(){
+      image.markAsLoadWithCallback();
+      media.registerLoad(image);
+    });
+    source.addEventListener('error', function(){
+      image.markAsErrorWithCallback();
+      media.registerError(image);
+    });
+    media.registerNew(this);
 
     this.source.src = src;
+
   };
   media.Image.prototype = Luv.Media.Resource.prototype;
 
@@ -281,18 +289,29 @@ Luv.Media = function() {
 
 var media = Luv.Media.prototype;
 
-media.isLoaded            = function() { return this.pending === 0; };
-media.getPending          = function() { return this.pending; };
-media.onResourceLoaded    = function(resource) {};
-media.onLoadError         = function(resource) { throw new Error("Could not load " + resource); };
-media.onLoaded            = function() {};
+media.isLoaded         = function() { return this.pending === 0; };
+media.getPending       = function() { return this.pending; };
+media.onResourceLoaded = function(resource) {};
+media.onLoadError      = function(resource) { throw new Error("Could not load " + resource); };
+media.onLoaded         = function() {};
+
+media.registerNew = function(resource) {
+  this.pending++;
+  return resource;
+};
+media.registerLoad = function(resource) {
+  this.pending--;
+  this.onResourceLoaded(resource);
+  if(this.isLoaded()) { this.onLoaded(); }
+};
+media.registerError = function(resource) {
+  this.pending--;
+  this.onLoadError(resource);
+};
 
 ////
 
-Luv.Media.Resource = function(media, source, loadCallback, errorCallback) {
-  media.pending++;
-
-  this.media          = media;
+Luv.Media.Resource = function(source, loadCallback, errorCallback) {
   this.source         = source;
   this.loadCallback   = loadCallback;
   this.errorCallback  = errorCallback;
@@ -300,18 +319,13 @@ Luv.Media.Resource = function(media, source, loadCallback, errorCallback) {
 };
 
 Luv.Media.Resource.prototype = {
-  registerLoad: function() {
-    this.media.pending--;
+  markAsLoadWithCallback: function() {
     this.status = "loaded";
     if(this.loadCallback) { this.loadCallback(this); }
-    this.media.onResourceLoaded(this);
-    if(this.media.isLoaded()) { this.media.onLoaded(); }
   },
-  registerError: function(evt) {
-    this.media.pending--;
+  markAsErrorWithCallback: function() {
     this.status = "error";
     if(this.errorCallback) { this.errorCallback(this); }
-    this.media.onLoadError(this);
   },
   isPending: function() { return this.status == "pending"; },
   isLoaded:  function() { return this.status == "loaded"; },
