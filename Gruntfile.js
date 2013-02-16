@@ -2,6 +2,7 @@ module.exports = function(grunt) {
 
   // order of these files is important, that's why you can't do src/*
   var srcFiles  = [
+    "src/shims.js",
     "src/Luv.js",
     "src/timer.js",
     "src/keyboard.js",
