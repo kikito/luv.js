@@ -9,7 +9,7 @@ describe("Luv.Keyboard", function() {
     beforeEach(function(){
       el = document.createElement('canvas');
       var focus = sinon.spy(el, 'focus');
-      keyboard = new Luv.Keyboard(el);
+      keyboard = Luv.Keyboard(el);
       expect(el.tabIndex).to.equal(1);
       expect(focus).to.have.been.called;
     });

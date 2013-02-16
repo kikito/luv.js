@@ -6,7 +6,7 @@ describe("Luv.Graphics", function(){
   describe("constructor", function() {
     it("initializes parameters", function(){
       var el = document.createElement('canvas');
-      var gr = new Luv.Graphics(el, 10, 20);
+      var gr = Luv.Graphics(el, 10, 20);
 
       expect(gr.getColor()).to.deep.equal([255,255,255,255]);
       expect(gr.getBackgroundColor()).to.deep.equal([0,0,0,255]);
@@ -16,7 +16,7 @@ describe("Luv.Graphics", function(){
       var el         = document.createElement('canvas');
       var getContext = sinon.spy(el, 'getContext');
 
-      var gr = new Luv.Graphics(el, 10, 20);
+      var gr = Luv.Graphics(el, 10, 20);
       expect(gr.el).to.be.equal(el);
       expect(gr.ctx).to.be.ok;
       expect(getContext).to.have.been.calledWith('2d');
@@ -29,7 +29,7 @@ describe("Luv.Graphics", function(){
 
     before(function() {
       var el = document.createElement('canvas');
-      gr        = new Luv.Graphics(el, 100, 200);
+      gr        = Luv.Graphics(el, 100, 200);
       stroke    = sinon.spy(gr.ctx, 'stroke');
       fill      = sinon.spy(gr.ctx, 'fill');
       moveTo    = sinon.spy(gr.ctx, 'moveTo');
@@ -234,19 +234,19 @@ describe("Luv.Graphics", function(){
     describe(".drawImage", function() {
       var media;
       beforeEach(function(){
-        media = new Luv.Media();
+        media = Luv.Media();
       });
 
       it("throws an error when attempting to draw a not loaded image", function(){
         sinon.stub(media, 'onLoadError');
-        var img   = new media.Image();
+        var img = media.Image();
         expect(function(){ gr.drawImage(img, 10, 20); }).to.Throw(Error);
       });
 
       it("draws an image given two coordinates", function(){
         var drawImage = sinon.spy(gr.ctx, 'drawImage');
         // need a real image here, can not stub it
-        var img = new media.Image('img/foo.png', function() {
+        var img = media.Image('img/foo.png', function() {
           gr.drawImage(img, 10, 20);
           expect(drawImage).to.have.been.calledWith(img.source, 10, 20);
         });

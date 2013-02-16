@@ -6,20 +6,21 @@
 </head>
 <body>
   <script>
-    function rand(min, max) {
+    var rand = function(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    var luv = new Luv();
     var rectangles = [];
+
+    var luv = Luv();
 
     luv.load = function() {
       for(var i=0; i<200; i++) {
-        rectangles[i] = {
+        rectangles.push({
           l: rand(0,750), t: rand(0,550), w: rand(50,100), h: rand(50,100),
           r: rand(50,255), g: rand(50,255), b: rand(50,255),
           mode: rand(0,1) ? 'fill' : 'line'
-        };
+        });
       }
     };
 

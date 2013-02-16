@@ -9,7 +9,7 @@ describe("Luv.Timer", function(){
 
     beforeEach(function(){
       this.clock = sinon.useFakeTimers(0, "setTimeout", "clearTimeout", "Date");
-      timer = new Luv.Timer();
+      timer = Luv.Timer();
     });
 
     afterEach(function() {

@@ -33,12 +33,21 @@ var getKeyFromEvent = function(event) {
   return key || String.fromCharCode(code);
 };
 
+var KeyboardProto = {
+  onPressed  : function(key, code) {},
+  onReleased : function(key, code) {},
+  isDown     : function(key) {
+    return !!this.keysDown[key];
+  }
+};
+
 Luv.Keyboard = function(el) {
+  var keyboard = Object.create(KeyboardProto);
+
+  keyboard.keysDown = {};
+
   el.tabIndex = 1;
   el.focus();
-  this.keysDown = {};
-
-  var keyboard = this;
 
   el.addEventListener('keydown', function(evt) {
     var key  = getKeyFromEvent(evt);
@@ -51,13 +60,7 @@ Luv.Keyboard = function(el) {
     keyboard.keysDown[key] = false;
     keyboard.onReleased(key, evt.which);
   });
+
+  return keyboard;
 };
 
-var keyboard = Luv.Keyboard.prototype;
-
-keyboard.onPressed   = function(key, code) {};
-keyboard.onReleased  = function(key, code) {};
-
-keyboard.isDown    = function(key) {
-  return !!this.keysDown[key];
-};

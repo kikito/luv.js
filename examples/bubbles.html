@@ -6,69 +6,68 @@
 </head>
 <body>
   <script>
-    function rand(min, max) {
+    var luv = Luv();
+
+    var rand = function(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+    };
 
-    var luv = new Luv();
+    var newBubble = function() {
+      return {
+        x : rand(25,775),
+        y : rand(650,800),
+        r : rand(10, 40),
+        vy: rand(30, 80)
+      };
+    };
+
     var bubbles = [];
-
-    var Bubble = function() {
-      this.x = rand(25,775);
-      this.y = rand(650,800);
-      this.r = rand(10, 40);
-      this.vy = rand(30, 80);
-    };
-
-    Bubble.prototype.update = function(dt) {
-      this.y -= this.vy * dt;
-    };
-
-    Bubble.prototype.reachedTop = function() {
-      return this.y < -50;
-    };
-
-    Bubble.prototype.draw = function() {
-      luv.graphics.setColor(255,98,0);
-      luv.graphics.circle('fill', this.x, this.y, this.r);
-
-      luv.graphics.setLineWidth(this.r/7.0);
-      luv.graphics.setColor(255,225,200);
-      luv.graphics.circle('line', this.x, this.y, this.r);
-
-      luv.graphics.circle('fill',
-        this.x - this.r/2,
-        this.y - this.r/2.5,
-        this.r / 3);
-
-    };
 
     luv.load = function() {
       for(var i=1; i<100; i++) {
-        bubbles.push(new Bubble());
+        bubbles.push(newBubble());
       }
       luv.graphics.setBackgroundColor(255,0,30);
     };
 
-    luv.draw = function() {
-      for(var i=0; i<bubbles.length; i++) {
-        bubbles[i].draw();
+    luv.update = function(dt) {
+      var bubble;
+
+      for(var i=0; i < bubbles.length; i++) {
+        bubble = bubbles[i];
+        bubble.y -= bubble.vy * dt;
+
+        if(bubble.y < -50) {
+          bubbles[i] = newBubble();
+        }
       }
+    };
+
+    luv.draw = function() {
+      var bubble;
+
+      for(var i=0; i < bubbles.length; i++) {
+        bubble = bubbles[i];
+        luv.graphics.setColor(255,98,0);
+        luv.graphics.circle('fill', bubble.x, bubble.y, bubble.r);
+
+        luv.graphics.setLineWidth(bubble.r/7.0);
+        luv.graphics.setColor(255,225,200);
+        luv.graphics.circle('line', bubble.x, bubble.y, bubble.r);
+
+        luv.graphics.circle('fill',
+          bubble.x - bubble.r/2,
+          bubble.y - bubble.r/2.5,
+          bubble.r / 3);
+      }
+
       luv.graphics.setColor(255,225,255);
       var fps = Math.round(luv.timer.getFPS());
       luv.graphics.print("FPS: " + fps, 760, 10);
     };
 
-    luv.update = function(dt) {
-      for(var i=0; i < bubbles.length; i++) {
-        bubbles[i].update(dt);
-        if(bubbles[i].reachedTop()) {
-          bubbles[i] = new Bubble();
-        }
-      }
-    };
-
     luv.run();
+
   </script>
 </body>
 </html>

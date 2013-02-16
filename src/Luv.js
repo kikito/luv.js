@@ -1,4 +1,5 @@
-Luv = function(options) {
+
+var initializeOptions = function(options) {
   options = options || {};
   var el     = options.el,
       id     = options.id,
@@ -18,36 +19,49 @@ Luv = function(options) {
   el.setAttribute('width', width);
   el.setAttribute('height', height);
 
-  this.graphics = new Luv.Graphics(el, width, height);
-  this.timer    = new Luv.Timer();
-  this.keyboard = new Luv.Keyboard(el);
-  this.mouse    = new Luv.Mouse(el);
-  this.media    = new Luv.Media();
+  options.el      = el;
+  options.width   = width;
+  options.height  = height;
+
+  return options;
 };
 
-var luv = Luv.prototype;
+var LuvProto = {
+  update: function(dt){},
+  draw  : function(){},
+  load  : function(){},
+  run   : function(){
+    var luv = this;
 
-luv.update = function(dt) {};
-luv.draw   = function() {};
-luv.load   = function() {};
+    luv.load();
 
-luv.run    = function() {
-  var luv = this;
+    var loop = function(time) {
+      luv.timer.step(time);
+      var dt = luv.timer.getDeltaTime();
 
-  luv.load();
+      luv.update(dt);
+      luv.graphics.clear();
+      luv.draw();
 
-  var loop = function(time) {
-    luv.timer.step(time);
-    var dt = luv.timer.getDeltaTime();
-
-    luv.update(dt);
-    luv.graphics.clear();
-    luv.draw();
+      luv.timer.nextFrame(loop);
+    };
 
     luv.timer.nextFrame(loop);
-  };
+  }
+};
 
-  luv.timer.nextFrame(loop);
+
+Luv = function(options) {
+  var luv       = Object.create(LuvProto);
+  options       = initializeOptions(options);
+
+  luv.graphics  = Luv.Graphics(options.el, options.width, options.height);
+  luv.timer     = Luv.Timer();
+  luv.keyboard  = Luv.Keyboard(options.el);
+  luv.mouse     = Luv.Mouse(options.el);
+  luv.media     = Luv.Media();
+
+  return luv;
 };
 
 

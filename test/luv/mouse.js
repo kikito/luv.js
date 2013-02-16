@@ -8,7 +8,7 @@ describe("Luv.Mouse", function(){
     var el, mouse;
     beforeEach(function(){
       el    = document.createElement('canvas');
-      mouse = new Luv.Mouse(el);
+      mouse = Luv.Mouse(el);
     });
 
     describe(".getPosition()", function() {

@@ -16,7 +16,7 @@ The minimal example requires one two files: `luv.js` and `index.html`. You can d
 </head>
 <body>
   <script>
-    var luv = new Luv();
+    var luv = Luv();
 
     luv.draw = function() {
       luv.graphics.print("Hello, my luv", 200, 300);

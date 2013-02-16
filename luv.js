@@ -1,8 +1,9 @@
-/*! luv 0.0.1 (2013-02-14) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-02-17) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 (function(){
-Luv = function(options) {
+
+var initializeOptions = function(options) {
   options = options || {};
   var el     = options.el,
       id     = options.id,
@@ -22,36 +23,49 @@ Luv = function(options) {
   el.setAttribute('width', width);
   el.setAttribute('height', height);
 
-  this.graphics = new Luv.Graphics(el, width, height);
-  this.timer    = new Luv.Timer();
-  this.keyboard = new Luv.Keyboard(el);
-  this.mouse    = new Luv.Mouse(el);
-  this.media    = new Luv.Media();
+  options.el      = el;
+  options.width   = width;
+  options.height  = height;
+
+  return options;
 };
 
-var luv = Luv.prototype;
+var LuvProto = {
+  update: function(dt){},
+  draw  : function(){},
+  load  : function(){},
+  run   : function(){
+    var luv = this;
 
-luv.update = function(dt) {};
-luv.draw   = function() {};
-luv.load   = function() {};
+    luv.load();
 
-luv.run    = function() {
-  var luv = this;
+    var loop = function(time) {
+      luv.timer.step(time);
+      var dt = luv.timer.getDeltaTime();
 
-  luv.load();
+      luv.update(dt);
+      luv.graphics.clear();
+      luv.draw();
 
-  var loop = function(time) {
-    luv.timer.step(time);
-    var dt = luv.timer.getDeltaTime();
-
-    luv.update(dt);
-    luv.graphics.clear();
-    luv.draw();
+      luv.timer.nextFrame(loop);
+    };
 
     luv.timer.nextFrame(loop);
-  };
+  }
+};
 
-  luv.timer.nextFrame(loop);
+
+Luv = function(options) {
+  var luv       = Object.create(LuvProto);
+  options       = initializeOptions(options);
+
+  luv.graphics  = Luv.Graphics(options.el, options.width, options.height);
+  luv.timer     = Luv.Timer();
+  luv.keyboard  = Luv.Keyboard(options.el);
+  luv.mouse     = Luv.Mouse(options.el);
+  luv.media     = Luv.Media();
+
+  return luv;
 };
 
 
@@ -88,49 +102,52 @@ luv.run    = function() {
   }
 }());
 
+var TimerProto = {
+  step : function(time) {
+    if(time > this.microTime) {
+      this.deltaTime = (time - this.microTime) / 1000;
+      this.microTime = time;
+    }
+  },
+
+  getMicroTime : function() {
+    return this.microTime;
+  },
+
+  getTime : function() {
+    return this.getMicroTime() / 1000;
+  },
+
+  getDeltaTime : function() {
+    return Math.min(this.deltaTime, this.deltaTimeLimit);
+  },
+
+  getDeltaTimeLimit : function() {
+    return this.deltaTimeLimit;
+  },
+
+  setDeltaTimeLimit : function(deltaTimeLimit) {
+    this.deltaTimeLimit = deltaTimeLimit;
+  },
+
+  getFPS : function() {
+    return this.deltaTime === 0 ? 0 : 1 / this.deltaTime;
+  },
+
+  nextFrame : function(f) {
+    window.requestAnimationFrame(f);
+  }
+
+};
 
 Luv.Timer = function() {
-  this.microTime = 0;
-  this.deltaTime = 0;
-  this.deltaTimeLimit = 0.25;
+  var timer = Object.create(TimerProto);
+  timer.microTime = 0;
+  timer.deltaTime = 0;
+  timer.deltaTimeLimit = 0.25;
+  return timer;
 };
 
-var timer = Luv.Timer.prototype;
-
-timer.step = function(time) {
-  if(time > this.microTime) {
-    this.deltaTime = (time - this.microTime) / 1000;
-    this.microTime = time;
-  }
-};
-
-timer.getMicroTime = function() {
-  return this.microTime;
-};
-
-timer.getTime = function() {
-  return this.getMicroTime() / 1000;
-};
-
-timer.getDeltaTime = function() {
-  return Math.min(this.deltaTime, this.deltaTimeLimit);
-};
-
-timer.getDeltaTimeLimit = function() {
-  return this.deltaTimeLimit;
-};
-
-timer.setDeltaTimeLimit = function(deltaTimeLimit) {
-  this.deltaTimeLimit = deltaTimeLimit;
-};
-
-timer.getFPS = function() {
-  return this.deltaTime === 0 ? 0 : 1 / this.deltaTime;
-};
-
-timer.nextFrame = function(f) {
-  window.requestAnimationFrame(f);
-};
 
 
 // keycodes/ algorithms inspired by http://www.selfcontained.us/2009/09/16/getting-keycode-values-in-javascript/
@@ -167,12 +184,21 @@ var getKeyFromEvent = function(event) {
   return key || String.fromCharCode(code);
 };
 
+var KeyboardProto = {
+  onPressed  : function(key, code) {},
+  onReleased : function(key, code) {},
+  isDown     : function(key) {
+    return !!this.keysDown[key];
+  }
+};
+
 Luv.Keyboard = function(el) {
+  var keyboard = Object.create(KeyboardProto);
+
+  keyboard.keysDown = {};
+
   el.tabIndex = 1;
   el.focus();
-  this.keysDown = {};
-
-  var keyboard = this;
 
   el.addEventListener('keydown', function(evt) {
     var key  = getKeyFromEvent(evt);
@@ -185,27 +211,31 @@ Luv.Keyboard = function(el) {
     keyboard.keysDown[key] = false;
     keyboard.onReleased(key, evt.which);
   });
+
+  return keyboard;
 };
 
-var keyboard = Luv.Keyboard.prototype;
-
-keyboard.onPressed   = function(key, code) {};
-keyboard.onReleased  = function(key, code) {};
-
-keyboard.isDown    = function(key) {
-  return !!this.keysDown[key];
-};
 
 var mouseButtonNames = {1: "l", 2: "m", 3: "r"};
 var getButtonFromEvent = function(evt) {
   return mouseButtonNames[evt.which];
 };
 
+var MouseProto = {
+  getX: function() { return this.x; },
+  getY: function() { return this.y; },
+  getPosition: function() {
+    return {x: this.x, y: this.y};
+  },
+  onPressed: function(x,y,button) {},
+  onReleased: function(x,y,button) {}
+};
 
 Luv.Mouse = function(el) {
-  this.x = 0;
-  this.y = 0;
-  var mouse = this;
+  var mouse = Object.create(MouseProto);
+
+  mouse.x = 0;
+  mouse.y = 0;
 
   el.addEventListener('mousemove', function(evt) {
     var rect = el.getBoundingClientRect();
@@ -220,127 +250,84 @@ Luv.Mouse = function(el) {
   el.addEventListener('mouseup', function(evt) {
     mouse.onReleased(mouse.x, mouse.y, getButtonFromEvent(evt));
   });
+
+  return mouse;
 };
 
-var mouse = Luv.Mouse.prototype;
 
-mouse.getPosition = function() {
-  return {x: this.x, y: this.y};
-};
-
-mouse.getX = function() { return this.x; };
-mouse.getY = function() { return this.y; };
-
-mouse.onPressed  = function(x,y,button) {};
-mouse.onReleased = function(x,y,button) {};
-
-Luv.Media = function() {
-  this.pending = 0;
-
-  var media = this;
-
-  media.Image = function(src, loadCallback, errorCallback) {
-    Luv.Media.Image.call(this, media, src, loadCallback, errorCallback);
-  };
-  media.Image.prototype = Luv.Media.Image.prototype;
-};
-
-var media = Luv.Media.prototype;
-
-media.isLoaded         = function() { return this.pending === 0; };
-media.getPending       = function() { return this.pending; };
-media.onResourceLoaded = function(resource) {};
-media.onLoadError      = function(resource) { throw new Error("Could not load " + resource); };
-media.onLoaded         = function() {};
-
-media.registerNew = function(resource) {
-  this.pending++;
-  return resource;
-};
-media.registerLoad = function(resource) {
-  this.pending--;
-  this.onResourceLoaded(resource);
-  if(this.isLoaded()) { this.onLoaded(); }
-};
-media.registerError = function(resource) {
-  this.pending--;
-  this.onLoadError(resource);
-};
-
-////
-
-Luv.Media.Resource = function(source, loadCallback, errorCallback) {
-  this.source         = source;
-  this.loadCallback   = loadCallback;
-  this.errorCallback  = errorCallback;
-  this.status         = "pending";
-};
-
-Luv.Media.Resource.prototype = {
-  markAsLoadWithCallback: function() {
-    this.status = "loaded";
-    if(this.loadCallback) { this.loadCallback(this); }
-  },
-  markAsErrorWithCallback: function() {
-    this.status = "error";
-    if(this.errorCallback) { this.errorCallback(this); }
-  },
+var AssetProto = {
   isPending: function() { return this.status == "pending"; },
   isLoaded:  function() { return this.status == "loaded"; },
   isError:   function() { return this.status == "error"; }
 };
 
-////
+var ImageProto = Object.create(AssetProto);
 
-Luv.Media.Image = function(media, src, loadCallback, errorCallback) {
-  var image = this,         // Luv image
-      source = new Image(); // html image
-
-  Luv.Media.Resource.call(this, source, loadCallback, errorCallback);
-
-  source.addEventListener('load',  function(){
-    image.markAsLoadWithCallback();
-    media.registerLoad(image);
-  });
-  source.addEventListener('error', function(){
-    image.markAsErrorWithCallback();
-    media.registerError(image);
-  });
-  media.registerNew(this);
-
-  source.src = src;
+ImageProto.getWidth       = function() { return this.source.width; };
+ImageProto.getHeight      = function() { return this.source.height; };
+ImageProto.getDimensions  = function() {
+  return { width: this.source.width, height: this.source.height };
 };
 
-Luv.Media.Image.prototype = new Luv.Media.Resource();
+var MediaProto = {
+  isLoaded     : function() { return this.pending === 0; },
+  getPending   : function() { return this.pending; },
+  onAssetLoaded: function(asset) {},
+  onLoadError  : function(asset) { throw new Error("Could not load " + asset); },
+  onLoaded     : function() {},
+  newAsset  : function(asset, loadCallback, errorCallback) {
+    this.pending++;
+    asset.loadCallback  = loadCallback;
+    asset.errorCallback = errorCallback;
+    asset.status        = "pending";
+  },
+  registerLoad : function(asset) {
+    this.pending--;
 
-Luv.Media.Image.prototype.getWidth       = function()  { return this.source.width; };
-Luv.Media.Image.prototype.getHeight      = function() { return this.source.height; };
-Luv.Media.Image.prototype.getDimensions  = function() {
-  return {width: this.source.width, height: this.source.height};
+    asset.status = "loaded";
+    if(asset.loadCallback) { asset.loadCallback(asset); }
+
+    this.onAssetLoaded(asset);
+    if(this.isLoaded()) { this.onLoaded(); }
+  },
+  registerError: function(asset) {
+    this.pending--;
+
+    asset.status = "error";
+    if(asset.errorCallback) { asset.errorCallback(asset); }
+
+    this.onLoadError(asset);
+  }
 };
 
-Luv.Graphics = function(el, width, height) {
-  this.el = el;
-  this.width = width;
-  this.height = height;
-  this.color = {};
-  this.backgroundColor = {};
+Luv.Media = function() {
+  var media = Object.create(MediaProto);
 
-  this.setColor(255,255,255);
-  this.setBackgroundColor(0,0,0);
+  media.pending = 0;
 
-  this.ctx = el.getContext('2d');
+  media.Image = function(src, loadCallback, errorCallback) {
+    var image  = Object.create(ImageProto);
+    media.newAsset(image, loadCallback, errorCallback);
+
+    var source = new Image(); // html image
+    image.source = source;
+
+    source.addEventListener('load',  function(){ media.registerLoad(image); });
+    source.addEventListener('error', function(){ media.registerError(image); });
+    source.src = src;
+
+    return image;
+  };
+
+  return media;
 };
+
 
 var twoPI = Math.PI * 2;
 
-var isArray = function(x) {
-  return Object.prototype.toString.call(x) === '[object Array]';
-};
-
 var setColor = function(self, name, r,g,b,a) {
   var color = self[name];
-  if(isArray(r)) {
+  if(Array.isArray(r)) {
     color.r = r[0];
     color.g = r[1];
     color.b = r[2];
@@ -387,94 +374,108 @@ var drawPolyLine = function(methodName, minLength, coords) {
   this.ctx.stroke();
 };
 
-var graphics = Luv.Graphics.prototype;
 
-graphics.setColor = function(r,g,b,a) { setColor(this, 'color', r,g,b,a); };
-graphics.getColor = function() { return getColor(this.color); };
+var GraphicsProto = {
+  setColor : function(r,g,b,a) { setColor(this, 'color', r,g,b,a); },
+  getColor : function() { return getColor(this.color); },
 
-graphics.setBackgroundColor = function(r,g,b,a) { setColor(this, 'backgroundColor', r,g,b,a); };
-graphics.getBackgroundColor = function() { return getColor(this.backgroundColor); };
+  setBackgroundColor : function(r,g,b,a) { setColor(this, 'backgroundColor', r,g,b,a); },
+  getBackgroundColor : function() { return getColor(this.backgroundColor); },
 
-graphics.setLineWidth = function(width) {
-  this.ctx.lineWidth = width;
-};
+  setLineWidth : function(width) {
+    this.ctx.lineWidth = width;
+  },
 
-graphics.getLineWidth = function() {
-  return this.ctx.lineWidth;
-};
+  getLineWidth : function() {
+    return this.ctx.lineWidth;
+  },
 
-graphics.setLineCap = function(cap) {
-  if(cap != "butt" && cap != "round" && cap != "square") {
-    throw new Error("Line cap must be either 'butt', 'round' or 'square'");
+  setLineCap : function(cap) {
+    if(cap != "butt" && cap != "round" && cap != "square") {
+      throw new Error("Line cap must be either 'butt', 'round' or 'square'");
+    }
+    this.ctx.lineCap = cap;
+  },
+
+  getLineCap : function() { return this.ctx.lineCap; },
+
+  clear : function() {
+    this.ctx.fillStyle = this.backgroundColorStyle;
+    this.ctx.fillRect(0, 0, this.width, this.height);
+  },
+
+  print : function(str,x,y) {
+    this.ctx.fillStyle = this.colorStyle;
+    this.ctx.fillText(str, x, y);
+  },
+
+  line : function() {
+    var coords = Array.isArray(arguments[0]) ? arguments[0] : arguments;
+
+    this.ctx.beginPath();
+    drawPolyLine.call(this, 'luv.graphics.line', 4, coords);
+    drawPath.call(this, 'line');
+  },
+
+  rectangle : function(mode, left, top, width, height) {
+    this.ctx.beginPath();
+    this.ctx.rect(left, top, width, height);
+    drawPath.call(this, mode);
+    this.ctx.closePath();
+  },
+
+  polygon : function() {
+    var mode   = arguments[0],
+        coords = arguments[1];
+
+    if(!Array.isArray(coords)) {
+      coords = [];
+      for(var i=1;i<arguments.length;i++) { coords[i-1] = arguments[i]; }
+    }
+
+    this.ctx.beginPath();
+
+    drawPolyLine.call(this, 'luv.graphics.polygon', 6, coords);
+    drawPath.call(this, mode);
+
+    this.ctx.closePath();
+  },
+
+  circle : function(mode, x,y,radius) {
+    this.arc(mode, x, y, radius, 0, twoPI);
+    this.ctx.closePath();
+  },
+
+  arc : function(mode, x,y,radius, startAngle, endAngle) {
+    this.ctx.beginPath();
+    this.ctx.arc(x,y,radius, startAngle, endAngle, false);
+    drawPath.call(this, mode);
+  },
+
+  drawImage : function(img, x, y) {
+    if(!img.isLoaded()) {
+      throw new Error("Attepted to draw a non loaded image: " + img);
+    }
+    this.ctx.drawImage(img.source, x, y);
   }
-  this.ctx.lineCap = cap;
 };
 
-graphics.getLineCap = function() {
-  return this.ctx.lineCap;
+Luv.Graphics = function(el, width, height) {
+  var gr = Object.create(GraphicsProto);
+
+  gr.el = el;
+  gr.width = width;
+  gr.height = height;
+  gr.ctx = el.getContext('2d');
+
+  gr.color = {};
+  gr.backgroundColor = {};
+
+  gr.setColor(255,255,255);
+  gr.setBackgroundColor(0,0,0);
+
+  return gr;
 };
-
-graphics.clear = function() {
-  this.ctx.fillStyle = this.backgroundColorStyle;
-  this.ctx.fillRect(0, 0, this.width, this.height);
-};
-
-graphics.print = function(str,x,y) {
-  this.ctx.fillStyle = this.colorStyle;
-  this.ctx.fillText(str, x, y);
-};
-
-graphics.line = function() {
-  var coords = isArray(arguments[0]) ? arguments[0] : arguments;
-
-  this.ctx.beginPath();
-  drawPolyLine.call(this, 'luv.graphics.line', 4, coords);
-  drawPath.call(this, 'line');
-};
-
-graphics.rectangle = function(mode, left, top, width, height) {
-  this.ctx.beginPath();
-  this.ctx.rect(left, top, width, height);
-  drawPath.call(this, mode);
-  this.ctx.closePath();
-};
-
-graphics.polygon = function() {
-  var mode   = arguments[0],
-      coords = arguments[1];
-
-  if(!isArray(coords)) {
-    coords = [];
-    for(var i=1;i<arguments.length;i++) { coords[i-1] = arguments[i]; }
-  }
-
-  this.ctx.beginPath();
-
-  drawPolyLine.call(this, 'luv.graphics.polygon', 6, coords);
-  drawPath.call(this, mode);
-
-  this.ctx.closePath();
-};
-
-graphics.circle = function(mode, x,y,radius) {
-  this.arc(mode, x, y, radius, 0, twoPI);
-  this.ctx.closePath();
-};
-
-graphics.arc = function(mode, x,y,radius, startAngle, endAngle) {
-  this.ctx.beginPath();
-  this.ctx.arc(x,y,radius, startAngle, endAngle, false);
-  drawPath.call(this, mode);
-};
-
-graphics.drawImage = function(img, x, y) {
-  if(!img.isLoaded()) {
-    throw new Error("Attepted to draw a non loaded image: " + img);
-  }
-  this.ctx.drawImage(img.source, x, y);
-};
-
-
 
 
 }());

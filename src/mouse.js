@@ -3,11 +3,21 @@ var getButtonFromEvent = function(evt) {
   return mouseButtonNames[evt.which];
 };
 
+var MouseProto = {
+  getX: function() { return this.x; },
+  getY: function() { return this.y; },
+  getPosition: function() {
+    return {x: this.x, y: this.y};
+  },
+  onPressed: function(x,y,button) {},
+  onReleased: function(x,y,button) {}
+};
 
 Luv.Mouse = function(el) {
-  this.x = 0;
-  this.y = 0;
-  var mouse = this;
+  var mouse = Object.create(MouseProto);
+
+  mouse.x = 0;
+  mouse.y = 0;
 
   el.addEventListener('mousemove', function(evt) {
     var rect = el.getBoundingClientRect();
@@ -22,16 +32,7 @@ Luv.Mouse = function(el) {
   el.addEventListener('mouseup', function(evt) {
     mouse.onReleased(mouse.x, mouse.y, getButtonFromEvent(evt));
   });
+
+  return mouse;
 };
 
-var mouse = Luv.Mouse.prototype;
-
-mouse.getPosition = function() {
-  return {x: this.x, y: this.y};
-};
-
-mouse.getX = function() { return this.x; };
-mouse.getY = function() { return this.y; };
-
-mouse.onPressed  = function(x,y,button) {};
-mouse.onReleased = function(x,y,button) {};
