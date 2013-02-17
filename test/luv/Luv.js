@@ -25,6 +25,60 @@ describe("Luv", function(){
         expect(luv.media).to.be.ok;
       });
     });
+
+    describe("when invoked with params", function() {
+      it("sets the el", function() {
+        var el = document.createElement('canvas');
+        var luv = Luv({el: el});
+        expect(luv.el).to.equal(el);
+      });
+
+      it("sets the el via an id", function() {
+        var el = document.createElement('canvas');
+        sinon.stub(document, 'getElementById').withArgs('foo').returns(el);
+
+        var luv = Luv({id: "foo"});
+        expect(luv.el).to.equal(el);
+
+        document.getElementById.restore();
+      });
+
+      it("reads the width and height from el", function() {
+        var el = document.createElement('canvas');
+        var getAttribute = sinon.stub(el, 'getAttribute');
+        getAttribute.withArgs('width').returns(320);
+        getAttribute.withArgs('height').returns(200);
+
+        var luv = Luv({el: el});
+        expect(luv.graphics.width).to.equal(320);
+        expect(luv.graphics.height).to.equal(200);
+      });
+
+      it("reads the width and height from options", function() {
+        var el = document.createElement('canvas');
+
+        var luv = Luv({el: el, width: 500, height: 300});
+        expect(luv.graphics.width).to.equal(500);
+        expect(luv.graphics.height).to.equal(300);
+      });
+
+      it("reads the load, update, draw and run functions from options", function() {
+        var load   = function(){},
+            update = function(){},
+            draw   = function(){},
+            run    = function(){};
+
+        var luv = Luv({load: load, update: update, draw: draw, run: run});
+
+        expect(luv.load).to.equal(load);
+        expect(luv.update).to.equal(update);
+        expect(luv.draw).to.equal(draw);
+        expect(luv.run).to.equal(run);
+
+      });
+
+    });
+
   });
 
   describe("luv.run", function() {

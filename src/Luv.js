@@ -1,4 +1,3 @@
-
 var initializeOptions = function(options) {
   options = options || {};
   var el     = options.el,
@@ -52,13 +51,20 @@ var LuvProto = {
 
 
 Luv = function(options) {
-  var luv       = Object.create(LuvProto);
-  options       = initializeOptions(options);
+  options = initializeOptions(options);
 
-  luv.graphics  = Luv.Graphics(options.el, options.width, options.height);
+  var luv = Object.create(LuvProto);
+  luv.el  = options.el;
+
+  if(options.load)  { luv.load   = options.load; }
+  if(options.update){ luv.update = options.update; }
+  if(options.draw)  { luv.draw   = options.draw; }
+  if(options.run)   { luv.run    = options.run; }
+
+  luv.graphics  = Luv.Graphics(luv.el, options.width, options.height);
   luv.timer     = Luv.Timer();
-  luv.keyboard  = Luv.Keyboard(options.el);
-  luv.mouse     = Luv.Mouse(options.el);
+  luv.keyboard  = Luv.Keyboard(luv.el);
+  luv.mouse     = Luv.Mouse(luv.el);
   luv.media     = Luv.Media();
 
   return luv;
