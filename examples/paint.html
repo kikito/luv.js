@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+  <title>Paint</title>
+  <script src="../luv.js"></script>
+</head>
+<body>
+  <script>
+    var luv = Luv();
+    var canvas = luv.graphics.Canvas();
+
+    var prevPos = null;
+
+    luv.load = function() {
+      luv.graphics.setLineWidth(16);
+      luv.graphics.setColor(0,0,255);
+      luv.graphics.setBackgroundColor(255, 255, 255);
+      luv.graphics.setLineCap('round');
+    };
+
+    luv.draw = function() {
+      luv.graphics.setCanvas();
+      luv.graphics.drawCanvas(canvas, 0, 0);
+      var pos = luv.mouse.getPosition();
+      luv.graphics.circle('fill', pos.x, pos.y, 8);
+      prevPos = pos;
+    };
+
+    luv.update = function(dt) {
+      if(luv.mouse.isPressed("l")) {
+        var pos = luv.mouse.getPosition()
+        luv.graphics.setCanvas(canvas);
+        luv.graphics.line(prevPos.x, prevPos.y, pos.x, pos.y);
+      }
+    };
+
+    luv.mouse.onPressed = function(x,y,button) {
+      if(button == "l") {
+        prevPos = {x: x, y: y};
+      }
+    };
+
+    luv.run();
+  </script>
+</body>
+</html>
