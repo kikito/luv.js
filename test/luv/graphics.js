@@ -23,11 +23,29 @@ describe("Luv.Graphics", function(){
     });
   });
 
+  describe(".Canvas", function() {
+    var el, gr;
+    beforeEach(function(){
+      el = document.createElement('canvas');
+      gr = Luv.Graphics(el, 320, 200);
+    });
+    it("creates a new canvas with the same width and height as the original one", function() {
+      var canvas = gr.Canvas();
+      expect(canvas.getDimensions()).to.deep.equal({width: 320, height: 200});
+      expect(canvas.el).to.be.ok;
+    });
+    it("creates a new canvas with the given with and height", function() {
+      var canvas = gr.Canvas(800, 600);
+      expect(canvas.getDimensions()).to.deep.equal({width: 800, height: 600});
+      expect(canvas.el).to.be.ok;
+    });
+  });
+
   describe(".methods", function(){
 
     var el, gr, stroke, fill, moveTo, lineTo, rect, arc, beginPath, closePath;
 
-    before(function() {
+    beforeEach(function() {
       var el = document.createElement('canvas');
       gr        = Luv.Graphics(el, 100, 200);
       stroke    = sinon.spy(gr.ctx, 'stroke');
@@ -38,6 +56,23 @@ describe("Luv.Graphics", function(){
       arc       = sinon.spy(gr.ctx, 'arc');
       beginPath = sinon.spy(gr.ctx, 'beginPath');
       closePath = sinon.spy(gr.ctx, 'closePath');
+    });
+
+    describe(".set/getCanvas", function() {
+      describe("when given a new canvas", function() {
+        it("uses the new canvas in all operations", function() {
+          var canvas = gr.Canvas();
+          gr.setCanvas(canvas);
+          expect(gr.ctx).to.equal(canvas.ctx);
+        });
+      });
+      describe("when given no canvas", function() {
+        it("Goes back to the default canvas", function() {
+          gr.setCanvas(gr.Canvas());
+          gr.setCanvas();
+          expect(gr.canvas).to.equal(gr.defaultCanvas);
+        });
+      });
     });
 
     describe(".clear", function(){
@@ -203,7 +238,7 @@ describe("Luv.Graphics", function(){
         expect(arc).to.have.been.calledWith(10, 10, 20, 0, 2 * Math.PI, false);
         expect(closePath).to.have.been.called;
         expect(stroke).to.have.been.called;
-        expect(gr.ctx.fillStyle).to.equal('#00ff00');
+        expect(gr.ctx.strokeStyle).to.equal('#00ff00');
       });
     });
 
@@ -214,7 +249,6 @@ describe("Luv.Graphics", function(){
 
         expect(beginPath).to.have.been.called;
         expect(arc).to.have.been.calledWith(10, 10, 20, 0, Math.PI, false);
-        expect(closePath).to.have.been.called;
         expect(fill).to.have.been.called;
         expect(gr.ctx.fillStyle).to.equal('#00ff00');
       });
@@ -224,10 +258,9 @@ describe("Luv.Graphics", function(){
         gr.arc('line', 10, 10, 20, 0, Math.PI);
 
         expect(beginPath).to.have.been.called;
-        expect(arc).to.have.been.calledWith(10, 10, 20, 0, 2 * Math.PI, false);
-        expect(closePath).to.have.been.called;
+        expect(arc).to.have.been.calledWith(10, 10, 20, 0, Math.PI, false);
         expect(stroke).to.have.been.called;
-        expect(gr.ctx.fillStyle).to.equal('#00ff00');
+        expect(gr.ctx.strokeStyle).to.equal('#00ff00');
       });
     });
 
@@ -251,7 +284,16 @@ describe("Luv.Graphics", function(){
           expect(drawImage).to.have.been.calledWith(img.source, 10, 20);
         });
       });
+    });
 
+    describe(".drawCanvas", function() {
+      it("calls drawImage on the context", function(){
+        var drawImage = sinon.spy(gr.ctx, 'drawImage');
+        var canvas = gr.Canvas();
+
+        gr.drawCanvas(canvas, 10, 20);
+        expect(drawImage).to.have.been.calledWith(canvas.el, 10, 20);
+      });
     });
 
   }); // .methods

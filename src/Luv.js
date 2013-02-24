@@ -39,6 +39,7 @@ var LuvProto = {
       var dt = luv.timer.getDeltaTime();
 
       luv.update(dt);
+      luv.graphics.setCanvas();
       luv.graphics.clear();
       luv.draw();
 
