@@ -45,5 +45,18 @@ describe("Luv.Mouse", function(){
         expect(onReleased).to.have.been.calledWith(0,0,'m');
       });
     });
+
+    describe('.isPressed', function() {
+      it("returns true when a button is pressed, false otherwise", function() {
+        expect(mouse.isPressed('l')).to.equal(false);
+
+        trigger(el, "mousedown", {which: 1});
+        expect(mouse.isPressed('l')).to.equal(true);
+
+        trigger(el, "mouseup", {which: 1});
+        expect(mouse.isPressed('l')).to.equal(false);
+      });
+
+    });
   });
 });

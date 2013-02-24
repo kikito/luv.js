@@ -10,7 +10,10 @@ var MouseProto = {
     return {x: this.x, y: this.y};
   },
   onPressed: function(x,y,button) {},
-  onReleased: function(x,y,button) {}
+  onReleased: function(x,y,button) {},
+  isPressed: function(button) {
+    return !!this.pressedButtons[button];
+  }
 };
 
 Luv.Mouse = function(el) {
@@ -18,6 +21,7 @@ Luv.Mouse = function(el) {
 
   mouse.x = 0;
   mouse.y = 0;
+  mouse.pressedButtons = {};
 
   el.addEventListener('mousemove', function(evt) {
     var rect = el.getBoundingClientRect();
@@ -26,11 +30,15 @@ Luv.Mouse = function(el) {
   });
 
   el.addEventListener('mousedown', function(evt) {
-    mouse.onPressed(mouse.x, mouse.y, getButtonFromEvent(evt));
+    var button = getButtonFromEvent(evt);
+    mouse.pressedButtons[button] = true;
+    mouse.onPressed(mouse.x, mouse.y, button);
   });
 
   el.addEventListener('mouseup', function(evt) {
-    mouse.onReleased(mouse.x, mouse.y, getButtonFromEvent(evt));
+    var button = getButtonFromEvent(evt);
+    mouse.pressedButtons[button] = false;
+    mouse.onReleased(mouse.x, mouse.y, button);
   });
 
   return mouse;
