@@ -49,6 +49,14 @@ module.exports = function(grunt) {
         src: '<%= pkg.name %>.js',
         dest:  '<%= pkg.name %>.min.js'
       }
+    },
+    docco: {
+      dist: {
+        src: srcFiles,
+        options: {
+          output: 'docs/'
+        }
+      }
     }
   });
 
@@ -56,6 +64,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-wrap');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-docco');
 
   grunt.registerTask('mocha', 'Run all tests using mocha-phantomjs (needs mocha-phantomjs to be installed globally)', function(){
     shell.exec("mocha-phantomjs test/index.html");
