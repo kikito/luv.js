@@ -25,7 +25,7 @@
     "grunt-contrib-jshint": "0.1.1",
     "grunt-docco": "0.2.0",
     "shelljs": "~0.1.2",
-    "grunt-wrap": "~0.2.0"
+    "grunt-wrap": "0.2.x"
   },
   "license": "MIT"
 }

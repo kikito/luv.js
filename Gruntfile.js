@@ -1,4 +1,6 @@
 module.exports = function(grunt) {
+  var shell = require('shelljs');
+  var fs    = require('fs');
 
   // order of these files is important, that's why you can't do src/*
   var srcFiles  = [
@@ -11,7 +13,6 @@ module.exports = function(grunt) {
     "src/graphics.js"
   ];
   var testFiles = "src/**/*.js";
-  var shell = require('shelljs');
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -52,7 +53,7 @@ module.exports = function(grunt) {
     },
     docco: {
       dist: {
-        src: srcFiles,
+        src: ['docs/index.js'].concat(srcFiles),
         options: {
           output: 'docs/'
         }
@@ -70,10 +71,16 @@ module.exports = function(grunt) {
     shell.exec("mocha-phantomjs test/index.html");
   });
 
+  grunt.registerTask('index', 'Create index.js from README.md', function() {
+    fs.writeFileSync('docs/index.js', "/*\n" + fs.readFileSync('README.md') + "\n*/");
+  });
+
   grunt.registerTask('gh-pages', 'Regenerate the github pages branch', function(){
-    shell.exec("git checkout gh-pages && git merge -s subtree master && git commit -m 'updated docs' && git push origin gh-pages && git checkout master");
+    shell.exec("git add docs && git commit -m 'updated docs' ; git checkout gh-pages && git merge -s subtree master && git commit -m 'updated docs' && git push origin gh-pages ; git checkout master");
   });
 
   // Default task(s).
-  grunt.registerTask('default', ['jshint', 'concat:dist', 'wrap', 'concat:banner', 'mocha', 'uglify']);
+  grunt.registerTask('default', ['jshint', 'concat:dist', 'wrap:dist', 'concat:banner', 'mocha', 'uglify']);
+
+  grunt.registerTask('doc', ['index', 'docco', 'gh-pages']);
 };
