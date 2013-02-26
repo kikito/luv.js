@@ -70,6 +70,10 @@ module.exports = function(grunt) {
     shell.exec("mocha-phantomjs test/index.html");
   });
 
+  grunt.registerTask('gh-pages', 'Regenerate the github pages branch', function(){
+    shell.exec("git checkout gh-pages && git merge -s subtree master && git commit -m 'updated docs' && git push origin gh-pages && git checkout master");
+  });
+
   // Default task(s).
   grunt.registerTask('default', ['jshint', 'concat:dist', 'wrap', 'concat:banner', 'mocha', 'uglify']);
 };
