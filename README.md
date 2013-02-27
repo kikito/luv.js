@@ -2,8 +2,7 @@ luv.js
 ======
 A javascript/coffeescript html5 game library heavily inspired by [LÖVE](http://love2d.org).
 
-Minimal example
-===============
+## Minimal example
 
 The minimal example requires one two files: `luv.js` and `index.html`. You can download luv.js directly from this repository. Here's a sample html:
 
@@ -26,8 +25,7 @@ The minimal example requires one two files: `luv.js` and `index.html`. You can d
     </body>
     </html>
 
-Development
-===========
+## Development
 
 The original source is inside the `src` folder. It needs to be assembled into `luv.js` and `luv.min.js`. In order to do that:
 
@@ -36,8 +34,7 @@ The original source is inside the `src` folder. It needs to be assembled into `l
 3. Install the project dependencies `cd /path/to/luv.js/folder && npm install`
 4. Execute `grunt compile`
 
-Tests
-=====
+## Tests
 
 There are some extra steps to be done if you want to run the tests:
 
@@ -45,8 +42,7 @@ There are some extra steps to be done if you want to run the tests:
 2. Install [mocha-phantomjs](http://metaskills.net/mocha-phantomjs/): `npm install -g mocha-phantomjs`
 3. Execute grunt: `grunt` (the default grunt task runs the tests)
 
-Documentation
-=============
+## Documentation
 
 This project uses [groc](https://github.com/nevir/groc) to generate its documentation. In order for it to work:
 
