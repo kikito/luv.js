@@ -89,8 +89,9 @@ module.exports = function(grunt) {
     shell.exec("mocha-phantomjs test/index.html");
   });
 
-  // make an alias to groc:local, because I never remember 'groc'
-  grunt.registerTask('docs', ['groc:local']);
+  // make an alias to groc subtasks because I never remember 'groc'
+  grunt.registerTask('docs',     ['groc:local']);
+  grunt.registerTask('gh-pages', ['groc:github']);
 
   grunt.registerTask('compile', 'generate luv.js and luv.min.js from src/', ['jshint:dist', 'concat:dist', 'wrap:dist', 'concat:banner', 'uglify']);
 
