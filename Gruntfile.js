@@ -12,7 +12,8 @@ module.exports = function(grunt) {
     "src/media.js",
     "src/graphics.js"
   ];
-  var testFiles = "src/**/*.js";
+  var testFiles = "test/**/*.js";
+  var docFiles = ['README.md', 'MIT-LICENSE.md'].concat(srcFiles);
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -47,19 +48,29 @@ module.exports = function(grunt) {
     uglify: {
       options: { banner: '<%= banner %>' },
       dist: {
-        src: '<%= pkg.name %>.js',
-        dest:  '<%= pkg.name %>.min.js'
+        src:  '<%= pkg.name %>.js',
+        dest: '<%= pkg.name %>.min.js'
+      }
+    },
+    watch: {
+      dist: {
+        files: srcFiles.concat(testFiles),
+        tasks: ['default']
+      },
+      docs: {
+        files: docFiles,
+        tasks: ['docs']
       }
     },
     groc: {
       local: {
-        src: ['README.md'].concat(srcFiles),
+        src: docFiles,
         options: {
-          out: 'docs/'
+          out:  'docs/'
         }
       },
       github: {
-        src: ['README.md'].concat(srcFiles),
+        src: docFiles,
         options: {
           github: true
         }
@@ -72,13 +83,18 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-wrap');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-groc');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask('mocha', 'Run all tests using mocha-phantomjs (needs mocha-phantomjs to be installed globally)', function(){
     shell.exec("mocha-phantomjs test/index.html");
   });
 
+  // make an alias to groc:local, because I never remember 'groc'
+  grunt.registerTask('docs', ['groc:local']);
+
   grunt.registerTask('compile', 'generate luv.js and luv.min.js from src/', ['jshint:dist', 'concat:dist', 'wrap:dist', 'concat:banner', 'uglify']);
 
   // Default task(s).
   grunt.registerTask('default', ['jshint:test', 'compile', 'mocha']);
+
 };
