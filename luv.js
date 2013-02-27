@@ -39,15 +39,23 @@
 // ## Main Luv function
 Luv = function(options) {
 // The main Luv function, and the only global variable defined by luv.js
-// It basically parses the given options (see initializeOptions for details), and returns a game.
+// It basically parses the given options (see `initializeOptions` for a list of accepted options).
+// Returns a game.
 // The recommended name for the variable to store the game is `luv`, but you are free to choose any other.
+
+//       var luv = Luv({...});
+//       // options omitted, see initializeOptions & LuvProto below
+
 // The game will not start until you execute `luv.run()` (assuming that your game variable name is `luv`).
+
+//       var luv = Luv({...});
+//       ... // more code ommited, see LuvProto below for details
+//       luv.run();
+
 // If you have initialized your game completely with options, you could just run it straight away,
 // without storing it into a variable:
 
-//       Luv({
-//          ... // lots of options here
-//       }).run();
+//       Luv({...}).run();
 
   options = initializeOptions(options);
 
@@ -68,6 +76,57 @@ Luv = function(options) {
 
   return luv;
 };
+
+// ## initializeOptions
+var initializeOptions = function(options) {
+// Accepted options:
+
+// * `el`: A canvas DOM element to be used
+// * `id`: A camvas DOM id to be used (Ignored if `el` is provided)
+// * `width`: Sets the width of the canvas, in pixels
+// * `height`: Sets the height of the canvas, in pixels
+// * `load`: A load function (see above)
+// * `update`: A load function (see above)
+// * `draw`: A draw function (see above)
+// * `run`: A run function (see above)
+
+// Notes:
+
+// * All options are ... well, optional.
+// * The options parameter itself is optional (you can do `var luv = Luv();`)
+// * Any other options passed through the `options` hash are ignored
+// * If neither `el` or `id` is specified, a new DOM canvas element will be generated and appended to the `body` of the page.
+// * `width` and `height` will attempt to get their values from the DOM element. If they can't, and they are not
+//    provided as options, they will default to 800x600px
+  options = options || {};
+  var el     = options.el,
+      id     = options.id,
+      width  = options.width,
+      height = options.height;
+
+  if(!el && id) { el = document.getElementById(id); }
+  if(el) {
+    if(!width  && el.getAttribute('width'))  { width = parseInt(el.getAttribute('width'), 10); }
+    if(!height && el.getAttribute('height')) { height = parseInt(el.getAttribute('height'), 10); }
+  } else {
+    el = document.createElement('canvas');
+    document.getElementsByTagName('body')[0].appendChild(el);
+  }
+  width = width || 800;
+  height = height || 600;
+  el.setAttribute('width', width);
+  el.setAttribute('height', height);
+
+  options.el      = el;
+  options.width   = width;
+  options.height  = height;
+
+  return options;
+};
+
+
+
+
 
 // ## LuvProto
 // Contains the default implementation of Luv.load, Luv.draw, Luv.update and Luv.run
@@ -173,54 +232,6 @@ var LuvProto = {
     luv.timer.nextFrame(loop);
   }
 };
-
-// ## initializeOptions
-var initializeOptions = function(options) {
-// Accepted options, all optional:
-
-// * `el`: A canvas DOM element to be used
-// * `id`: A camvas DOM id to be used (Ignored if `el` is provided)
-// * `width`: Sets the width of the canvas, in pixels
-// * `height`: Sets the height of the canvas, in pixels
-// * `load`: A load function (see above)
-// * `update`: A load function (see above)
-// * `draw`: A draw function (see above)
-// * `run`: A run function (see above)
-
-// Notes:
-
-// * Any other options in the options hash are ignored
-// * The options parameter itself is optional (you can do `var luv = Luv();`)
-// * If neither `el` or `id` is specified, a new DOM canvas element will be generated and appended to the `body` of the page.
-// * `width` and `height` will attempt to get their values from the DOM element. If they can't, and they are not
-//    provided as options, they will default to 800x600px
-  options = options || {};
-  var el     = options.el,
-      id     = options.id,
-      width  = options.width,
-      height = options.height;
-
-  if(!el && id) { el = document.getElementById(id); }
-  if(el) {
-    if(!width  && el.getAttribute('width'))  { width = parseInt(el.getAttribute('width'), 10); }
-    if(!height && el.getAttribute('height')) { height = parseInt(el.getAttribute('height'), 10); }
-  } else {
-    el = document.createElement('canvas');
-    document.getElementsByTagName('body')[0].appendChild(el);
-  }
-  width = width || 800;
-  height = height || 600;
-  el.setAttribute('width', width);
-  el.setAttribute('height', height);
-
-  options.el      = el;
-  options.width   = width;
-  options.height  = height;
-
-  return options;
-};
-
-
 
 
 

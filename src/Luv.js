@@ -6,13 +6,20 @@ Luv = function(options) {
 // It basically parses the given options (see `initializeOptions` for a list of accepted options).
 // Returns a game.
 // The recommended name for the variable to store the game is `luv`, but you are free to choose any other.
+
+//       var luv = Luv({...});
+//       // options omitted, see initializeOptions & LuvProto below
+
 // The game will not start until you execute `luv.run()` (assuming that your game variable name is `luv`).
+
+//       var luv = Luv({...});
+//       ... // more code ommited, see LuvProto below for details
+//       luv.run();
+
 // If you have initialized your game completely with options, you could just run it straight away,
 // without storing it into a variable:
 
-//       Luv({
-//          ... // lots of options here
-//       }).run();
+//       Luv({...}).run();
 
   options = initializeOptions(options);
 
