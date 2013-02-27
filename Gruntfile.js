@@ -20,7 +20,7 @@ module.exports = function(grunt) {
             "/*! <%= pkg.description %> */\n" +
             "/*! <%= pkg.author %> */\n",
     jshint: {
-      src: srcFiles,
+      dist: srcFiles,
       test: {
         options: {expr: true}, // needed for sinon-grunt
         files: testFiles
@@ -51,11 +51,17 @@ module.exports = function(grunt) {
         dest:  '<%= pkg.name %>.min.js'
       }
     },
-    docco: {
-      dist: {
-        src: ['docs/index.js'].concat(srcFiles),
+    groc: {
+      local: {
+        src: ['README.md'].concat(srcFiles),
         options: {
-          output: 'docs/'
+          out: 'docs/'
+        }
+      },
+      github: {
+        src: ['README.md'].concat(srcFiles),
+        options: {
+          github: true
         }
       }
     }
@@ -65,22 +71,14 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-wrap');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-docco');
+  grunt.loadNpmTasks('grunt-groc');
 
   grunt.registerTask('mocha', 'Run all tests using mocha-phantomjs (needs mocha-phantomjs to be installed globally)', function(){
     shell.exec("mocha-phantomjs test/index.html");
   });
 
-  grunt.registerTask('index', 'Create index.js from README.md', function() {
-    fs.writeFileSync('docs/index.js', "/*\n" + fs.readFileSync('README.md') + "\n*/");
-  });
-
-  grunt.registerTask('gh-pages', 'Regenerate the github pages branch', function(){
-    shell.exec("git add docs && git commit -m 'updated docs' ; git checkout gh-pages && git merge -s subtree master && git commit -m 'updated docs' && git push origin gh-pages ; git checkout master");
-  });
+  grunt.registerTask('compile', 'generate luv.js and luv.min.js from src/', ['jshint:dist', 'concat:dist', 'wrap:dist', 'concat:banner', 'uglify']);
 
   // Default task(s).
-  grunt.registerTask('default', ['jshint', 'concat:dist', 'wrap:dist', 'concat:banner', 'mocha', 'uglify']);
-
-  grunt.registerTask('doc', ['index', 'docco', 'gh-pages']);
+  grunt.registerTask('default', ['jshint:test', 'compile', 'mocha']);
 };
