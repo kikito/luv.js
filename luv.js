@@ -410,6 +410,9 @@ ImageProto.getHeight      = function() { return this.source.height; };
 ImageProto.getDimensions  = function() {
   return { width: this.source.width, height: this.source.height };
 };
+ImageProto.tostring       = function() {
+  return 'Luv.Media.Image("' + this.path + '")';
+};
 
 var MediaProto = {
   isLoaded     : function() { return this.pending === 0; },
@@ -447,16 +450,18 @@ Luv.Media = function() {
 
   media.pending = 0;
 
-  media.Image = function(src, loadCallback, errorCallback) {
+  media.Image = function(path, loadCallback, errorCallback) {
     var image  = Object.create(ImageProto);
+    image.path = path;
+
     media.newAsset(image, loadCallback, errorCallback);
 
-    var source = new Image(); // html image
+    var source   = new Image(); // html image
     image.source = source;
 
     source.addEventListener('load',  function(){ media.registerLoad(image); });
     source.addEventListener('error', function(){ media.registerError(image); });
-    source.src = src;
+    source.src = path;
 
     return image;
   };

@@ -23,6 +23,12 @@ describe("Luv.Media.Image", function() {
     expect(media.onLoadError).to.have.been.calledWith(image);
     expect(image.isError()).to.be.True;
   });
+
+  it("has a toString method", function() {
+    media.onLoadError = sinon.stub();
+    var image = media.Image('dummy.png');
+    expect(image.tostring()).to.equal('Luv.Media.Image("dummy.png")');
+  });
 });
 
 describe("Luv.Media", function(){
