@@ -1,4 +1,6 @@
-(function(){
+/*! luv 0.0.1 (2013-02-27) - https://github.com/kikito/luv.js */
+/*! Minimal HTML5 game development lib */
+/*! Enrique Garcia Cota */
 (function(){
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
@@ -537,5 +539,4 @@ Luv.Graphics = function(el, width, height) {
 };
 
 
-}());
 }());
