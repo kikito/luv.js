@@ -27,7 +27,8 @@ describe("Luv.Media.Image", function() {
   it("has a toString method", function() {
     media.onLoadError = sinon.stub();
     var image = media.Image('dummy.png');
-    expect(image.tostring()).to.equal('Luv.Media.Image("dummy.png")');
+    expect(image.toString()).to.equal('Luv.Media.Image("dummy.png")');
+    expect("" + image).to.equal('Luv.Media.Image("dummy.png")');
   });
 });
 

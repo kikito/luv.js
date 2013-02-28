@@ -11,7 +11,7 @@ ImageProto.getHeight      = function() { return this.source.height; };
 ImageProto.getDimensions  = function() {
   return { width: this.source.width, height: this.source.height };
 };
-ImageProto.tostring       = function() {
+ImageProto.toString       = function() {
   return 'Luv.Media.Image("' + this.path + '")';
 };
 
