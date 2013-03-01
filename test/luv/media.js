@@ -15,17 +15,17 @@ describe("Luv.Media.Image", function() {
   });
 
   it("invokes a custom callback when fails to load", function(){
-    media.onLoadError = sinon.stub();
+    media.onAssetError = sinon.stub();
     var callback = sinon.spy();
     var image = media.Image(null, null, callback);
     trigger(image.source, 'error');
     expect(callback).to.have.been.calledWith(image);
-    expect(media.onLoadError).to.have.been.calledWith(image);
+    expect(media.onAssetError).to.have.been.calledWith(image);
     expect(image.isError()).to.be.True;
   });
 
   it("has a toString method", function() {
-    media.onLoadError = sinon.stub();
+    media.onAssetError = sinon.stub();
     var image = media.Image('dummy.png');
     expect(image.toString()).to.equal('Luv.Media.Image("dummy.png")');
     expect("" + image).to.equal('Luv.Media.Image("dummy.png")');
@@ -56,17 +56,17 @@ describe("Luv.Media", function(){
     });
   });
 
-  describe(".onLoadError(asset)", function(){
+  describe(".onAssetError(asset)", function(){
     it("throws an error by default", function() {
       var peter = {toString: function(){return "Peter"; }};
-      expect(function(){ media.onLoadError(peter); }).to.Throw(Error);
+      expect(function(){ media.onAssetError(peter); }).to.Throw(Error);
     });
 
     it("is called when a new asset fails to load", function() {
-      var onLoadError = sinon.stub(media, 'onLoadError');
+      var onAssetError = sinon.stub(media, 'onAssetError');
       var asset = media.Asset();
       media.registerError(asset);
-      expect(onLoadError).to.have.been.calledWith(asset);
+      expect(onAssetError).to.have.been.calledWith(asset);
     });
   });
 

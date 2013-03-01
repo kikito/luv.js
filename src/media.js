@@ -48,10 +48,10 @@ var MediaProto = {
   //       };
   onAssetLoaded: function(asset) {},
 
-  // `onLoadError` is an overridable callback that will be called when an asset can not be loaded (for example,
+  // `onAssetError` is an overridable callback that will be called when an asset can not be loaded (for example,
   // the path to an image does not exist)
   // By default, it throws an error
-  onLoadError  : function(asset) { throw new Error("Could not load " + asset); },
+  onAssetError  : function(asset) { throw new Error("Could not load " + asset); },
 
   // `onLoaded` is an overridable callback that will be called when the last pending asset is finished loading
   // you can use it instead of `isLoaded` to control the game flow
@@ -84,7 +84,7 @@ var MediaProto = {
     asset.status = "error";
     if(asset.errorCallback) { asset.errorCallback(asset); }
 
-    this.onLoadError(asset);
+    this.onAssetError(asset);
   }
 };
 

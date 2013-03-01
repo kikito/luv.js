@@ -271,7 +271,7 @@ describe("Luv.Graphics", function(){
       });
 
       it("throws an error when attempting to draw a not loaded image", function(){
-        sinon.stub(media, 'onLoadError');
+        sinon.stub(media, 'onAssetError');
         var img = media.Image();
         expect(function(){ gr.drawImage(img, 10, 20); }).to.Throw(Error);
       });
