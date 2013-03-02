@@ -18,36 +18,52 @@ The minimal example requires one two files: `luv.js` and `index.html`. You can d
 
         luv.draw = function() {
           luv.graphics.print("Hello, my luv", 200, 300);
-        }
+        };
 
         luv.run();
       </script>
     </body>
     </html>
 
-## Development
+
+## Found a bug?
+
+Please file it using the [issue tracker](https://github.com/kikito/luv.js/issues?)
+
+## Want to help?
+
+Head on to the [issue tracker](https://github.com/kikito/luv.js/issues?). If there's
+an issue that picks your interest, add a comment there saying "I'm working on this one".
+
+If you want to propose an enhancement, start by opening an issue.
+
+### Dependencies & tools
 
 The original source is inside the `src` folder. It needs to be assembled into `luv.js` and `luv.min.js`. In order to do that:
 
 1. Install [node.js](http://nodejs.org/)
-2. Install grunt-cli: `npm install grunt-cli -g`
-3. Install the project dependencies `cd /path/to/luv.js/folder && npm install`
-4. Execute `grunt compile`
+2. Install the top-level packages: `npm install grunt-cli mocha-phantomjs -g`
+3. Install [pygments](http://pygments.org/) if you want to generate the docs
+4. Install the project dependencies `cd /path/to/luv.js/folder && npm install`
+5. Once done,
+  1. `grunt` will build `luv.js` and execute the test suite
+  2. `grunt compile` will just generate `luv.js` and `luv.min.js` from `src`, with no tests.
+  3. `grunt docs` will generate the documentation.
 
-## Tests
+### Contributing
 
-There are some extra steps to be done if you want to run the tests:
+1. Fork the project
+2. Create a branch for the issue/feature you want to fix
+3. Use concise git commits, for each important change you make
+4. Add tests for the new features/fixes, and make sure they pass
+5. When done, send a pull request.
 
-1. Install all the previous packages (make sure that you are able to `grunt compile`)
-2. Install [mocha-phantomjs](http://metaskills.net/mocha-phantomjs/): `npm install -g mocha-phantomjs`
-3. Execute grunt: `grunt` (the default grunt task runs the tests)
+More information:
 
-## Documentation
+* [How to Fork a repo](https://help.github.com/articles/fork-a-repo)
+* [Using pull requests](https://help.github.com/articles/using-pull-requests)
 
-This project uses [groc](https://github.com/nevir/groc) to generate its documentation. In order for it to work:
 
-1. Install the "Development" packages (you should be able to execute `grunt compile`)
-2. Install [pygments](http://pygments.org/)
-3. Execute `grunt groc:local`. Documentation will be generated in a folder named `docs`
+
 
 
