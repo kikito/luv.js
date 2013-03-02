@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-01) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-03-02) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 (function(){
@@ -86,7 +86,7 @@ var initializeOptions = function(options) {
 // Accepted options:
 
 // * `el`: A canvas DOM element to be used
-// * `id`: A camvas DOM id to be used (Ignored if `el` is provided)
+// * `id`: A canvas DOM id to be used (Ignored if `el` is provided)
 // * `width`: Sets the width of the canvas, in pixels
 // * `height`: Sets the height of the canvas, in pixels
 // * `load`: A load function (see above)
