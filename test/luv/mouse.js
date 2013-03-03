@@ -32,6 +32,26 @@ describe("Luv.Mouse", function(){
         trigger(el, "mousedown", {which: 2});
         expect(onPressed).to.have.been.calledWith(0,0,'m');
       });
+
+      it("gets called when the mouse wheel is pressed up/down", function() {
+        var onPressed = sinon.spy(mouse, 'onPressed');
+
+        trigger(el, "mousewheel", {wheelDelta: 1});
+        expect(onPressed).to.have.been.calledWith(0,0,'wu');
+
+        trigger(el, "mousewheel", {wheelDelta: -1});
+        expect(onPressed).to.have.been.calledWith(0,0,'wd');
+      });
+
+      it("gets called when the mouse wheel is pressed up/down in Firefox", function() {
+        var onPressed = sinon.spy(mouse, 'onPressed');
+
+        trigger(el, "DOMMouseScroll", {detail: -1});
+        expect(onPressed).to.have.been.calledWith(0,0,'wu');
+
+        trigger(el, "DOMMouseScroll", {detail: 1});
+        expect(onPressed).to.have.been.calledWith(0,0,'wd');
+      });
     });
 
     describe('.onReleased', function(){
@@ -43,6 +63,36 @@ describe("Luv.Mouse", function(){
 
         trigger(el, "mouseup", {which: 2});
         expect(onReleased).to.have.been.calledWith(0,0,'m');
+      });
+
+      it("gets called after the mouse is pressed up/down", function() {
+        this.clock = sinon.useFakeTimers(0, "setTimeout", "clearTimeout", "Date");
+        var onReleased = sinon.spy(mouse, 'onReleased');
+
+        trigger(el, "mousewheel", {wheelDelta: 1});
+        this.clock.tick(21);
+        expect(onReleased).to.have.been.calledWith(0,0,'wu');
+
+        trigger(el, "mousewheel", {wheelDelta: -1});
+        this.clock.tick(21);
+        expect(onReleased).to.have.been.calledWith(0,0,'wd');
+
+        this.clock.restore();
+      });
+
+      it("gets called after the mouse is pressed up/down on firefox", function() {
+        this.clock = sinon.useFakeTimers(0, "setTimeout", "clearTimeout", "Date");
+        var onReleased = sinon.spy(mouse, 'onReleased');
+
+        trigger(el, "DOMMouseScroll", {detail: -1});
+        this.clock.tick(21);
+        expect(onReleased).to.have.been.calledWith(0,0,'wu');
+
+        trigger(el, "DOMMouseScroll", {detail: 1});
+        this.clock.tick(21);
+        expect(onReleased).to.have.been.calledWith(0,0,'wd');
+
+        this.clock.restore();
       });
     });
 

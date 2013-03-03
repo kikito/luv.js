@@ -14,9 +14,33 @@ Luv.Mouse = function(el) {
   mouse.x = 0;
   mouse.y = 0;
   mouse.pressedButtons = {};
+  mouse.wheelTimeOuts = {};
 
   // The mouse module works by attaching several event listeners to the
-  // given el element. That's how clicks and movements are detected.
+  // given el element. That's how mouse position, button presses and wheel state
+  // are detected.
+
+  var handlePress = function(button) {
+    mouse.pressedButtons[button] = true;
+    mouse.onPressed(mouse.x, mouse.y, button);
+  };
+
+  var handleRelease = function(button) {
+    mouse.pressedButtons[button] = false;
+    mouse.onReleased(mouse.x, mouse.y, button);
+  };
+
+  var handleWheel = function(evt) {
+    evt.preventDefault();
+    var button = getWheelButtonFromEvent(evt);
+    // The 'wheel has stopped scrolling' event is triggered via setTimeout, since
+    // browsers don't provide a native 'stopped scrolling' event
+    clearTimeout(mouse.wheelTimeOuts[button]);
+    // The default time it takes the browser to detect that the mouse wheel stopped
+    // is 20 milliseconds
+    mouse.wheelTimeOuts[button] = setTimeout(function() { handleRelease(button); }, 20);
+    handlePress(button);
+  };
 
   // mousemove is particularly laggy in Chrome. I'd love to find a better solution
   el.addEventListener('mousemove', function(evt) {
@@ -26,16 +50,15 @@ Luv.Mouse = function(el) {
   });
 
   el.addEventListener('mousedown', function(evt) {
-    var button = getButtonFromEvent(evt);
-    mouse.pressedButtons[button] = true;
-    mouse.onPressed(mouse.x, mouse.y, button);
+    handlePress(getButtonFromEvent(evt));
   });
 
   el.addEventListener('mouseup', function(evt) {
-    var button = getButtonFromEvent(evt);
-    mouse.pressedButtons[button] = false;
-    mouse.onReleased(mouse.x, mouse.y, button);
+    handleRelease(getButtonFromEvent(evt));
   });
+
+  el.addEventListener('DOMMouseScroll', handleWheel); // firefox
+  el.addEventListener('mousewheel', handleWheel); // everyone else
 
   return mouse;
 };
@@ -46,6 +69,12 @@ Luv.Mouse = function(el) {
 var mouseButtonNames = {1: "l", 2: "m", 3: "r"};
 var getButtonFromEvent = function(evt) {
   return mouseButtonNames[evt.which];
+};
+
+// Internal function to determine the mouse weel direction
+var getWheelButtonFromEvent = function(evt) {
+  var delta = Math.max(-1, Math.min(1, (evt.wheelDelta || -evt.detail)));
+  return delta === 1 ? 'wu' : 'wd';
 };
 
 // ## MouseProto
