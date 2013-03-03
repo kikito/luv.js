@@ -1,4 +1,5 @@
 
+(function(){
 
 var CanvasProto = {
   getWidth      : function(){ return this.width; },
@@ -256,3 +257,4 @@ Luv.Graphics = function(el, width, height) {
   return gr;
 };
 
+}());

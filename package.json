@@ -24,7 +24,6 @@
     "grunt-contrib-uglify": "0.1.1",
     "grunt-contrib-jshint": "0.1.1",
     "shelljs": "~0.1.2",
-    "grunt-wrap": "0.2.x",
     "grunt-groc": "~0.2.0",
     "grunt-contrib-watch": "~0.2.0"
   },

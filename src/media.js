@@ -1,5 +1,5 @@
 // # media.js
-
+(function() {
 // ## Luv.Media
 Luv.Media = function() {
   // This function creates the `media` object when you create a luv game. It's usually
@@ -109,4 +109,4 @@ ImageProto.toString       = function() {
   return 'Luv.Media.Image("' + this.path + '")';
 };
 
-
+}());

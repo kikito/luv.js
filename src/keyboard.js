@@ -1,4 +1,5 @@
 // # keyboard.js
+(function() {
 
 // *Disclaimer*: the code on this module was inspired by [selfcontained.us](http://www.selfcontained.us/2009/09/16/getting-keycode-values-in-javascript/)
 
@@ -122,6 +123,8 @@ var getKeyFromEvent = function(event) {
   // That will return "normal letters", such as 'a', 'b', 'c', '1', '2', '3', etc.
   return key || String.fromCharCode(code);
 };
+
+}());
 
 
 

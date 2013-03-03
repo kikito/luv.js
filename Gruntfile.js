@@ -28,21 +28,10 @@ module.exports = function(grunt) {
       }
     },
     concat: {
-      dist: {
-        src:  srcFiles,
-        dest: '<%= pkg.name %>.js'
-      },
       banner: {
         options: { banner: '<%= banner %>' },
-        src: '<%= pkg.name %>.js',
+        src: srcFiles,
         dest: '<%= pkg.name %>.js'
-      }
-    },
-    wrap: {
-      dist: {
-        src: ['<%= pkg.name %>.js'],
-        dest: ['<%= pkg.name %>.js'],
-        wrapper: ['(function(){\n', '\n}());']
       }
     },
     uglify: {
@@ -80,7 +69,6 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-wrap');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-groc');
   grunt.loadNpmTasks('grunt-contrib-watch');
@@ -93,7 +81,7 @@ module.exports = function(grunt) {
   grunt.registerTask('docs',     ['groc:local']);
   grunt.registerTask('gh-pages', ['groc:github']);
 
-  grunt.registerTask('compile', 'generate luv.js and luv.min.js from src/', ['jshint:dist', 'concat:dist', 'wrap:dist', 'concat:banner', 'uglify']);
+  grunt.registerTask('compile', 'generate luv.js and luv.min.js from src/', ['jshint:dist', 'concat', 'uglify']);
 
   // Default task(s).
   grunt.registerTask('default', ['jshint:test', 'compile', 'mocha']);

@@ -1,4 +1,5 @@
 // # mouse.js
+(function() {
 
 // ## Luv.Mouse
 Luv.Mouse = function(el) {
@@ -121,3 +122,4 @@ var MouseProto = {
   }
 };
 
+}());

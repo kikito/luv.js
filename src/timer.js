@@ -1,4 +1,5 @@
 // # timer.js
+(function(){
 
 // ## Luv.Timer
 Luv.Timer = function() {
@@ -84,4 +85,4 @@ var TimerProto = {
 
 };
 
-
+}());

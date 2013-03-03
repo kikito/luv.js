@@ -1,4 +1,5 @@
 // # Luv.js
+(function() {
 
 // ## Main Luv function
 Luv = function(options) {
@@ -197,4 +198,4 @@ var LuvProto = {
   }
 };
 
-
+}());
