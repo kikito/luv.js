@@ -10,6 +10,8 @@ module.exports = function(grunt) {
     "src/keyboard.js",
     "src/mouse.js",
     "src/media.js",
+    "src/media/asset.js",
+    "src/media/image.js",
     "src/graphics.js"
   ];
   var testFiles = "test/**/*.js";

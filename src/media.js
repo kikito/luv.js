@@ -12,7 +12,7 @@ Luv.Media = function() {
   media.pending = 0;
 
   media.Image = function(path, loadCallback, errorCallback) {
-    var image  = Object.create(ImageProto);
+    var image  = Object.create(Luv.Media.Image);
     image.path = path;
 
     media.newAsset(image, loadCallback, errorCallback);
@@ -86,27 +86,6 @@ var MediaProto = {
 
     this.onAssetError(asset);
   }
-};
-
-// ## Luv.Media.Asset
-// This is the superclass of all media assets. It's not supposed to be instantiated, it's just a method holding object
-var Asset = {
-  isPending: function() { return this.status == "pending"; },
-  isLoaded:  function() { return this.status == "loaded"; },
-  isError:   function() { return this.status == "error"; }
-};
-Luv.Media.Asset = Asset;
-
-// Internal object used by the images created inside Luv.Media()
-var ImageProto = Object.create(Asset);
-
-ImageProto.getWidth       = function() { return this.source.width; };
-ImageProto.getHeight      = function() { return this.source.height; };
-ImageProto.getDimensions  = function() {
-  return { width: this.source.width, height: this.source.height };
-};
-ImageProto.toString       = function() {
-  return 'Luv.Media.Image("' + this.path + '")';
 };
 
 }());
