@@ -77,9 +77,11 @@ describe("Luv.Graphics", function(){
 
     describe(".clear", function(){
       it("clears the canvas with the background color", function() {
-        var fillRect = sinon.spy(gr.ctx, 'fillRect');
+        var fillRect     = sinon.spy(gr.ctx, 'fillRect');
+        var setTransform = sinon.spy(gr.ctx, 'setTransform');
         gr.clear();
         expect(fillRect).to.have.been.calledWith(0,0,gr.width,gr.height);
+        expect(setTransform).to.have.been.calledWith(1,0,0,1,0,0);
       });
     });
 
@@ -261,6 +263,54 @@ describe("Luv.Graphics", function(){
         expect(arc).to.have.been.calledWith(10, 10, 20, 0, Math.PI, false);
         expect(stroke).to.have.been.called;
         expect(gr.ctx.strokeStyle).to.equal('#00ff00');
+      });
+    });
+
+    describe(".translate", function() {
+      it("translates the origin of coordinates", function() {
+        var translate = sinon.spy(gr.ctx, 'translate');
+        gr.translate(10,20);
+        expect(translate).to.have.been.calledWith(10,20);
+      });
+    });
+
+    describe(".scale", function() {
+      it("scales the canvas", function() {
+        var scale = sinon.spy(gr.ctx, 'scale');
+        gr.scale(1,2);
+        expect(scale).to.have.been.calledWith(1,2);
+      });
+    });
+
+    describe(".rotate", function() {
+      it("rotates the canvas", function() {
+        var rotate = sinon.spy(gr.ctx, 'rotate');
+        gr.rotate(Math.PI);
+        expect(rotate).to.have.been.calledWith(Math.PI);
+      });
+    });
+
+    describe(".reset", function() {
+      it("resets the canvas transformation", function() {
+        var setTransform = sinon.spy(gr.ctx, 'setTransform');
+        gr.reset();
+        expect(setTransform).to.have.been.calledWith(1,0,0,1,0,0);
+      });
+    });
+
+    describe(".push", function() {
+      it("adds a new transformation level onto the stack", function() {
+        var save = sinon.spy(gr.ctx, 'save');
+        gr.push();
+        expect(save).to.have.been.called;
+      });
+    });
+
+    describe(".pop", function() {
+      it("removes a transformation level from the stack", function() {
+        var restore = sinon.spy(gr.ctx, 'restore');
+        gr.pop();
+        expect(restore).to.have.been.called;
       });
     });
 

@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-02) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-03-03) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 (function(){
@@ -772,6 +772,7 @@ var GraphicsProto = {
   getLineCap : function() { return this.lineCap; },
 
   clear : function() {
+    this.reset();
     this.ctx.fillStyle = this.backgroundColorStyle;
     this.ctx.fillRect(0, 0, this.width, this.height);
   },
@@ -833,7 +834,33 @@ var GraphicsProto = {
 
   drawCanvas : function(canvas, x, y) {
     this.ctx.drawImage(canvas.el, x, y);
+  },
+
+  translate: function(x,y) {
+    this.ctx.translate(x,y);
+  },
+
+  scale: function(sx,sy) {
+    this.ctx.scale(sx,sy);
+  },
+
+  rotate: function(angle) {
+    this.ctx.rotate(angle);
+  },
+
+  reset: function() {
+    this.ctx.setTransform(1,0,0,1,0,0);
+  },
+
+  push: function() {
+    this.ctx.save();
+  },
+
+  pop: function() {
+    this.ctx.restore();
   }
+
+
 };
 
 Luv.Graphics = function(el, width, height) {
