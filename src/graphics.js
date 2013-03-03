@@ -70,9 +70,14 @@ var drawPolyLine = function(graphics, methodName, minLength, coords) {
   graphics.ctx.stroke();
 };
 
+var normalizeAngle = function(angle) {
+  angle = angle % (2 * Math.PI);
+  return angle >= 0 ? angle : angle + 2 * Math.PI;
+};
+
 
 var GraphicsProto = {
-  setCanvas: function(canvas) {
+  setCanvas : function(canvas) {
     canvas = canvas || this.defaultCanvas;
     this.canvas = canvas;
     this.el     = canvas.el;
@@ -80,9 +85,9 @@ var GraphicsProto = {
     this.setLineWidth(this.lineWidth);
     this.setLineCap(this.lineCap);
   },
-  getCanvas: function() { return this.canvas; },
-  setColor : function(r,g,b,a) { setColor(this, 'color', r,g,b,a); },
-  getColor : function() { return getColor(this.color); },
+  getCanvas : function() { return this.canvas; },
+  setColor  : function(r,g,b,a) { setColor(this, 'color', r,g,b,a); },
+  getColor  : function() { return getColor(this.color); },
 
   setBackgroundColor : function(r,g,b,a) { setColor(this, 'backgroundColor', r,g,b,a); },
   getBackgroundColor : function() { return getColor(this.backgroundColor); },
@@ -160,41 +165,68 @@ var GraphicsProto = {
     drawPath(this, mode);
   },
 
-  drawImage : function(img, x, y) {
+  drawImage : function(img, x, y, sx, sy, angle, ox, oy) {
+    var ctx = this.ctx;
     if(!img.isLoaded()) {
       throw new Error("Attepted to draw a non loaded image: " + img);
     }
-    this.ctx.drawImage(img.source, x, y);
+
+    sx    = typeof sx    === "undefined" ? 1 : sx;
+    sy    = typeof sy    === "undefined" ? 1 : sy;
+    angle = typeof angle === "undefined" ? 0 : normalizeAngle(angle);
+    ox    = typeof ox    === "undefined" ? 0 : ox;
+    oy    = typeof oy    === "undefined" ? 0 : oy;
+
+    if(sx !== 1 || sy !== 1 || angle !== 0 || ox !== 0 || oy !== 0) {
+      ctx.save();
+
+      ctx.translate(x,y);
+
+      ctx.translate(ox,oy);
+      ctx.rotate(angle);
+      ctx.scale(sx,sy);
+      ctx.drawImage(img.source, -ox, -oy);
+
+      ctx.restore();
+    } else {
+      ctx.drawImage(img.source, x, y);
+    }
+  },
+
+  drawCenteredImage : function(img, x,y, sx, sy, angle) {
+    var d = img.getDimensions();
+    var ox = d.width / 2,
+        oy = d.height / 2;
+    this.drawImage(img, x-ox,y-oy, sx,sy, angle, ox, oy);
   },
 
   drawCanvas : function(canvas, x, y) {
     this.ctx.drawImage(canvas.el, x, y);
   },
 
-  translate: function(x,y) {
+  translate : function(x,y) {
     this.ctx.translate(x,y);
   },
 
-  scale: function(sx,sy) {
+  scale : function(sx,sy) {
     this.ctx.scale(sx,sy);
   },
 
-  rotate: function(angle) {
+  rotate : function(angle) {
     this.ctx.rotate(angle);
   },
 
-  reset: function() {
+  reset : function() {
     this.ctx.setTransform(1,0,0,1,0,0);
   },
 
-  push: function() {
+  push : function() {
     this.ctx.save();
   },
 
-  pop: function() {
+  pop : function() {
     this.ctx.restore();
   }
-
 
 };
 
