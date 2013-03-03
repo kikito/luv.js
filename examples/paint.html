@@ -10,9 +10,10 @@
     var canvas = luv.graphics.Canvas();
 
     var prevPos = null;
+    var radius = 8;
 
     luv.load = function() {
-      luv.graphics.setLineWidth(16);
+      luv.graphics.setLineWidth(radius * 2);
       luv.graphics.setColor(0,0,255);
       luv.graphics.setBackgroundColor(255, 255, 255);
       luv.graphics.setLineCap('round');
@@ -22,7 +23,7 @@
       luv.graphics.setCanvas();
       luv.graphics.drawCanvas(canvas, 0, 0);
       var pos = luv.mouse.getPosition();
-      luv.graphics.circle('fill', pos.x, pos.y, 8);
+      luv.graphics.circle('fill', pos.x, pos.y, radius);
       prevPos = pos;
     };
 
@@ -35,8 +36,18 @@
     };
 
     luv.mouse.onPressed = function(x,y,button) {
-      if(button == "l") {
-        prevPos = {x: x, y: y};
+      switch(button) {
+        case "l":
+          prevPos = {x: x, y: y};
+          break;
+        case "wu":
+          radius = Math.min(40, radius + 1);
+          luv.graphics.setLineWidth(radius * 2);
+          break;
+        case "wd":
+          radius = Math.max(4, radius - 1);
+          luv.graphics.setLineWidth(radius * 2);
+          break;
       }
     };
 
