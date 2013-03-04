@@ -1,23 +1,22 @@
 
 (function(){
 
-var CanvasProto = {
+var CanvasProto = Luv.Object.extend({
+  getType       : function(){ return 'Luv.Graphics.Canvas'; },
   getWidth      : function(){ return this.width; },
   getHeight     : function(){ return this.height; },
   getDimensions : function(){ return { width: this.width, height: this.height }; }
-};
+});
 
 var Canvas = function(el, width, height) {
   el.setAttribute('width', width);
   el.setAttribute('height', height);
-
-  var canvas     = Object.create(CanvasProto);
-  canvas.width   = width;
-  canvas.height  = height;
-  canvas.el      = el;
-  canvas.ctx     = el.getContext('2d');
-
-  return canvas;
+  return CanvasProto.extend({
+    width:  width,
+    height: height,
+    el:     el,
+    ctx:    el.getContext('2d')
+  });
 };
 
 var twoPI = Math.PI * 2;
@@ -77,7 +76,8 @@ var normalizeAngle = function(angle) {
 };
 
 
-var GraphicsProto = {
+var GraphicsProto = Luv.Object.extend({
+  getType : function() { return 'Luv.Graphics'; },
   setCanvas : function(canvas) {
     canvas = canvas || this.defaultCanvas;
     this.canvas = canvas;
@@ -229,30 +229,26 @@ var GraphicsProto = {
     this.ctx.restore();
   }
 
-};
+});
 
 Luv.Graphics = function(el, width, height) {
-  var gr = Object.create(GraphicsProto);
+  var gr = GraphicsProto.extend({
+    width:     width,
+    height:    height,
+    lineWidth: 1,
+    lineCap:   "butt",
+    color:     {},
+    backgroundColor: {},
+    defaultCanvas: Canvas(el, width, height),
+    Canvas: function(width, height) {
+      var el = document.createElement('canvas');
+      return Canvas(el, width || this.width, height || this.height);
+    }
+  });
 
-  gr.width = width;
-  gr.height = height;
-
-  gr.lineWidth = 1;
-  gr.lineCap   = "butt";
-
-  gr.color = {};
   gr.setColor(255,255,255);
-
-  gr.backgroundColor = {};
   gr.setBackgroundColor(0,0,0);
-
-  gr.defaultCanvas = Canvas(el, width, height);
   gr.setCanvas();
-
-  gr.Canvas = function(width, height) {
-    var el = document.createElement('canvas');
-    return Canvas(el, width || gr.width, height || gr.height);
-  };
 
   return gr;
 };

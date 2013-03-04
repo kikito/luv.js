@@ -9,9 +9,10 @@ Luv.Keyboard = function(el) {
   // luv.js itself when it creates a Luv() game. The two most usual ways to
   // interact with it are via the `onPress` and `onRelease` callbacks, or the
   // `isPressed` method (see below).
-  var keyboard = Object.create(KeyboardProto);
-
-  keyboard.keysDown = {};
+  var keyboard = KeyboardProto.extend({
+    keysDown : {},
+    el: el
+  });
 
   el.tabIndex = 1;
   el.focus();
@@ -33,7 +34,9 @@ Luv.Keyboard = function(el) {
 
 // ## KeyboardProto
 // provides the three main keyboard methods
-var KeyboardProto = {
+var KeyboardProto = Luv.Object.extend({
+  getType: function(){ return 'Luv.Keyboard'; },
+
   // `onPressed` is a user-overrideable that is triggered when a keyboard key
   // is pressed.
   //
@@ -75,7 +78,7 @@ var KeyboardProto = {
   isDown     : function(key) {
     return !!this.keysDown[key];
   }
-};
+});
 
 // ## Normal keys
 var keys = {

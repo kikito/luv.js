@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-03) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-03-04) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -238,6 +238,30 @@ var LuvProto = {
 
 }());
 
+// # object.js
+(function() {
+
+// ## Luv.Object
+// The base object that provides common functionality amongst all objects in Luv
+
+Luv.Object = {
+  getType : function() { return 'Luv.Object'; },
+  toString: function() { return this.getType(); },
+  include : function(properties) {
+    for(var property in properties) {
+      if(properties.hasOwnProperty(property)) {
+        this[property] = properties[property];
+      }
+    }
+    return this;
+  },
+  extend  : function(properties) {
+    return Object.create(this).include(properties);
+  }
+};
+
+}());
+
 // # timer.js
 (function(){
 
@@ -252,25 +276,27 @@ Luv.Timer = function() {
 // library, except to obtain the Frames per second or maybe to tweak the
 // deltaTimeLimit (see below)
 
-  var timer = Object.create(TimerProto);
-  // The time that has passed since the timer was created, in milliseconds
-  timer.microTime = 0;
+  return TimerProto.extend({
+    // The time that has passed since the timer was created, in milliseconds
+    microTime : 0,
 
-  // The time that has passed between the last two frames, in seconds
-  timer.deltaTime = 0;
+    // The time that has passed between the last two frames, in seconds
+    deltaTime : 0,
 
-  // The upper value that deltaTime can have, in seconds. Defaults to 0.25.
-  // Can be changed via `setDeltaTimeLimit`.
-  // Note that this does *not* magically make a game go faster. If a game has
-  // very low FPS, this makes sure that the delta time is not too great (its bad
-  // for things like physics simulations, etc).
-  timer.deltaTimeLimit = 0.25;
-  return timer;
+    // The upper value that deltaTime can have, in seconds. Defaults to 0.25.
+    // Can be changed via `setDeltaTimeLimit`.
+    // Note that this does *not* magically make a game go faster. If a game has
+    // very low FPS, this makes sure that the delta time is not too great (its bad
+    // for things like physics simulations, etc).
+    deltaTimeLimit : 0.25
+  });
 };
 
 // ## TimerProto
 // The `timer` methods go here
-var TimerProto = {
+var TimerProto = Luv.Object.extend({
+  getType: function() { return 'Luv.Timer'; },
+
   // updates the timer with a new timestamp.
   step : function(time) {
     // In some rare cases (the first couple frames) the time readings might
@@ -323,7 +349,7 @@ var TimerProto = {
     window.requestAnimationFrame(f);
   }
 
-};
+});
 
 }());
 
@@ -338,9 +364,10 @@ Luv.Keyboard = function(el) {
   // luv.js itself when it creates a Luv() game. The two most usual ways to
   // interact with it are via the `onPress` and `onRelease` callbacks, or the
   // `isPressed` method (see below).
-  var keyboard = Object.create(KeyboardProto);
-
-  keyboard.keysDown = {};
+  var keyboard = KeyboardProto.extend({
+    keysDown : {},
+    el: el
+  });
 
   el.tabIndex = 1;
   el.focus();
@@ -362,7 +389,9 @@ Luv.Keyboard = function(el) {
 
 // ## KeyboardProto
 // provides the three main keyboard methods
-var KeyboardProto = {
+var KeyboardProto = Luv.Object.extend({
+  getType: function(){ return 'Luv.Keyboard'; },
+
   // `onPressed` is a user-overrideable that is triggered when a keyboard key
   // is pressed.
   //
@@ -404,7 +433,7 @@ var KeyboardProto = {
   isDown     : function(key) {
     return !!this.keysDown[key];
   }
-};
+});
 
 // ## Normal keys
 var keys = {
@@ -469,13 +498,12 @@ Luv.Mouse = function(el) {
 
   //       var luv = Luv();
   //       luv.mouse // Already instantiated mouse handler
-
-  var mouse = Object.create(MouseProto);
-
-  mouse.x = 0;
-  mouse.y = 0;
-  mouse.pressedButtons = {};
-  mouse.wheelTimeOuts = {};
+  var mouse = MouseProto.extend({
+    x: 0,
+    y: 0,
+    pressedButtons: {},
+    wheelTimeOuts: {}
+  });
 
   // The mouse module works by attaching several event listeners to the
   // given el element. That's how mouse position, button presses and wheel state
@@ -540,7 +568,8 @@ var getWheelButtonFromEvent = function(evt) {
 
 // ## MouseProto
 // Shared mouse functions go here
-var MouseProto = {
+var MouseProto = Luv.Object.extend({
+  getType: function() { return 'Luv.Mouse'; },
 
   // Returns the x coordinate where the mouse is (relative to the DOM element)
   getX: function() { return this.x; },
@@ -580,7 +609,7 @@ var MouseProto = {
   isPressed: function(button) {
     return !!this.pressedButtons[button];
   }
-};
+});
 
 }());
 
@@ -593,32 +622,31 @@ Luv.Media = function() {
 
   //       var luv = Luv();
   //       luv.media // this is the media object
-  var media = Object.create(MediaProto);
+  return MediaProto.extend({
+    pending: 0,
+    Image  : function(path, loadCallback, errorCallback) {
+      var media = this;
+      var image  = Luv.Media.Image.extend({path: path});
 
-  media.pending = 0;
+      media.newAsset(image, loadCallback, errorCallback);
 
-  media.Image = function(path, loadCallback, errorCallback) {
-    var image  = Object.create(Luv.Media.Image);
-    image.path = path;
+      var source   = new Image(); // html image
+      image.source = source;
 
-    media.newAsset(image, loadCallback, errorCallback);
+      source.addEventListener('load',  function(){ media.registerLoad(image); });
+      source.addEventListener('error', function(){ media.registerError(image); });
+      source.src = path;
 
-    var source   = new Image(); // html image
-    image.source = source;
-
-    source.addEventListener('load',  function(){ media.registerLoad(image); });
-    source.addEventListener('error', function(){ media.registerError(image); });
-    source.src = path;
-
-    return image;
-  };
-
-  return media;
+      return image;
+    }
+  });
 };
 
 // ## MediaProto
 // Contains the methods of the luv.media object
-var MediaProto = {
+var MediaProto = Luv.Object.extend({
+  getType      : function() { return 'Luv.Media'; },
+
   // `isLoaded` returns `true` if all the assets have been loaded, `false` if there are assets still being loaded
   isLoaded     : function() { return this.pending === 0; },
 
@@ -672,7 +700,7 @@ var MediaProto = {
 
     this.onAssetError(asset);
   }
-};
+});
 
 }());
 
@@ -681,11 +709,12 @@ var MediaProto = {
 
 // ## Luv.Media.Asset
 // This is the superclass of all media assets. It's not supposed to be instantiated, it's just a method holding object
-Luv.Media.Asset = {
+Luv.Media.Asset = Luv.Object.extend({
+  getType:   function() { return 'Luv.Media.Asset'; },
   isPending: function() { return this.status == "pending"; },
   isLoaded:  function() { return this.status == "loaded"; },
   isError:   function() { return this.status == "error"; }
-};
+});
 
 }());
 
@@ -694,39 +723,40 @@ Luv.Media.Asset = {
 
 // ## Luv.Media.Image
 // Internal object used by the images created inside Luv.Media()
-Luv.Media.Image = Object.create(Luv.Media.Asset);
+Luv.Media.Image = Luv.Media.Asset.extend({
+  getType       : function() { return 'Luv.Media.Image'; },
+  getWidth      : function() { return this.source.width; },
+  getHeight     : function() { return this.source.height; },
+  getDimensions : function() {
+    return { width: this.source.width, height: this.source.height };
+  },
+  toString      : function() {
+    return 'Luv.Media.Image("' + this.path + '")';
+  }
+});
 
-Luv.Media.Image.getWidth       = function() { return this.source.width; };
-Luv.Media.Image.getHeight      = function() { return this.source.height; };
-Luv.Media.Image.getDimensions  = function() {
-  return { width: this.source.width, height: this.source.height };
-};
-Luv.Media.Image.toString       = function() {
-  return 'Luv.Media.Image("' + this.path + '")';
-};
 
 }());
 
 
 (function(){
 
-var CanvasProto = {
+var CanvasProto = Luv.Object.extend({
+  getType       : function(){ return 'Luv.Graphics.Canvas'; },
   getWidth      : function(){ return this.width; },
   getHeight     : function(){ return this.height; },
   getDimensions : function(){ return { width: this.width, height: this.height }; }
-};
+});
 
 var Canvas = function(el, width, height) {
   el.setAttribute('width', width);
   el.setAttribute('height', height);
-
-  var canvas     = Object.create(CanvasProto);
-  canvas.width   = width;
-  canvas.height  = height;
-  canvas.el      = el;
-  canvas.ctx     = el.getContext('2d');
-
-  return canvas;
+  return CanvasProto.extend({
+    width:  width,
+    height: height,
+    el:     el,
+    ctx:    el.getContext('2d')
+  });
 };
 
 var twoPI = Math.PI * 2;
@@ -786,7 +816,8 @@ var normalizeAngle = function(angle) {
 };
 
 
-var GraphicsProto = {
+var GraphicsProto = Luv.Object.extend({
+  getType : function() { return 'Luv.Graphics'; },
   setCanvas : function(canvas) {
     canvas = canvas || this.defaultCanvas;
     this.canvas = canvas;
@@ -938,30 +969,26 @@ var GraphicsProto = {
     this.ctx.restore();
   }
 
-};
+});
 
 Luv.Graphics = function(el, width, height) {
-  var gr = Object.create(GraphicsProto);
+  var gr = GraphicsProto.extend({
+    width:     width,
+    height:    height,
+    lineWidth: 1,
+    lineCap:   "butt",
+    color:     {},
+    backgroundColor: {},
+    defaultCanvas: Canvas(el, width, height),
+    Canvas: function(width, height) {
+      var el = document.createElement('canvas');
+      return Canvas(el, width || this.width, height || this.height);
+    }
+  });
 
-  gr.width = width;
-  gr.height = height;
-
-  gr.lineWidth = 1;
-  gr.lineCap   = "butt";
-
-  gr.color = {};
   gr.setColor(255,255,255);
-
-  gr.backgroundColor = {};
   gr.setBackgroundColor(0,0,0);
-
-  gr.defaultCanvas = Canvas(el, width, height);
   gr.setCanvas();
-
-  gr.Canvas = function(width, height) {
-    var el = document.createElement('canvas');
-    return Canvas(el, width || gr.width, height || gr.height);
-  };
 
   return gr;
 };

@@ -7,32 +7,31 @@ Luv.Media = function() {
 
   //       var luv = Luv();
   //       luv.media // this is the media object
-  var media = Object.create(MediaProto);
+  return MediaProto.extend({
+    pending: 0,
+    Image  : function(path, loadCallback, errorCallback) {
+      var media = this;
+      var image  = Luv.Media.Image.extend({path: path});
 
-  media.pending = 0;
+      media.newAsset(image, loadCallback, errorCallback);
 
-  media.Image = function(path, loadCallback, errorCallback) {
-    var image  = Object.create(Luv.Media.Image);
-    image.path = path;
+      var source   = new Image(); // html image
+      image.source = source;
 
-    media.newAsset(image, loadCallback, errorCallback);
+      source.addEventListener('load',  function(){ media.registerLoad(image); });
+      source.addEventListener('error', function(){ media.registerError(image); });
+      source.src = path;
 
-    var source   = new Image(); // html image
-    image.source = source;
-
-    source.addEventListener('load',  function(){ media.registerLoad(image); });
-    source.addEventListener('error', function(){ media.registerError(image); });
-    source.src = path;
-
-    return image;
-  };
-
-  return media;
+      return image;
+    }
+  });
 };
 
 // ## MediaProto
 // Contains the methods of the luv.media object
-var MediaProto = {
+var MediaProto = Luv.Object.extend({
+  getType      : function() { return 'Luv.Media'; },
+
   // `isLoaded` returns `true` if all the assets have been loaded, `false` if there are assets still being loaded
   isLoaded     : function() { return this.pending === 0; },
 
@@ -86,6 +85,6 @@ var MediaProto = {
 
     this.onAssetError(asset);
   }
-};
+});
 
 }());

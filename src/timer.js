@@ -12,25 +12,27 @@ Luv.Timer = function() {
 // library, except to obtain the Frames per second or maybe to tweak the
 // deltaTimeLimit (see below)
 
-  var timer = Object.create(TimerProto);
-  // The time that has passed since the timer was created, in milliseconds
-  timer.microTime = 0;
+  return TimerProto.extend({
+    // The time that has passed since the timer was created, in milliseconds
+    microTime : 0,
 
-  // The time that has passed between the last two frames, in seconds
-  timer.deltaTime = 0;
+    // The time that has passed between the last two frames, in seconds
+    deltaTime : 0,
 
-  // The upper value that deltaTime can have, in seconds. Defaults to 0.25.
-  // Can be changed via `setDeltaTimeLimit`.
-  // Note that this does *not* magically make a game go faster. If a game has
-  // very low FPS, this makes sure that the delta time is not too great (its bad
-  // for things like physics simulations, etc).
-  timer.deltaTimeLimit = 0.25;
-  return timer;
+    // The upper value that deltaTime can have, in seconds. Defaults to 0.25.
+    // Can be changed via `setDeltaTimeLimit`.
+    // Note that this does *not* magically make a game go faster. If a game has
+    // very low FPS, this makes sure that the delta time is not too great (its bad
+    // for things like physics simulations, etc).
+    deltaTimeLimit : 0.25
+  });
 };
 
 // ## TimerProto
 // The `timer` methods go here
-var TimerProto = {
+var TimerProto = Luv.Object.extend({
+  getType: function() { return 'Luv.Timer'; },
+
   // updates the timer with a new timestamp.
   step : function(time) {
     // In some rare cases (the first couple frames) the time readings might
@@ -83,6 +85,6 @@ var TimerProto = {
     window.requestAnimationFrame(f);
   }
 
-};
+});
 
 }());

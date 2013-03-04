@@ -6,13 +6,15 @@ module.exports = function(grunt) {
   var srcFiles  = [
     "src/shims.js",
     "src/Luv.js",
+    "src/object.js",
     "src/timer.js",
     "src/keyboard.js",
     "src/mouse.js",
     "src/media.js",
     "src/media/asset.js",
     "src/media/image.js",
-    "src/graphics.js"
+    "src/graphics.js",
+    "src/graphics/canvas.js"
   ];
   var testFiles = "test/**/*.js";
   var docFiles = ['README.md', 'MIT-LICENSE.md'].concat(srcFiles);

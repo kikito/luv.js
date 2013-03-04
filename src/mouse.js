@@ -9,13 +9,12 @@ Luv.Mouse = function(el) {
 
   //       var luv = Luv();
   //       luv.mouse // Already instantiated mouse handler
-
-  var mouse = Object.create(MouseProto);
-
-  mouse.x = 0;
-  mouse.y = 0;
-  mouse.pressedButtons = {};
-  mouse.wheelTimeOuts = {};
+  var mouse = MouseProto.extend({
+    x: 0,
+    y: 0,
+    pressedButtons: {},
+    wheelTimeOuts: {}
+  });
 
   // The mouse module works by attaching several event listeners to the
   // given el element. That's how mouse position, button presses and wheel state
@@ -80,7 +79,8 @@ var getWheelButtonFromEvent = function(evt) {
 
 // ## MouseProto
 // Shared mouse functions go here
-var MouseProto = {
+var MouseProto = Luv.Object.extend({
+  getType: function() { return 'Luv.Mouse'; },
 
   // Returns the x coordinate where the mouse is (relative to the DOM element)
   getX: function() { return this.x; },
@@ -120,6 +120,6 @@ var MouseProto = {
   isPressed: function(button) {
     return !!this.pressedButtons[button];
   }
-};
+});
 
 }());
