@@ -825,6 +825,7 @@ var GraphicsProto = Luv.Object.extend({
     this.ctx    = canvas.ctx;
     this.setLineWidth(this.lineWidth);
     this.setLineCap(this.lineCap);
+    this.reset();
   },
   getCanvas : function() { return this.canvas; },
   setColor  : function(r,g,b,a) { setColor(this, 'color', r,g,b,a); },
