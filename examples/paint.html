@@ -6,21 +6,25 @@
 </head>
 <body>
   <script>
-    var luv = Luv();
+    var luv = Luv({fullWindow: true});
     var canvas = luv.graphics.Canvas();
 
     var prevPos = null;
-    var radius = 8;
+    var radius = 2;
+    var color  = 0;
 
     luv.load = function() {
-      luv.graphics.setLineWidth(radius * 2);
-      luv.graphics.setColor(0,0,255);
       luv.graphics.setBackgroundColor(255, 255, 255);
       luv.graphics.setLineCap('round');
     };
 
     luv.draw = function() {
-      luv.graphics.setCanvas();
+      luv.graphics.setLineWidth(radius * 2);
+      if(color > 255) {
+        luv.graphics.setColor(color-255, color-255, 255);
+      } else {
+        luv.graphics.setColor(0,0,color);
+      }
       luv.graphics.drawCanvas(canvas, 0, 0);
       var pos = luv.mouse.getPosition();
       luv.graphics.circle('fill', pos.x, pos.y, radius);
@@ -31,8 +35,16 @@
       if(luv.mouse.isPressed("l")) {
         var pos = luv.mouse.getPosition()
         luv.graphics.setCanvas(canvas);
-        luv.graphics.line(prevPos.x, prevPos.y, pos.x, pos.y);
+        if(prevPos.x === pos.x && prevPos.y === pos.y) {
+          luv.graphics.circle('fill', pos.x, pos.y, radius);
+        } else {
+          luv.graphics.line(prevPos.x, prevPos.y, pos.x, pos.y);
+        }
       }
+    };
+
+    luv.onResize = function(width, height) {
+      canvas.setDimensions(width, height);
     };
 
     luv.mouse.onPressed = function(x,y,button) {
@@ -41,12 +53,12 @@
           prevPos = {x: x, y: y};
           break;
         case "wu":
-          radius = Math.min(40, radius + 1);
-          luv.graphics.setLineWidth(radius * 2);
+          radius = Math.min(64, radius + 1);
+          color  = Math.min(510, color + 8);
           break;
         case "wd":
-          radius = Math.max(4, radius - 1);
-          luv.graphics.setLineWidth(radius * 2);
+          radius = Math.max(2, radius - 1);
+          color  = Math.max(0, color - 8);
           break;
       }
     };

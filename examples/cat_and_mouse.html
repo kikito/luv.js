@@ -6,24 +6,24 @@
 </head>
 <body>
   <script>
-    var luv = Luv();
+    var luv = Luv({fullWindow: true});
 
     var cat;
     var halfPI = Math.PI / 2;
 
     luv.load = function() {
-      cat     = {x: 400, y: 300, angle: 0, sx: 1, sy: 1};
-      cat.img = luv.media.Image('img/cat.png');
+      cat = {
+        x: 400, y: 300, angle: 0, sx: 1, sy: 1,
+        img: luv.media.Image('img/cat.png')
+      };
     };
 
     luv.draw = function() {
       if(!luv.media.isLoaded()) { return; }
-      luv.graphics.drawCenteredImage(cat.img,
-                                     cat.x,
-                                     cat.y,
-                                     cat.sx,
-                                     cat.sy,
-                                     cat.angle);
+      luv.graphics.drawCenteredImage(cat.img, cat.x, cat.y, cat.sx, cat.sy, cat.angle);
+      var mo = luv.mouse.getPosition();
+      luv.graphics.setColor(255,0,0,125);
+      luv.graphics.circle('fill', mo.x, mo.y, 10);
     };
 
     luv.update = function(dt) {
