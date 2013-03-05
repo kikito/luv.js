@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-04) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-03-05) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -65,10 +65,11 @@ Luv = function(options) {
   var luv = Object.create(LuvProto);
   luv.el  = options.el;
 
-  if(options.load)  { luv.load   = options.load; }
-  if(options.update){ luv.update = options.update; }
-  if(options.draw)  { luv.draw   = options.draw; }
-  if(options.run)   { luv.run    = options.run; }
+  if(options.load)     { luv.load     = options.load; }
+  if(options.update)   { luv.update   = options.update; }
+  if(options.draw)     { luv.draw     = options.draw; }
+  if(options.run)      { luv.run      = options.run; }
+  if(options.onResize) { luv.onResize = options.onResize; }
 
   // Initialize all the game submodules (see their docs for more info about each one)
   luv.graphics  = Luv.Graphics(luv.el, options.width, options.height);
@@ -76,6 +77,15 @@ Luv = function(options) {
   luv.keyboard  = Luv.Keyboard(luv.el);
   luv.mouse     = Luv.Mouse(luv.el);
   luv.media     = Luv.Media();
+
+  if(options.fullWindow) {
+    var resize = function() {
+      luv.graphics.setDimensions(window.innerWidth, window.innerHeight);
+      luv.onResize(window.innerWidth, window.innerHeight);
+    };
+    window.addEventListener('resize', resize, false);
+    window.addEventListener('orientationChange', resize, false);
+  }
 
   return luv;
 };
@@ -88,24 +98,29 @@ var initializeOptions = function(options) {
 // * `id`: A canvas DOM id to be used (Ignored if `el` is provided)
 // * `width`: Sets the width of the canvas, in pixels
 // * `height`: Sets the height of the canvas, in pixels
-// * `load`: A load function (see above)
-// * `update`: A load function (see above)
-// * `draw`: A draw function (see above)
-// * `run`: A run function (see above)
+// * `fullWindow`: If set to true, the game canvas will ocuppy the whole window, and auto-adjust (off by default)
+// * `load`: A load function (see below)
+// * `update`: A load function (see below)
+// * `draw`: A draw function (see below)
+// * `run`: A run function (see below)
+// * `onResize`: A callback that is called when the window is resized (only works when `fullWindow` is active)
 
 // Notes:
 
 // * All options are ... well, optional.
 // * The options parameter itself is optional (you can do `var luv = Luv();`)
 // * Any other options passed through the `options` hash are ignored
-// * If neither `el` or `id` is specified, a new DOM canvas element will be generated and appended to the `body` of the page.
+// * If neither `el` or `id` is specified, a new DOM canvas element will be generated and appended to the window. Overrides width and height.
 // * `width` and `height` will attempt to get their values from the DOM element. If they can't, and they are not
 //    provided as options, they will default to 800x600px
   options = options || {};
-  var el     = options.el,
-      id     = options.id,
-      width  = options.width,
-      height = options.height;
+  var el      = options.el,
+      id      = options.id,
+      width   = options.width,
+      height  = options.height,
+      body    = document.getElementsByTagName('body')[0],
+      html    = document.getElementsByTagName('html')[0],
+      fullCss = "width: 100%; height: 100%; margin: 0; overflow: hidden;";
 
   if(!el && id) { el = document.getElementById(id); }
   if(el) {
@@ -113,10 +128,16 @@ var initializeOptions = function(options) {
     if(!height && el.getAttribute('height')) { height = parseInt(el.getAttribute('height'), 10); }
   } else {
     el = document.createElement('canvas');
-    document.getElementsByTagName('body')[0].appendChild(el);
+    body.appendChild(el);
   }
-  width = width || 800;
-  height = height || 600;
+  if(options.fullWindow) {
+    html.style.cssText = body.style.cssText = fullCss;
+    width  = window.innerWidth;
+    height = window.innerHeight;
+  } else {
+    width = width || 800;
+    height = height || 600;
+  }
   el.setAttribute('width', width);
   el.setAttribute('height', height);
 
@@ -126,10 +147,6 @@ var initializeOptions = function(options) {
 
   return options;
 };
-
-
-
-
 
 // ## LuvProto
 // Contains the default implementation of Luv.load, Luv.draw, Luv.update and Luv.run
@@ -233,7 +250,11 @@ var LuvProto = {
 
     // Once the loop function is defined, we call it once, so the cycle begins
     luv.timer.nextFrame(loop);
-  }
+  },
+
+  // `onResize` gets called when `fullWindow` is active and the window is resized. It can be used to
+  // control game resizings, i.e. recalculate your camera's viewports. By default, it does nothing.
+  onResize  : function(newWidth, newHeight) {}
 };
 
 }());
@@ -741,11 +762,18 @@ Luv.Media.Image = Luv.Media.Asset.extend({
 
 (function(){
 
+
 var CanvasProto = Luv.Object.extend({
   getType       : function(){ return 'Luv.Graphics.Canvas'; },
   getWidth      : function(){ return this.width; },
   getHeight     : function(){ return this.height; },
-  getDimensions : function(){ return { width: this.width, height: this.height }; }
+  getDimensions : function(){ return { width: this.width, height: this.height }; },
+  setDimensions : function(width, height) {
+    this.el.setAttribute('width', width);
+    this.el.setAttribute('height', height);
+    this.width = width;
+    this.height = height;
+  }
 });
 
 var Canvas = function(el, width, height) {
@@ -817,7 +845,8 @@ var normalizeAngle = function(angle) {
 
 
 var GraphicsProto = Luv.Object.extend({
-  getType : function() { return 'Luv.Graphics'; },
+  getType   : function() { return 'Luv.Graphics'; },
+
   setCanvas : function(canvas) {
     canvas = canvas || this.defaultCanvas;
     this.canvas = canvas;
@@ -833,6 +862,16 @@ var GraphicsProto = Luv.Object.extend({
 
   setBackgroundColor : function(r,g,b,a) { setColor(this, 'backgroundColor', r,g,b,a); },
   getBackgroundColor : function() { return getColor(this.backgroundColor); },
+
+  getWidth      : function(){ return this.width; },
+  getHeight     : function(){ return this.height; },
+  getDimensions : function(){ return { width: this.width, height: this.height }; },
+  setDimensions : function(width, height) {
+    this.el.setAttribute('width', width);
+    this.el.setAttribute('height', height);
+    this.width = width;
+    this.height = height;
+  },
 
   setLineWidth : function(width) {
     this.lineWidth = width;

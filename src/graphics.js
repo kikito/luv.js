@@ -1,11 +1,18 @@
 
 (function(){
 
+
 var CanvasProto = Luv.Object.extend({
   getType       : function(){ return 'Luv.Graphics.Canvas'; },
   getWidth      : function(){ return this.width; },
   getHeight     : function(){ return this.height; },
-  getDimensions : function(){ return { width: this.width, height: this.height }; }
+  getDimensions : function(){ return { width: this.width, height: this.height }; },
+  setDimensions : function(width, height) {
+    this.el.setAttribute('width', width);
+    this.el.setAttribute('height', height);
+    this.width = width;
+    this.height = height;
+  }
 });
 
 var Canvas = function(el, width, height) {
@@ -77,7 +84,8 @@ var normalizeAngle = function(angle) {
 
 
 var GraphicsProto = Luv.Object.extend({
-  getType : function() { return 'Luv.Graphics'; },
+  getType   : function() { return 'Luv.Graphics'; },
+
   setCanvas : function(canvas) {
     canvas = canvas || this.defaultCanvas;
     this.canvas = canvas;
@@ -93,6 +101,16 @@ var GraphicsProto = Luv.Object.extend({
 
   setBackgroundColor : function(r,g,b,a) { setColor(this, 'backgroundColor', r,g,b,a); },
   getBackgroundColor : function() { return getColor(this.backgroundColor); },
+
+  getWidth      : function(){ return this.width; },
+  getHeight     : function(){ return this.height; },
+  getDimensions : function(){ return { width: this.width, height: this.height }; },
+  setDimensions : function(width, height) {
+    this.el.setAttribute('width', width);
+    this.el.setAttribute('height', height);
+    this.width = width;
+    this.height = height;
+  },
 
   setLineWidth : function(width) {
     this.lineWidth = width;
