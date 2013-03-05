@@ -81,6 +81,14 @@ describe("Luv", function(){
 
   });
 
+  describe("Luv.extend", function() {
+    it("copies properties inside an object, and returns the object", function() {
+      var obj = {};
+      expect(Luv.extend(obj, {bar: 'baz'})).to.equal(obj);
+      expect(obj.bar).to.equal('baz');
+    });
+  });
+
   describe("luv.run", function() {
     it("invokes the expected functions", function() {
 

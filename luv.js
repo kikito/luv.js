@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-05) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-03-06) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -62,7 +62,8 @@ Luv = function(options) {
 
   options = initializeOptions(options);
 
-  var luv = Object.create(LuvProto);
+  var luv = Object.create(Luv);
+
   luv.el  = options.el;
 
   if(options.load)     { luv.load     = options.load; }
@@ -148,9 +149,20 @@ var initializeOptions = function(options) {
   return options;
 };
 
-// ## LuvProto
+// ## Luv.extend
+// This is a cheap knockoff of [underscore's extend](http://underscorejs.org/#extend): it copies `properties` into `dest`, and returns `dest`.
+Luv.extend = function(dest, properties) {
+  for(var property in properties) {
+    if(properties.hasOwnProperty(property)) {
+      dest[property] = properties[property];
+    }
+  }
+  return dest;
+};
+
+// ## Luv default methods
 // Contains the default implementation of Luv.load, Luv.draw, Luv.update and Luv.run
-var LuvProto = {
+Luv.extend(Luv, {
   // Use the `load` function to start loading up resources:
 
   //       var image;
@@ -255,7 +267,8 @@ var LuvProto = {
   // `onResize` gets called when `fullWindow` is active and the window is resized. It can be used to
   // control game resizings, i.e. recalculate your camera's viewports. By default, it does nothing.
   onResize  : function(newWidth, newHeight) {}
-};
+});
+
 
 }());
 
