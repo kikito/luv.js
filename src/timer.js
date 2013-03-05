@@ -12,7 +12,7 @@ Luv.Timer = function() {
 // library, except to obtain the Frames per second or maybe to tweak the
 // deltaTimeLimit (see below)
 
-  return TimerProto.extend({
+  return Luv.extend(Object.create(Luv.Timer), {
     // The time that has passed since the timer was created, in milliseconds
     microTime : 0,
 
@@ -30,7 +30,7 @@ Luv.Timer = function() {
 
 // ## TimerProto
 // The `timer` methods go here
-var TimerProto = Luv.Object.extend({
+Luv.extend(Luv.Timer, {
   getType: function() { return 'Luv.Timer'; },
 
   // updates the timer with a new timestamp.

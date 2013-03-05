@@ -9,7 +9,7 @@ Luv.Mouse = function(el) {
 
   //       var luv = Luv();
   //       luv.mouse // Already instantiated mouse handler
-  var mouse = MouseProto.extend({
+  var mouse = Luv.extend(Object.create(Luv.Mouse), {
     x: 0,
     y: 0,
     pressedButtons: {},
@@ -77,9 +77,8 @@ var getWheelButtonFromEvent = function(evt) {
   return delta === 1 ? 'wu' : 'wd';
 };
 
-// ## MouseProto
-// Shared mouse functions go here
-var MouseProto = Luv.Object.extend({
+// ## Mouse Methods
+Luv.extend(Luv.Mouse, {
   getType: function() { return 'Luv.Mouse'; },
 
   // Returns the x coordinate where the mouse is (relative to the DOM element)

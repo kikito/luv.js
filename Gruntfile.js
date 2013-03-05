@@ -6,7 +6,6 @@ module.exports = function(grunt) {
   var srcFiles  = [
     "src/shims.js",
     "src/Luv.js",
-    "src/object.js",
     "src/timer.js",
     "src/keyboard.js",
     "src/mouse.js",

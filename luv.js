@@ -272,30 +272,6 @@ Luv.extend(Luv, {
 
 }());
 
-// # object.js
-(function() {
-
-// ## Luv.Object
-// The base object that provides common functionality amongst all objects in Luv
-
-Luv.Object = {
-  getType : function() { return 'Luv.Object'; },
-  toString: function() { return this.getType(); },
-  include : function(properties) {
-    for(var property in properties) {
-      if(properties.hasOwnProperty(property)) {
-        this[property] = properties[property];
-      }
-    }
-    return this;
-  },
-  extend  : function(properties) {
-    return Object.create(this).include(properties);
-  }
-};
-
-}());
-
 // # timer.js
 (function(){
 
@@ -310,7 +286,7 @@ Luv.Timer = function() {
 // library, except to obtain the Frames per second or maybe to tweak the
 // deltaTimeLimit (see below)
 
-  return TimerProto.extend({
+  return Luv.extend(Object.create(Luv.Timer), {
     // The time that has passed since the timer was created, in milliseconds
     microTime : 0,
 
@@ -328,7 +304,7 @@ Luv.Timer = function() {
 
 // ## TimerProto
 // The `timer` methods go here
-var TimerProto = Luv.Object.extend({
+Luv.extend(Luv.Timer, {
   getType: function() { return 'Luv.Timer'; },
 
   // updates the timer with a new timestamp.
@@ -398,7 +374,7 @@ Luv.Keyboard = function(el) {
   // luv.js itself when it creates a Luv() game. The two most usual ways to
   // interact with it are via the `onPress` and `onRelease` callbacks, or the
   // `isPressed` method (see below).
-  var keyboard = KeyboardProto.extend({
+  var keyboard = Luv.extend(Object.create(Luv.Keyboard), {
     keysDown : {},
     el: el
   });
@@ -423,7 +399,7 @@ Luv.Keyboard = function(el) {
 
 // ## KeyboardProto
 // provides the three main keyboard methods
-var KeyboardProto = Luv.Object.extend({
+Luv.extend(Luv.Keyboard, {
   getType: function(){ return 'Luv.Keyboard'; },
 
   // `onPressed` is a user-overrideable that is triggered when a keyboard key
@@ -532,7 +508,7 @@ Luv.Mouse = function(el) {
 
   //       var luv = Luv();
   //       luv.mouse // Already instantiated mouse handler
-  var mouse = MouseProto.extend({
+  var mouse = Luv.extend(Object.create(Luv.Mouse), {
     x: 0,
     y: 0,
     pressedButtons: {},
@@ -600,9 +576,8 @@ var getWheelButtonFromEvent = function(evt) {
   return delta === 1 ? 'wu' : 'wd';
 };
 
-// ## MouseProto
-// Shared mouse functions go here
-var MouseProto = Luv.Object.extend({
+// ## Mouse Methods
+Luv.extend(Luv.Mouse, {
   getType: function() { return 'Luv.Mouse'; },
 
   // Returns the x coordinate where the mouse is (relative to the DOM element)
@@ -656,29 +631,14 @@ Luv.Media = function() {
 
   //       var luv = Luv();
   //       luv.media // this is the media object
-  return MediaProto.extend({
-    pending: 0,
-    Image  : function(path, loadCallback, errorCallback) {
-      var media = this;
-      var image  = Luv.Media.Image.extend({path: path});
-
-      media.newAsset(image, loadCallback, errorCallback);
-
-      var source   = new Image(); // html image
-      image.source = source;
-
-      source.addEventListener('load',  function(){ media.registerLoad(image); });
-      source.addEventListener('error', function(){ media.registerError(image); });
-      source.src = path;
-
-      return image;
-    }
+  return Luv.extend(Object.create(Luv.Media), {
+    pending: 0
   });
 };
 
 // ## MediaProto
 // Contains the methods of the luv.media object
-var MediaProto = Luv.Object.extend({
+Luv.extend(Luv.Media, {
   getType      : function() { return 'Luv.Media'; },
 
   // `isLoaded` returns `true` if all the assets have been loaded, `false` if there are assets still being loaded
@@ -742,13 +702,14 @@ var MediaProto = Luv.Object.extend({
 (function() {
 
 // ## Luv.Media.Asset
-// This is the superclass of all media assets. It's not supposed to be instantiated, it's just a method holding object
-Luv.Media.Asset = Luv.Object.extend({
+// This just a method holding object, to be extended by specialized assets
+// like Image or Sound
+Luv.Media.Asset = {
   getType:   function() { return 'Luv.Media.Asset'; },
   isPending: function() { return this.status == "pending"; },
   isLoaded:  function() { return this.status == "loaded"; },
   isError:   function() { return this.status == "error"; }
-});
+};
 
 }());
 
@@ -757,15 +718,35 @@ Luv.Media.Asset = Luv.Object.extend({
 
 // ## Luv.Media.Image
 // Internal object used by the images created inside Luv.Media()
-Luv.Media.Image = Luv.Media.Asset.extend({
+Luv.Media.Image = function(path, loadCallback, errorCallback) {
+  var media = this;
+  var image = Luv.extend(Object.create(Luv.Media.Image), {
+    path: path
+  });
+
+  media.newAsset(image, loadCallback, errorCallback);
+
+  var source   = new Image(); // html image
+  image.source = source;
+
+  source.addEventListener('load',  function(){ media.registerLoad(image); });
+  source.addEventListener('error', function(){ media.registerError(image); });
+  source.src = path;
+
+  return image;
+};
+
+Luv.extend(Luv.Media.Image, Luv.Media.Asset);
+
+Luv.extend(Luv.Media.Image, {
   getType       : function() { return 'Luv.Media.Image'; },
+  toString      : function() {
+    return 'Luv.Media.Image("' + this.path + '")';
+  },
   getWidth      : function() { return this.source.width; },
   getHeight     : function() { return this.source.height; },
   getDimensions : function() {
     return { width: this.source.width, height: this.source.height };
-  },
-  toString      : function() {
-    return 'Luv.Media.Image("' + this.path + '")';
   }
 });
 
@@ -775,89 +756,29 @@ Luv.Media.Image = Luv.Media.Asset.extend({
 
 (function(){
 
-
-var CanvasProto = Luv.Object.extend({
-  getType       : function(){ return 'Luv.Graphics.Canvas'; },
-  getWidth      : function(){ return this.width; },
-  getHeight     : function(){ return this.height; },
-  getDimensions : function(){ return { width: this.width, height: this.height }; },
-  setDimensions : function(width, height) {
-    this.el.setAttribute('width', width);
-    this.el.setAttribute('height', height);
-    this.width = width;
-    this.height = height;
-  }
-});
-
-var Canvas = function(el, width, height) {
-  el.setAttribute('width', width);
-  el.setAttribute('height', height);
-  return CanvasProto.extend({
-    width:  width,
-    height: height,
-    el:     el,
-    ctx:    el.getContext('2d')
+Luv.Graphics = function(el, width, height) {
+  var gr = Luv.extend(Object.create(Luv.Graphics), {
+    width:     width,
+    height:    height,
+    lineWidth: 1,
+    lineCap:   "butt",
+    color:     {},
+    backgroundColor: {},
+    defaultCanvas: Luv.Graphics.Canvas(el, width, height),
+    Canvas: function(width, height) {
+      var el = document.createElement('canvas');
+      return Luv.Graphics.Canvas(el, width || this.width, height || this.height);
+    }
   });
+
+  gr.setColor(255,255,255);
+  gr.setBackgroundColor(0,0,0);
+  gr.setCanvas();
+
+  return gr;
 };
 
-var twoPI = Math.PI * 2;
-
-var setColor = function(self, name, r,g,b,a) {
-  var color = self[name];
-  if(Array.isArray(r)) {
-    color.r = r[0];
-    color.g = r[1];
-    color.b = r[2];
-    color.a = r[3] || 255;
-  } else {
-    color.r = r;
-    color.g = g;
-    color.b = b;
-    color.a = a || 255;
-  }
-  self[name + 'Style'] = "rgba(" + [color.r, color.g, color.b, color.a/255].join() + ")";
-};
-
-var getColor = function(color) {
-  return [color.r, color.g, color.b, color.a ];
-};
-
-var drawPath = function(graphics, mode) {
-  switch(mode){
-  case 'fill':
-    graphics.ctx.fillStyle = graphics.colorStyle;
-    graphics.ctx.fill();
-    break;
-  case 'line':
-    graphics.ctx.strokeStyle = graphics.colorStyle;
-    graphics.ctx.stroke();
-    break;
-  default:
-    throw new Error('Invalid mode: [' + mode + ']. Should be "fill" or "line"');
-  }
-};
-
-var drawPolyLine = function(graphics, methodName, minLength, coords) {
-
-  if(coords.length < minLength) { throw new Error(methodName + " requires at least 4 parameters"); }
-  if(coords.length % 2 == 1) { throw new Error(methodName + " requires an even number of parameters"); }
-
-  graphics.ctx.moveTo(coords[0], coords[1]);
-
-  for(var i=2; i<coords.length; i=i+2) {
-    graphics.ctx.lineTo(coords[i], coords[i+1]);
-  }
-
-  graphics.ctx.stroke();
-};
-
-var normalizeAngle = function(angle) {
-  angle = angle % (2 * Math.PI);
-  return angle >= 0 ? angle : angle + 2 * Math.PI;
-};
-
-
-var GraphicsProto = Luv.Object.extend({
+Luv.extend(Luv.Graphics, {
   getType   : function() { return 'Luv.Graphics'; },
 
   setCanvas : function(canvas) {
@@ -1024,26 +945,85 @@ var GraphicsProto = Luv.Object.extend({
 
 });
 
-Luv.Graphics = function(el, width, height) {
-  var gr = GraphicsProto.extend({
-    width:     width,
-    height:    height,
-    lineWidth: 1,
-    lineCap:   "butt",
-    color:     {},
-    backgroundColor: {},
-    defaultCanvas: Canvas(el, width, height),
-    Canvas: function(width, height) {
-      var el = document.createElement('canvas');
-      return Canvas(el, width || this.width, height || this.height);
-    }
+Luv.Graphics.Canvas = function(el, width, height) {
+  el.setAttribute('width', width);
+  el.setAttribute('height', height);
+  return Luv.extend(Object.create(Luv.Graphics.Canvas), {
+    width:  width,
+    height: height,
+    el:     el,
+    ctx:    el.getContext('2d')
   });
-
-  gr.setColor(255,255,255);
-  gr.setBackgroundColor(0,0,0);
-  gr.setCanvas();
-
-  return gr;
 };
+
+Luv.extend(Luv.Graphics.Canvas, {
+  getType       : function(){ return 'Luv.Graphics.Canvas'; },
+  getWidth      : function(){ return this.width; },
+  getHeight     : function(){ return this.height; },
+  getDimensions : function(){ return { width: this.width, height: this.height }; },
+  setDimensions : function(width, height) {
+    this.el.setAttribute('width', width);
+    this.el.setAttribute('height', height);
+    this.width = width;
+    this.height = height;
+  }
+});
+
+var twoPI = Math.PI * 2;
+
+var setColor = function(self, name, r,g,b,a) {
+  var color = self[name];
+  if(Array.isArray(r)) {
+    color.r = r[0];
+    color.g = r[1];
+    color.b = r[2];
+    color.a = r[3] || 255;
+  } else {
+    color.r = r;
+    color.g = g;
+    color.b = b;
+    color.a = a || 255;
+  }
+  self[name + 'Style'] = "rgba(" + [color.r, color.g, color.b, color.a/255].join() + ")";
+};
+
+var getColor = function(color) {
+  return [color.r, color.g, color.b, color.a ];
+};
+
+var drawPath = function(graphics, mode) {
+  switch(mode){
+  case 'fill':
+    graphics.ctx.fillStyle = graphics.colorStyle;
+    graphics.ctx.fill();
+    break;
+  case 'line':
+    graphics.ctx.strokeStyle = graphics.colorStyle;
+    graphics.ctx.stroke();
+    break;
+  default:
+    throw new Error('Invalid mode: [' + mode + ']. Should be "fill" or "line"');
+  }
+};
+
+var drawPolyLine = function(graphics, methodName, minLength, coords) {
+
+  if(coords.length < minLength) { throw new Error(methodName + " requires at least 4 parameters"); }
+  if(coords.length % 2 == 1) { throw new Error(methodName + " requires an even number of parameters"); }
+
+  graphics.ctx.moveTo(coords[0], coords[1]);
+
+  for(var i=2; i<coords.length; i=i+2) {
+    graphics.ctx.lineTo(coords[i], coords[i+1]);
+  }
+
+  graphics.ctx.stroke();
+};
+
+var normalizeAngle = function(angle) {
+  angle = angle % (2 * Math.PI);
+  return angle >= 0 ? angle : angle + 2 * Math.PI;
+};
+
 
 }());

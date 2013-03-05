@@ -3,15 +3,35 @@
 
 // ## Luv.Media.Image
 // Internal object used by the images created inside Luv.Media()
-Luv.Media.Image = Luv.Media.Asset.extend({
+Luv.Media.Image = function(path, loadCallback, errorCallback) {
+  var media = this;
+  var image = Luv.extend(Object.create(Luv.Media.Image), {
+    path: path
+  });
+
+  media.newAsset(image, loadCallback, errorCallback);
+
+  var source   = new Image(); // html image
+  image.source = source;
+
+  source.addEventListener('load',  function(){ media.registerLoad(image); });
+  source.addEventListener('error', function(){ media.registerError(image); });
+  source.src = path;
+
+  return image;
+};
+
+Luv.extend(Luv.Media.Image, Luv.Media.Asset);
+
+Luv.extend(Luv.Media.Image, {
   getType       : function() { return 'Luv.Media.Image'; },
+  toString      : function() {
+    return 'Luv.Media.Image("' + this.path + '")';
+  },
   getWidth      : function() { return this.source.width; },
   getHeight     : function() { return this.source.height; },
   getDimensions : function() {
     return { width: this.source.width, height: this.source.height };
-  },
-  toString      : function() {
-    return 'Luv.Media.Image("' + this.path + '")';
   }
 });
 

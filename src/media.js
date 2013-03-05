@@ -7,29 +7,14 @@ Luv.Media = function() {
 
   //       var luv = Luv();
   //       luv.media // this is the media object
-  return MediaProto.extend({
-    pending: 0,
-    Image  : function(path, loadCallback, errorCallback) {
-      var media = this;
-      var image  = Luv.Media.Image.extend({path: path});
-
-      media.newAsset(image, loadCallback, errorCallback);
-
-      var source   = new Image(); // html image
-      image.source = source;
-
-      source.addEventListener('load',  function(){ media.registerLoad(image); });
-      source.addEventListener('error', function(){ media.registerError(image); });
-      source.src = path;
-
-      return image;
-    }
+  return Luv.extend(Object.create(Luv.Media), {
+    pending: 0
   });
 };
 
 // ## MediaProto
 // Contains the methods of the luv.media object
-var MediaProto = Luv.Object.extend({
+Luv.extend(Luv.Media, {
   getType      : function() { return 'Luv.Media'; },
 
   // `isLoaded` returns `true` if all the assets have been loaded, `false` if there are assets still being loaded

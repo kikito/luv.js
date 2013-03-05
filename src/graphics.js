@@ -1,89 +1,29 @@
 
 (function(){
 
-
-var CanvasProto = Luv.Object.extend({
-  getType       : function(){ return 'Luv.Graphics.Canvas'; },
-  getWidth      : function(){ return this.width; },
-  getHeight     : function(){ return this.height; },
-  getDimensions : function(){ return { width: this.width, height: this.height }; },
-  setDimensions : function(width, height) {
-    this.el.setAttribute('width', width);
-    this.el.setAttribute('height', height);
-    this.width = width;
-    this.height = height;
-  }
-});
-
-var Canvas = function(el, width, height) {
-  el.setAttribute('width', width);
-  el.setAttribute('height', height);
-  return CanvasProto.extend({
-    width:  width,
-    height: height,
-    el:     el,
-    ctx:    el.getContext('2d')
+Luv.Graphics = function(el, width, height) {
+  var gr = Luv.extend(Object.create(Luv.Graphics), {
+    width:     width,
+    height:    height,
+    lineWidth: 1,
+    lineCap:   "butt",
+    color:     {},
+    backgroundColor: {},
+    defaultCanvas: Luv.Graphics.Canvas(el, width, height),
+    Canvas: function(width, height) {
+      var el = document.createElement('canvas');
+      return Luv.Graphics.Canvas(el, width || this.width, height || this.height);
+    }
   });
+
+  gr.setColor(255,255,255);
+  gr.setBackgroundColor(0,0,0);
+  gr.setCanvas();
+
+  return gr;
 };
 
-var twoPI = Math.PI * 2;
-
-var setColor = function(self, name, r,g,b,a) {
-  var color = self[name];
-  if(Array.isArray(r)) {
-    color.r = r[0];
-    color.g = r[1];
-    color.b = r[2];
-    color.a = r[3] || 255;
-  } else {
-    color.r = r;
-    color.g = g;
-    color.b = b;
-    color.a = a || 255;
-  }
-  self[name + 'Style'] = "rgba(" + [color.r, color.g, color.b, color.a/255].join() + ")";
-};
-
-var getColor = function(color) {
-  return [color.r, color.g, color.b, color.a ];
-};
-
-var drawPath = function(graphics, mode) {
-  switch(mode){
-  case 'fill':
-    graphics.ctx.fillStyle = graphics.colorStyle;
-    graphics.ctx.fill();
-    break;
-  case 'line':
-    graphics.ctx.strokeStyle = graphics.colorStyle;
-    graphics.ctx.stroke();
-    break;
-  default:
-    throw new Error('Invalid mode: [' + mode + ']. Should be "fill" or "line"');
-  }
-};
-
-var drawPolyLine = function(graphics, methodName, minLength, coords) {
-
-  if(coords.length < minLength) { throw new Error(methodName + " requires at least 4 parameters"); }
-  if(coords.length % 2 == 1) { throw new Error(methodName + " requires an even number of parameters"); }
-
-  graphics.ctx.moveTo(coords[0], coords[1]);
-
-  for(var i=2; i<coords.length; i=i+2) {
-    graphics.ctx.lineTo(coords[i], coords[i+1]);
-  }
-
-  graphics.ctx.stroke();
-};
-
-var normalizeAngle = function(angle) {
-  angle = angle % (2 * Math.PI);
-  return angle >= 0 ? angle : angle + 2 * Math.PI;
-};
-
-
-var GraphicsProto = Luv.Object.extend({
+Luv.extend(Luv.Graphics, {
   getType   : function() { return 'Luv.Graphics'; },
 
   setCanvas : function(canvas) {
@@ -250,26 +190,85 @@ var GraphicsProto = Luv.Object.extend({
 
 });
 
-Luv.Graphics = function(el, width, height) {
-  var gr = GraphicsProto.extend({
-    width:     width,
-    height:    height,
-    lineWidth: 1,
-    lineCap:   "butt",
-    color:     {},
-    backgroundColor: {},
-    defaultCanvas: Canvas(el, width, height),
-    Canvas: function(width, height) {
-      var el = document.createElement('canvas');
-      return Canvas(el, width || this.width, height || this.height);
-    }
+Luv.Graphics.Canvas = function(el, width, height) {
+  el.setAttribute('width', width);
+  el.setAttribute('height', height);
+  return Luv.extend(Object.create(Luv.Graphics.Canvas), {
+    width:  width,
+    height: height,
+    el:     el,
+    ctx:    el.getContext('2d')
   });
-
-  gr.setColor(255,255,255);
-  gr.setBackgroundColor(0,0,0);
-  gr.setCanvas();
-
-  return gr;
 };
+
+Luv.extend(Luv.Graphics.Canvas, {
+  getType       : function(){ return 'Luv.Graphics.Canvas'; },
+  getWidth      : function(){ return this.width; },
+  getHeight     : function(){ return this.height; },
+  getDimensions : function(){ return { width: this.width, height: this.height }; },
+  setDimensions : function(width, height) {
+    this.el.setAttribute('width', width);
+    this.el.setAttribute('height', height);
+    this.width = width;
+    this.height = height;
+  }
+});
+
+var twoPI = Math.PI * 2;
+
+var setColor = function(self, name, r,g,b,a) {
+  var color = self[name];
+  if(Array.isArray(r)) {
+    color.r = r[0];
+    color.g = r[1];
+    color.b = r[2];
+    color.a = r[3] || 255;
+  } else {
+    color.r = r;
+    color.g = g;
+    color.b = b;
+    color.a = a || 255;
+  }
+  self[name + 'Style'] = "rgba(" + [color.r, color.g, color.b, color.a/255].join() + ")";
+};
+
+var getColor = function(color) {
+  return [color.r, color.g, color.b, color.a ];
+};
+
+var drawPath = function(graphics, mode) {
+  switch(mode){
+  case 'fill':
+    graphics.ctx.fillStyle = graphics.colorStyle;
+    graphics.ctx.fill();
+    break;
+  case 'line':
+    graphics.ctx.strokeStyle = graphics.colorStyle;
+    graphics.ctx.stroke();
+    break;
+  default:
+    throw new Error('Invalid mode: [' + mode + ']. Should be "fill" or "line"');
+  }
+};
+
+var drawPolyLine = function(graphics, methodName, minLength, coords) {
+
+  if(coords.length < minLength) { throw new Error(methodName + " requires at least 4 parameters"); }
+  if(coords.length % 2 == 1) { throw new Error(methodName + " requires an even number of parameters"); }
+
+  graphics.ctx.moveTo(coords[0], coords[1]);
+
+  for(var i=2; i<coords.length; i=i+2) {
+    graphics.ctx.lineTo(coords[i], coords[i+1]);
+  }
+
+  graphics.ctx.stroke();
+};
+
+var normalizeAngle = function(angle) {
+  angle = angle % (2 * Math.PI);
+  return angle >= 0 ? angle : angle + 2 * Math.PI;
+};
+
 
 }());

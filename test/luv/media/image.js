@@ -3,7 +3,7 @@ describe("Luv.Media.Image", function() {
   beforeEach(function(){ media = Luv.Media(); });
 
   it("exists", function(){
-    expect(media.Image).to.be.a('function');
+    expect(media.Image).to.be.ok;
   });
 
   it("invokes a custom callback when loaded", function(){
