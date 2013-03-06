@@ -10,9 +10,9 @@ module.exports = function(grunt) {
     "src/keyboard.js",
     "src/mouse.js",
     "src/media.js",
-    "src/media/image.js",
     "src/graphics.js",
-    "src/graphics/canvas.js"
+    "src/graphics/canvas.js",
+    "src/graphics/image.js"
   ];
   var testFiles = "test/**/*.js";
   var docFiles = ['README.md', 'MIT-LICENSE.md'].concat(srcFiles);

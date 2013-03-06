@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-06) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-03-07) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -47,7 +47,7 @@ Luv = function(options) {
 // The recommended name for the variable to store the game is `luv`, but you are free to choose any other.
 
 //       var luv = Luv({...});
-//       // options omitted, see initializeOptions & LuvProto below
+//       // options omitted, see below for details
 
 // The game will not start until you execute `luv.run()` (assuming that your game variable name is `luv`).
 
@@ -73,11 +73,11 @@ Luv = function(options) {
   if(options.onResize) { luv.onResize = options.onResize; }
 
   // Initialize all the game submodules (see their docs for more info about each one)
-  luv.graphics  = Luv.Graphics(luv.el, options.width, options.height);
+  luv.media     = Luv.Media();
   luv.timer     = Luv.Timer();
   luv.keyboard  = Luv.Keyboard(luv.el);
   luv.mouse     = Luv.Mouse(luv.el);
-  luv.media     = Luv.Media();
+  luv.graphics  = Luv.Graphics(luv.el, luv.media);
 
   if(options.fullWindow) {
     var resize = function() {
@@ -136,7 +136,7 @@ var initializeOptions = function(options) {
     width  = window.innerWidth;
     height = window.innerHeight;
   } else {
-    width = width || 800;
+    width = width   || 800;
     height = height || 600;
   }
   el.setAttribute('width', width);
@@ -719,63 +719,22 @@ Luv.extend(Luv.Media, {
 
 }());
 
-// # media/image.js
-(function() {
-
-// ## Luv.Media.Image
-// Internal object used by the images created inside Luv.Media()
-Luv.Media.Image = function(path) {
-  var media = this;
-  var image = Luv.extend(Object.create(Luv.Media.Image), {
-    path: path
-  });
-
-  media.newAsset(image);
-
-  var source   = new Image(); // html image
-  image.source = source;
-
-  source.addEventListener('load',  function(){ media.registerLoad(image); });
-  source.addEventListener('error', function(){ media.registerError(image); });
-  source.src = path;
-
-  return image;
-};
-
-Luv.setType(Luv.Media.Image, 'Luv.Media.Image');
-
-// ## Luv.Media.Image methods
-Luv.extend(Luv.Media.Image, Luv.Media.Asset, {
-  toString      : function() {
-    return 'Luv.Media.Image("' + this.path + '")';
-  },
-  getWidth      : function() { return this.source.width; },
-  getHeight     : function() { return this.source.height; },
-  getDimensions : function() {
-    return { width: this.source.width, height: this.source.height };
-  }
-});
-
-
-}());
-
 
 (function(){
 
-Luv.Graphics = function(el, width, height) {
+Luv.Graphics = function(el, media) {
   var gr = Luv.extend(Object.create(Luv.Graphics), {
-    width:     width,
-    height:    height,
+    el:        el,
+    media:     media,
     lineWidth: 1,
     lineCap:   "butt",
     color:     {},
-    backgroundColor: {},
-    defaultCanvas: Luv.Graphics.Canvas(el, width, height),
-    Canvas: function(width, height) {
-      var el = document.createElement('canvas');
-      return Luv.Graphics.Canvas(el, width || this.width, height || this.height);
-    }
+    backgroundColor: {}
   });
+
+  var d = gr.getDimensions();
+  gr.defaultCanvas    = gr.Canvas(d.width, d.height);
+  gr.defaultCanvas.el = el;
 
   gr.setColor(255,255,255);
   gr.setBackgroundColor(0,0,0);
@@ -791,7 +750,7 @@ Luv.extend(Luv.Graphics, {
     canvas = canvas || this.defaultCanvas;
     this.canvas = canvas;
     this.el     = canvas.el;
-    this.ctx    = canvas.ctx;
+    this.ctx    = canvas.getContext();
     this.setLineWidth(this.lineWidth);
     this.setLineCap(this.lineCap);
     this.reset();
@@ -803,14 +762,12 @@ Luv.extend(Luv.Graphics, {
   setBackgroundColor : function(r,g,b,a) { setColor(this, 'backgroundColor', r,g,b,a); },
   getBackgroundColor : function() { return getColor(this.backgroundColor); },
 
-  getWidth      : function(){ return this.width; },
-  getHeight     : function(){ return this.height; },
-  getDimensions : function(){ return { width: this.width, height: this.height }; },
+  getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
+  getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },
+  getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
   setDimensions : function(width, height) {
     this.el.setAttribute('width', width);
     this.el.setAttribute('height', height);
-    this.width = width;
-    this.height = height;
   },
 
   setLineWidth : function(width) {
@@ -835,7 +792,7 @@ Luv.extend(Luv.Graphics, {
   clear : function() {
     this.reset();
     this.ctx.fillStyle = this.backgroundColorStyle;
-    this.ctx.fillRect(0, 0, this.width, this.height);
+    this.ctx.fillRect(0, 0, this.getWidth(), this.getHeight());
   },
 
   print : function(str,x,y) {
@@ -1034,30 +991,69 @@ var normalizeAngle = function(angle) {
 //       luv.graphics.draw(canvas, 200, 500);
 
 // The default canvas is reset at the beginning of each draw cycle, before calling luv.draw()
-Luv.Graphics.Canvas = function(el, width, height) {
+Luv.Graphics.Canvas = function(width, height) {
+  width  = width || this.getWidth();
+  height = height || this.getHeight();
+
+  var el = document.createElement('canvas');
   el.setAttribute('width', width);
   el.setAttribute('height', height);
-  return Luv.extend(Object.create(Luv.Graphics.Canvas), {
-    width:  width,
-    height: height,
-    el:     el,
-    ctx:    el.getContext('2d')
-  });
+
+  return Luv.extend(Object.create(Luv.Graphics.Canvas), {el: el});
 };
 
 Luv.setType(Luv.Graphics.Canvas, 'Luv.Graphics.Canvas');
 
 // ## Luv.Graphics.Canvas methods
 Luv.extend(Luv.Graphics.Canvas, {
-  getWidth      : function(){ return this.width; },
-  getHeight     : function(){ return this.height; },
-  getDimensions : function(){ return { width: this.width, height: this.height }; },
+  getContext    : function(){ return this.el.getContext('2d'); },
+  getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
+  getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },
+  getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
   setDimensions : function(width, height) {
     this.el.setAttribute('width', width);
     this.el.setAttribute('height', height);
-    this.width = width;
-    this.height = height;
   }
 });
+
+}());
+
+// # media/image.js
+(function() {
+
+// ## Luv.Graphics.Image
+// Internal object used by the images created inside Luv.Graphics()
+Luv.Graphics.Image = function(path) {
+  var media = this.media;
+  var image = Luv.extend(Object.create(Luv.Graphics.Image), {
+    path: path
+  });
+
+  media.newAsset(image);
+
+  var source   = new Image(); // html image
+  image.source = source;
+
+  source.addEventListener('load',  function(){ media.registerLoad(image); });
+  source.addEventListener('error', function(){ media.registerError(image); });
+  source.src = path;
+
+  return image;
+};
+
+Luv.setType(Luv.Graphics.Image, 'Luv.Graphics.Image');
+
+// ## Luv.Graphics.Image methods
+Luv.extend(Luv.Graphics.Image, Luv.Media.Asset, {
+  toString      : function() {
+    return 'Luv.Graphics.Image("' + this.path + '")';
+  },
+  getWidth      : function() { return this.source.width; },
+  getHeight     : function() { return this.source.height; },
+  getDimensions : function() {
+    return { width: this.source.width, height: this.source.height };
+  }
+});
+
 
 }());

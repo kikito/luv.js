@@ -9,7 +9,7 @@ Luv = function(options) {
 // The recommended name for the variable to store the game is `luv`, but you are free to choose any other.
 
 //       var luv = Luv({...});
-//       // options omitted, see initializeOptions & LuvProto below
+//       // options omitted, see below for details
 
 // The game will not start until you execute `luv.run()` (assuming that your game variable name is `luv`).
 
@@ -35,11 +35,11 @@ Luv = function(options) {
   if(options.onResize) { luv.onResize = options.onResize; }
 
   // Initialize all the game submodules (see their docs for more info about each one)
-  luv.graphics  = Luv.Graphics(luv.el, options.width, options.height);
+  luv.media     = Luv.Media();
   luv.timer     = Luv.Timer();
   luv.keyboard  = Luv.Keyboard(luv.el);
   luv.mouse     = Luv.Mouse(luv.el);
-  luv.media     = Luv.Media();
+  luv.graphics  = Luv.Graphics(luv.el, luv.media);
 
   if(options.fullWindow) {
     var resize = function() {
@@ -98,7 +98,7 @@ var initializeOptions = function(options) {
     width  = window.innerWidth;
     height = window.innerHeight;
   } else {
-    width = width || 800;
+    width = width   || 800;
     height = height || 600;
   }
   el.setAttribute('width', width);

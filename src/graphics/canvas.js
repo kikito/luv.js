@@ -21,29 +21,28 @@
 //       luv.graphics.draw(canvas, 200, 500);
 
 // The default canvas is reset at the beginning of each draw cycle, before calling luv.draw()
-Luv.Graphics.Canvas = function(el, width, height) {
+Luv.Graphics.Canvas = function(width, height) {
+  width  = width || this.getWidth();
+  height = height || this.getHeight();
+
+  var el = document.createElement('canvas');
   el.setAttribute('width', width);
   el.setAttribute('height', height);
-  return Luv.extend(Object.create(Luv.Graphics.Canvas), {
-    width:  width,
-    height: height,
-    el:     el,
-    ctx:    el.getContext('2d')
-  });
+
+  return Luv.extend(Object.create(Luv.Graphics.Canvas), {el: el});
 };
 
 Luv.setType(Luv.Graphics.Canvas, 'Luv.Graphics.Canvas');
 
 // ## Luv.Graphics.Canvas methods
 Luv.extend(Luv.Graphics.Canvas, {
-  getWidth      : function(){ return this.width; },
-  getHeight     : function(){ return this.height; },
-  getDimensions : function(){ return { width: this.width, height: this.height }; },
+  getContext    : function(){ return this.el.getContext('2d'); },
+  getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
+  getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },
+  getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
   setDimensions : function(width, height) {
     this.el.setAttribute('width', width);
     this.el.setAttribute('height', height);
-    this.width = width;
-    this.height = height;
   }
 });
 

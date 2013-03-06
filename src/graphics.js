@@ -1,20 +1,19 @@
 
 (function(){
 
-Luv.Graphics = function(el, width, height) {
+Luv.Graphics = function(el, media) {
   var gr = Luv.extend(Object.create(Luv.Graphics), {
-    width:     width,
-    height:    height,
+    el:        el,
+    media:     media,
     lineWidth: 1,
     lineCap:   "butt",
     color:     {},
-    backgroundColor: {},
-    defaultCanvas: Luv.Graphics.Canvas(el, width, height),
-    Canvas: function(width, height) {
-      var el = document.createElement('canvas');
-      return Luv.Graphics.Canvas(el, width || this.width, height || this.height);
-    }
+    backgroundColor: {}
   });
+
+  var d = gr.getDimensions();
+  gr.defaultCanvas    = gr.Canvas(d.width, d.height);
+  gr.defaultCanvas.el = el;
 
   gr.setColor(255,255,255);
   gr.setBackgroundColor(0,0,0);
@@ -30,7 +29,7 @@ Luv.extend(Luv.Graphics, {
     canvas = canvas || this.defaultCanvas;
     this.canvas = canvas;
     this.el     = canvas.el;
-    this.ctx    = canvas.ctx;
+    this.ctx    = canvas.getContext();
     this.setLineWidth(this.lineWidth);
     this.setLineCap(this.lineCap);
     this.reset();
@@ -42,14 +41,12 @@ Luv.extend(Luv.Graphics, {
   setBackgroundColor : function(r,g,b,a) { setColor(this, 'backgroundColor', r,g,b,a); },
   getBackgroundColor : function() { return getColor(this.backgroundColor); },
 
-  getWidth      : function(){ return this.width; },
-  getHeight     : function(){ return this.height; },
-  getDimensions : function(){ return { width: this.width, height: this.height }; },
+  getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
+  getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },
+  getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
   setDimensions : function(width, height) {
     this.el.setAttribute('width', width);
     this.el.setAttribute('height', height);
-    this.width = width;
-    this.height = height;
   },
 
   setLineWidth : function(width) {
@@ -74,7 +71,7 @@ Luv.extend(Luv.Graphics, {
   clear : function() {
     this.reset();
     this.ctx.fillStyle = this.backgroundColorStyle;
-    this.ctx.fillRect(0, 0, this.width, this.height);
+    this.ctx.fillRect(0, 0, this.getWidth(), this.getHeight());
   },
 
   print : function(str,x,y) {

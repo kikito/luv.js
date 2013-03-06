@@ -4,15 +4,11 @@ describe("Luv", function(){
   });
   describe("constructor", function() {
     describe("when invoked with no params", function() {
-      it("does not throw errors", function() {
-        expect(function(){Luv(); }).to.not.Throw(Error);
-      });
-
       it("creates a Luv instance with default attributes", function() {
         var luv = Luv();
         expect(luv.graphics.el).to.be.ok;
-        expect(luv.graphics.width).to.equal(800);
-        expect(luv.graphics.height).to.equal(600);
+        expect(luv.graphics.getWidth()).to.equal(800);
+        expect(luv.graphics.getHeight()).to.equal(600);
 
         expect(luv.load).to.be.a('function');
         expect(luv.draw).to.be.a('function');
@@ -45,21 +41,20 @@ describe("Luv", function(){
 
       it("reads the width and height from el", function() {
         var el = document.createElement('canvas');
-        var getAttribute = sinon.stub(el, 'getAttribute');
-        getAttribute.withArgs('width').returns(320);
-        getAttribute.withArgs('height').returns(200);
+        el.setAttribute('width', 320);
+        el.setAttribute('height', 200);
 
         var luv = Luv({el: el});
-        expect(luv.graphics.width).to.equal(320);
-        expect(luv.graphics.height).to.equal(200);
+        expect(luv.graphics.getDimensions()).to.deep.equal({width: 320, height: 200});
       });
 
       it("reads the width and height from options", function() {
         var el = document.createElement('canvas');
+        el.setAttribute('width', 320);
+        el.setAttribute('height', 200);
 
         var luv = Luv({el: el, width: 500, height: 300});
-        expect(luv.graphics.width).to.equal(500);
-        expect(luv.graphics.height).to.equal(300);
+        expect(luv.graphics.getDimensions()).to.deep.equal({width: 500, height: 300});
       });
 
       it("reads the load, update, draw and run functions from options", function() {

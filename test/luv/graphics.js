@@ -1,33 +1,32 @@
 describe("Luv.Graphics", function(){
+  var newDOMCanvas = function(width, height) {
+    var el = document.createElement('canvas');
+    el.setAttribute('width', width);
+    el.setAttribute('height', height);
+    return el;
+  };
+
   it("exists", function(){
     expect(Luv.Graphics).to.be.a('function');
   });
 
   describe("constructor", function() {
     it("initializes parameters", function(){
-      var el = document.createElement('canvas');
-      var gr = Luv.Graphics(el, 10, 20);
+      var gr = Luv.Graphics(newDOMCanvas(100, 200), Luv.Media());
 
+      expect(gr.getDimensions()).to.deep.equal({width: 100, height: 200});
       expect(gr.getColor()).to.deep.equal([255,255,255,255]);
       expect(gr.getBackgroundColor()).to.deep.equal([0,0,0,255]);
-    });
-
-    it("accepts an dom element, a width and a height", function() {
-      var el         = document.createElement('canvas');
-      var getContext = sinon.spy(el, 'getContext');
-
-      var gr = Luv.Graphics(el, 10, 20);
-      expect(gr.el).to.be.equal(el);
-      expect(gr.ctx).to.be.ok;
-      expect(getContext).to.have.been.calledWith('2d');
+      expect(gr.el).to.be.ok;
+      expect(gr.media).to.be.ok;
     });
   });
 
   describe(".Canvas", function() {
     var el, gr;
     beforeEach(function(){
-      el = document.createElement('canvas');
-      gr = Luv.Graphics(el, 320, 200);
+      el = newDOMCanvas(320, 200);
+      gr = Luv.Graphics(el, Luv.Media());
     });
     it("creates a new canvas with the same width and height as the original one", function() {
       var canvas = gr.Canvas();
@@ -43,11 +42,12 @@ describe("Luv.Graphics", function(){
 
   describe(".methods", function(){
 
-    var el, gr, stroke, fill, moveTo, lineTo, rect, arc, beginPath, closePath;
+    var el, media, gr, stroke, fill, moveTo, lineTo, rect, arc, beginPath, closePath;
 
     beforeEach(function() {
-      var el = document.createElement('canvas');
-      gr        = Luv.Graphics(el, 100, 200);
+      el        = document.createElement('canvas');
+      media     = Luv.Media();
+      gr        = Luv.Graphics(el, media);
       stroke    = sinon.spy(gr.ctx, 'stroke');
       fill      = sinon.spy(gr.ctx, 'fill');
       moveTo    = sinon.spy(gr.ctx, 'moveTo');
@@ -63,7 +63,7 @@ describe("Luv.Graphics", function(){
         it("uses the new canvas in all operations", function() {
           var canvas = gr.Canvas();
           gr.setCanvas(canvas);
-          expect(gr.ctx).to.equal(canvas.ctx);
+          expect(gr.ctx).to.equal(canvas.getContext());
         });
       });
       describe("when given no canvas", function() {
@@ -77,10 +77,12 @@ describe("Luv.Graphics", function(){
 
     describe(".clear", function(){
       it("clears the canvas with the background color", function() {
+        el.width = 800;
+        el.height = 600;
         var fillRect     = sinon.spy(gr.ctx, 'fillRect');
         var setTransform = sinon.spy(gr.ctx, 'setTransform');
         gr.clear();
-        expect(fillRect).to.have.been.calledWith(0,0,gr.width,gr.height);
+        expect(fillRect).to.have.been.calledWith(0,0,800,600);
         expect(setTransform).to.have.been.calledWith(1,0,0,1,0,0);
       });
     });
@@ -315,21 +317,17 @@ describe("Luv.Graphics", function(){
     });
 
     describe(".drawImage", function() {
-      var media;
-      beforeEach(function(){
-        media = Luv.Media();
-      });
 
       it("throws an error when attempting to draw a not loaded image", function(){
         sinon.stub(media, 'onAssetError');
-        var img = media.Image();
+        var img = gr.Image();
         expect(function(){ gr.drawImage(img, 10, 20); }).to.Throw(Error);
       });
 
       it("draws an image given two coordinates", function(){
         var drawImage = sinon.spy(gr.ctx, 'drawImage');
         // need a real image here, can not stub it
-        var img = media.Image('img/foo.png', function() {
+        var img = gr.Image('img/foo.png', function() {
           gr.drawImage(img, 10, 20);
           expect(drawImage).to.have.been.calledWith(img.source, 10, 20);
         });
