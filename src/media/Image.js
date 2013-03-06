@@ -3,13 +3,13 @@
 
 // ## Luv.Media.Image
 // Internal object used by the images created inside Luv.Media()
-Luv.Media.Image = function(path, loadCallback, errorCallback) {
+Luv.Media.Image = function(path) {
   var media = this;
   var image = Luv.extend(Object.create(Luv.Media.Image), {
     path: path
   });
 
-  media.newAsset(image, loadCallback, errorCallback);
+  media.newAsset(image);
 
   var source   = new Image(); // html image
   image.source = source;

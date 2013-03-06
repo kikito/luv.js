@@ -41,10 +41,8 @@ Luv.extend(Luv.Media, {
   onLoaded     : function() {},
 
   // Pseudo-Internal function. Registers the asset in the media object.
-  newAsset  : function(asset, loadCallback, errorCallback) {
+  newAsset  : function(asset) {
     this.pending++;
-    asset.loadCallback  = loadCallback;
-    asset.errorCallback = errorCallback;
     asset.status        = "pending";
   },
 
@@ -54,7 +52,6 @@ Luv.extend(Luv.Media, {
     this.pending--;
 
     asset.status = "loaded";
-    if(asset.loadCallback) { asset.loadCallback(asset); }
 
     this.onAssetLoaded(asset);
     if(this.isLoaded()) { this.onLoaded(); }
@@ -65,7 +62,6 @@ Luv.extend(Luv.Media, {
     this.pending--;
 
     asset.status = "error";
-    if(asset.errorCallback) { asset.errorCallback(asset); }
 
     this.onAssetError(asset);
   }

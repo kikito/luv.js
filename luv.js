@@ -678,10 +678,8 @@ Luv.extend(Luv.Media, {
   onLoaded     : function() {},
 
   // Pseudo-Internal function. Registers the asset in the media object.
-  newAsset  : function(asset, loadCallback, errorCallback) {
+  newAsset  : function(asset) {
     this.pending++;
-    asset.loadCallback  = loadCallback;
-    asset.errorCallback = errorCallback;
     asset.status        = "pending";
   },
 
@@ -691,7 +689,6 @@ Luv.extend(Luv.Media, {
     this.pending--;
 
     asset.status = "loaded";
-    if(asset.loadCallback) { asset.loadCallback(asset); }
 
     this.onAssetLoaded(asset);
     if(this.isLoaded()) { this.onLoaded(); }
@@ -702,7 +699,6 @@ Luv.extend(Luv.Media, {
     this.pending--;
 
     asset.status = "error";
-    if(asset.errorCallback) { asset.errorCallback(asset); }
 
     this.onAssetError(asset);
   }
@@ -729,13 +725,13 @@ Luv.Media.Asset = {
 
 // ## Luv.Media.Image
 // Internal object used by the images created inside Luv.Media()
-Luv.Media.Image = function(path, loadCallback, errorCallback) {
+Luv.Media.Image = function(path) {
   var media = this;
   var image = Luv.extend(Object.create(Luv.Media.Image), {
     path: path
   });
 
-  media.newAsset(image, loadCallback, errorCallback);
+  media.newAsset(image);
 
   var source   = new Image(); // html image
   image.source = source;

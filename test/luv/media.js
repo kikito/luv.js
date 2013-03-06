@@ -2,9 +2,9 @@ describe("Luv.Media", function(){
   var media;
   beforeEach(function(){
     media = Luv.Media();
-    media.Asset = function(loadCallback,errorCallback) {
+    media.FakeAsset = function() {
       var asset = {};
-      media.newAsset(asset,loadCallback,errorCallback);
+      media.newAsset(asset);
       return asset;
     };
   });
@@ -16,7 +16,7 @@ describe("Luv.Media", function(){
   describe(".onAssetLoaded(asset)", function(){
     it("is called when a new asset is loaded", function() {
       var onAssetLoaded = sinon.spy(media, 'onAssetLoaded');
-      var asset = media.Asset();
+      var asset = media.FakeAsset();
       media.registerLoad(asset);
       expect(onAssetLoaded).to.have.been.calledWith(asset);
     });
@@ -30,7 +30,7 @@ describe("Luv.Media", function(){
 
     it("is called when a new asset fails to load", function() {
       var onAssetError = sinon.stub(media, 'onAssetError');
-      var asset = media.Asset();
+      var asset = media.FakeAsset();
       media.registerError(asset);
       expect(onAssetError).to.have.been.calledWith(asset);
     });
@@ -39,8 +39,8 @@ describe("Luv.Media", function(){
   describe(".onLoaded()", function(){
     it("is called when all assets are loaded", function() {
       var onLoaded = sinon.spy(media, 'onLoaded'),
-          r1       = media.Asset(),
-          r2       = media.Asset();
+          r1       = media.FakeAsset(),
+          r2       = media.FakeAsset();
 
       media.pending = 2;
       media.registerLoad(r1);
@@ -53,8 +53,8 @@ describe("Luv.Media", function(){
   describe(".isLoaded()", function(){
     it("returns true when all pending assets are loaded", function() {
       expect(media.isLoaded()).to.equal(true);
-      var r1       = media.Asset(),
-          r2       = media.Asset();
+      var r1       = media.FakeAsset(),
+          r2       = media.FakeAsset();
 
       expect(media.isLoaded()).to.equal(false);
 
@@ -69,8 +69,8 @@ describe("Luv.Media", function(){
   describe(".getPending()", function(){
     it("is called when all ", function() {
       expect(media.getPending()).to.equal(0);
-      var r1       = media.Asset(),
-          r2       = media.Asset();
+      var r1       = media.FakeAsset(),
+          r2       = media.FakeAsset();
 
       expect(media.getPending()).to.equal(2);
 
