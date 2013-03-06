@@ -64,7 +64,20 @@ Luv.extend(Luv.Media, {
     asset.status = "error";
 
     this.onAssetError(asset);
+  },
+
+  // This just a method holding object, to be extended by specialized assets
+  // like Image or Sound. Usage:
+
+  //       Luv.extend(MyAwesomeAsset, Luv.Media.Asset)
+
+  // See `Luv.Media.Image` for an example.
+  Asset: {
+    isPending: function() { return this.status == "pending"; },
+    isLoaded:  function() { return this.status == "loaded"; },
+    isError:   function() { return this.status == "error"; }
   }
+
 });
 
 }());
