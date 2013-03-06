@@ -28,10 +28,10 @@ Luv.Timer = function() {
   });
 };
 
-// ## TimerProto
-// The `timer` methods go here
+Luv.setType(Luv.Timer, 'Luv.Timer');
+
+// ## Timer Methods
 Luv.extend(Luv.Timer, {
-  getType: function() { return 'Luv.Timer'; },
 
   // updates the timer with a new timestamp.
   step : function(time) {

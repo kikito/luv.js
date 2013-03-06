@@ -151,14 +151,19 @@ var initializeOptions = function(options) {
 
 // ## Luv.extend
 // This is a cheap knockoff of [underscore's extend](http://underscorejs.org/#extend): it copies `properties` into `dest`, and returns `dest`.
-Luv.extend = function(dest, properties) {
-  for(var property in properties) {
-    if(properties.hasOwnProperty(property)) {
-      dest[property] = properties[property];
+Luv.extend = function(dest) {
+  var properties;
+  for(var i=1; i < arguments.length; i++) {
+    properties = arguments[i];
+    for(var property in properties) {
+      if(properties.hasOwnProperty(property)) {
+        dest[property] = properties[property];
+      }
     }
   }
   return dest;
 };
+
 
 // ## Luv default methods
 // Contains the default implementation of Luv.load, Luv.draw, Luv.update and Luv.run
@@ -266,8 +271,15 @@ Luv.extend(Luv, {
 
   // `onResize` gets called when `fullWindow` is active and the window is resized. It can be used to
   // control game resizings, i.e. recalculate your camera's viewports. By default, it does nothing.
-  onResize  : function(newWidth, newHeight) {}
+  onResize  : function(newWidth, newHeight) {},
+
+  // `setType` internal function used for initializing Luv submodules
+  setType : function(module, name) {
+    module.getType = module.toString = function(){ return name; };
+  }
 });
+
+Luv.setType(Luv, 'Luv');
 
 
 }());
@@ -302,10 +314,10 @@ Luv.Timer = function() {
   });
 };
 
-// ## TimerProto
-// The `timer` methods go here
+Luv.setType(Luv.Timer, 'Luv.Timer');
+
+// ## Timer Methods
 Luv.extend(Luv.Timer, {
-  getType: function() { return 'Luv.Timer'; },
 
   // updates the timer with a new timestamp.
   step : function(time) {
@@ -397,11 +409,11 @@ Luv.Keyboard = function(el) {
   return keyboard;
 };
 
-// ## KeyboardProto
+Luv.setType(Luv.Keyboard, 'Luv.Keyboard');
+
+// ## Keyboard Methods
 // provides the three main keyboard methods
 Luv.extend(Luv.Keyboard, {
-  getType: function(){ return 'Luv.Keyboard'; },
-
   // `onPressed` is a user-overrideable that is triggered when a keyboard key
   // is pressed.
   //
@@ -563,23 +575,11 @@ Luv.Mouse = function(el) {
 };
 
 
-// Internal variable + function to transform DOM event magic numbers into human button names
-// (left, middle, right)
-var mouseButtonNames = {1: "l", 2: "m", 3: "r"};
-var getButtonFromEvent = function(evt) {
-  return mouseButtonNames[evt.which];
-};
 
-// Internal function to determine the mouse weel direction
-var getWheelButtonFromEvent = function(evt) {
-  var delta = Math.max(-1, Math.min(1, (evt.wheelDelta || -evt.detail)));
-  return delta === 1 ? 'wu' : 'wd';
-};
+Luv.setType(Luv.Mouse, 'Luv.Mouse');
 
 // ## Mouse Methods
 Luv.extend(Luv.Mouse, {
-  getType: function() { return 'Luv.Mouse'; },
-
   // Returns the x coordinate where the mouse is (relative to the DOM element)
   getX: function() { return this.x; },
 
@@ -620,6 +620,19 @@ Luv.extend(Luv.Mouse, {
   }
 });
 
+// Internal variable + function to transform DOM event magic numbers into human button names
+// (left, middle, right)
+var mouseButtonNames = {1: "l", 2: "m", 3: "r"};
+var getButtonFromEvent = function(evt) {
+  return mouseButtonNames[evt.which];
+};
+
+// Internal function to determine the mouse weel direction
+var getWheelButtonFromEvent = function(evt) {
+  var delta = Math.max(-1, Math.min(1, (evt.wheelDelta || -evt.detail)));
+  return delta === 1 ? 'wu' : 'wd';
+};
+
 }());
 
 // # media.js
@@ -636,11 +649,10 @@ Luv.Media = function() {
   });
 };
 
-// ## MediaProto
-// Contains the methods of the luv.media object
-Luv.extend(Luv.Media, {
-  getType      : function() { return 'Luv.Media'; },
+Luv.setType(Luv.Media, 'Luv.Media');
 
+// ## Media Methods
+Luv.extend(Luv.Media, {
   // `isLoaded` returns `true` if all the assets have been loaded, `false` if there are assets still being loaded
   isLoaded     : function() { return this.pending === 0; },
 
@@ -705,7 +717,6 @@ Luv.extend(Luv.Media, {
 // This just a method holding object, to be extended by specialized assets
 // like Image or Sound
 Luv.Media.Asset = {
-  getType:   function() { return 'Luv.Media.Asset'; },
   isPending: function() { return this.status == "pending"; },
   isLoaded:  function() { return this.status == "loaded"; },
   isError:   function() { return this.status == "error"; }
@@ -736,10 +747,10 @@ Luv.Media.Image = function(path, loadCallback, errorCallback) {
   return image;
 };
 
-Luv.extend(Luv.Media.Image, Luv.Media.Asset);
+Luv.setType(Luv.Media.Image, 'Luv.Media.Image');
 
-Luv.extend(Luv.Media.Image, {
-  getType       : function() { return 'Luv.Media.Image'; },
+// ## Luv.Media.Image methods
+Luv.extend(Luv.Media.Image, Luv.Media.Asset, {
   toString      : function() {
     return 'Luv.Media.Image("' + this.path + '")';
   },
@@ -778,9 +789,9 @@ Luv.Graphics = function(el, width, height) {
   return gr;
 };
 
-Luv.extend(Luv.Graphics, {
-  getType   : function() { return 'Luv.Graphics'; },
+Luv.setType(Luv.Graphics, 'Luv.Graphics');
 
+Luv.extend(Luv.Graphics, {
   setCanvas : function(canvas) {
     canvas = canvas || this.defaultCanvas;
     this.canvas = canvas;
@@ -956,8 +967,9 @@ Luv.Graphics.Canvas = function(el, width, height) {
   });
 };
 
+Luv.setType(Luv.Graphics.Canvas, 'Luv.Graphics.Canvas');
+
 Luv.extend(Luv.Graphics.Canvas, {
-  getType       : function(){ return 'Luv.Graphics.Canvas'; },
   getWidth      : function(){ return this.width; },
   getHeight     : function(){ return this.height; },
   getDimensions : function(){ return { width: this.width, height: this.height }; },

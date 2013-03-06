@@ -21,10 +21,10 @@ Luv.Media.Image = function(path, loadCallback, errorCallback) {
   return image;
 };
 
-Luv.extend(Luv.Media.Image, Luv.Media.Asset);
+Luv.setType(Luv.Media.Image, 'Luv.Media.Image');
 
-Luv.extend(Luv.Media.Image, {
-  getType       : function() { return 'Luv.Media.Image'; },
+// ## Luv.Media.Image methods
+Luv.extend(Luv.Media.Image, Luv.Media.Asset, {
   toString      : function() {
     return 'Luv.Media.Image("' + this.path + '")';
   },

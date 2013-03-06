@@ -12,11 +12,10 @@ Luv.Media = function() {
   });
 };
 
-// ## MediaProto
-// Contains the methods of the luv.media object
-Luv.extend(Luv.Media, {
-  getType      : function() { return 'Luv.Media'; },
+Luv.setType(Luv.Media, 'Luv.Media');
 
+// ## Media Methods
+Luv.extend(Luv.Media, {
   // `isLoaded` returns `true` if all the assets have been loaded, `false` if there are assets still being loaded
   isLoaded     : function() { return this.pending === 0; },
 

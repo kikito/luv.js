@@ -87,6 +87,11 @@ describe("Luv", function(){
       expect(Luv.extend(obj, {bar: 'baz'})).to.equal(obj);
       expect(obj.bar).to.equal('baz');
     });
+    it("copies more than one argument", function() {
+      var obj = Luv.extend({}, {a: 1, b: 2}, {b: 3, c: 4});
+      expect(obj).to.deep.equal({a: 1, b: 3, c: 4});
+    });
+
   });
 
   describe("luv.run", function() {

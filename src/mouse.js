@@ -64,23 +64,11 @@ Luv.Mouse = function(el) {
 };
 
 
-// Internal variable + function to transform DOM event magic numbers into human button names
-// (left, middle, right)
-var mouseButtonNames = {1: "l", 2: "m", 3: "r"};
-var getButtonFromEvent = function(evt) {
-  return mouseButtonNames[evt.which];
-};
 
-// Internal function to determine the mouse weel direction
-var getWheelButtonFromEvent = function(evt) {
-  var delta = Math.max(-1, Math.min(1, (evt.wheelDelta || -evt.detail)));
-  return delta === 1 ? 'wu' : 'wd';
-};
+Luv.setType(Luv.Mouse, 'Luv.Mouse');
 
 // ## Mouse Methods
 Luv.extend(Luv.Mouse, {
-  getType: function() { return 'Luv.Mouse'; },
-
   // Returns the x coordinate where the mouse is (relative to the DOM element)
   getX: function() { return this.x; },
 
@@ -120,5 +108,18 @@ Luv.extend(Luv.Mouse, {
     return !!this.pressedButtons[button];
   }
 });
+
+// Internal variable + function to transform DOM event magic numbers into human button names
+// (left, middle, right)
+var mouseButtonNames = {1: "l", 2: "m", 3: "r"};
+var getButtonFromEvent = function(evt) {
+  return mouseButtonNames[evt.which];
+};
+
+// Internal function to determine the mouse weel direction
+var getWheelButtonFromEvent = function(evt) {
+  var delta = Math.max(-1, Math.min(1, (evt.wheelDelta || -evt.detail)));
+  return delta === 1 ? 'wu' : 'wd';
+};
 
 }());

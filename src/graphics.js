@@ -23,9 +23,9 @@ Luv.Graphics = function(el, width, height) {
   return gr;
 };
 
-Luv.extend(Luv.Graphics, {
-  getType   : function() { return 'Luv.Graphics'; },
+Luv.setType(Luv.Graphics, 'Luv.Graphics');
 
+Luv.extend(Luv.Graphics, {
   setCanvas : function(canvas) {
     canvas = canvas || this.defaultCanvas;
     this.canvas = canvas;
@@ -201,8 +201,9 @@ Luv.Graphics.Canvas = function(el, width, height) {
   });
 };
 
+Luv.setType(Luv.Graphics.Canvas, 'Luv.Graphics.Canvas');
+
 Luv.extend(Luv.Graphics.Canvas, {
-  getType       : function(){ return 'Luv.Graphics.Canvas'; },
   getWidth      : function(){ return this.width; },
   getHeight     : function(){ return this.height; },
   getDimensions : function(){ return { width: this.width, height: this.height }; },

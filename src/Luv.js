@@ -113,14 +113,19 @@ var initializeOptions = function(options) {
 
 // ## Luv.extend
 // This is a cheap knockoff of [underscore's extend](http://underscorejs.org/#extend): it copies `properties` into `dest`, and returns `dest`.
-Luv.extend = function(dest, properties) {
-  for(var property in properties) {
-    if(properties.hasOwnProperty(property)) {
-      dest[property] = properties[property];
+Luv.extend = function(dest) {
+  var properties;
+  for(var i=1; i < arguments.length; i++) {
+    properties = arguments[i];
+    for(var property in properties) {
+      if(properties.hasOwnProperty(property)) {
+        dest[property] = properties[property];
+      }
     }
   }
   return dest;
 };
+
 
 // ## Luv default methods
 // Contains the default implementation of Luv.load, Luv.draw, Luv.update and Luv.run
@@ -228,8 +233,15 @@ Luv.extend(Luv, {
 
   // `onResize` gets called when `fullWindow` is active and the window is resized. It can be used to
   // control game resizings, i.e. recalculate your camera's viewports. By default, it does nothing.
-  onResize  : function(newWidth, newHeight) {}
+  onResize  : function(newWidth, newHeight) {},
+
+  // `setType` internal function used for initializing Luv submodules
+  setType : function(module, name) {
+    module.getType = module.toString = function(){ return name; };
+  }
 });
+
+Luv.setType(Luv, 'Luv');
 
 
 }());

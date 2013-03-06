@@ -32,11 +32,11 @@ Luv.Keyboard = function(el) {
   return keyboard;
 };
 
-// ## KeyboardProto
+Luv.setType(Luv.Keyboard, 'Luv.Keyboard');
+
+// ## Keyboard Methods
 // provides the three main keyboard methods
 Luv.extend(Luv.Keyboard, {
-  getType: function(){ return 'Luv.Keyboard'; },
-
   // `onPressed` is a user-overrideable that is triggered when a keyboard key
   // is pressed.
   //
