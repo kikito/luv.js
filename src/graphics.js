@@ -190,30 +190,6 @@ Luv.extend(Luv.Graphics, {
 
 });
 
-Luv.Graphics.Canvas = function(el, width, height) {
-  el.setAttribute('width', width);
-  el.setAttribute('height', height);
-  return Luv.extend(Object.create(Luv.Graphics.Canvas), {
-    width:  width,
-    height: height,
-    el:     el,
-    ctx:    el.getContext('2d')
-  });
-};
-
-Luv.setType(Luv.Graphics.Canvas, 'Luv.Graphics.Canvas');
-
-Luv.extend(Luv.Graphics.Canvas, {
-  getWidth      : function(){ return this.width; },
-  getHeight     : function(){ return this.height; },
-  getDimensions : function(){ return { width: this.width, height: this.height }; },
-  setDimensions : function(width, height) {
-    this.el.setAttribute('width', width);
-    this.el.setAttribute('height', height);
-    this.width = width;
-    this.height = height;
-  }
-});
 
 var twoPI = Math.PI * 2;
 
@@ -267,8 +243,8 @@ var drawPolyLine = function(graphics, methodName, minLength, coords) {
 };
 
 var normalizeAngle = function(angle) {
-  angle = angle % (2 * Math.PI);
-  return angle >= 0 ? angle : angle + 2 * Math.PI;
+  angle = angle % twoPI;
+  return angle >= 0 ? angle : angle + twoPI;
 };
 
 
