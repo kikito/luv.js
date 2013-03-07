@@ -724,7 +724,7 @@ Luv.extend(Luv.Media, {
 
   //       Luv.extend(MyAwesomeAsset, Luv.Media.Asset)
 
-  // See `Luv.Media.Image` for an example.
+  // See `Luv.Graphics.Image` for an example.
   Asset: {
     isPending: function() { return this.status == "pending"; },
     isLoaded:  function() { return this.status == "loaded"; },
