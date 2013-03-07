@@ -984,7 +984,7 @@ var normalizeAngle = function(angle) {
 
 }());
 
-// # graphics/canvas.js
+// # canvas.js
 (function() {
 
 // ## Luv.Graphics.Canvas
@@ -1034,7 +1034,7 @@ Luv.extend(Luv.Graphics.Canvas, {
 
 }());
 
-// # media/image.js
+// # image.js
 (function() {
 
 // ## Luv.Graphics.Image

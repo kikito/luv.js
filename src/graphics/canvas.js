@@ -1,4 +1,4 @@
-// # graphics/canvas.js
+// # canvas.js
 (function() {
 
 // ## Luv.Graphics.Canvas

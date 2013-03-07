@@ -1,4 +1,4 @@
-// # media/image.js
+// # image.js
 (function() {
 
 // ## Luv.Graphics.Image
