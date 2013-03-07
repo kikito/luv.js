@@ -7,6 +7,10 @@ Luv.Media = function() {
 
   //       var luv = Luv();
   //       luv.media // this is the media object
+
+  // The media object is an "asset manager". It keeps track of those
+  // assets (i.e. images) that load asynchronously, or can fail to load.
+  //
   return Luv.extend(Object.create(Luv.Media), {
     pending: 0
   });
@@ -16,7 +20,19 @@ Luv.setType(Luv.Media, 'Luv.Media');
 
 // ## Media Methods
 Luv.extend(Luv.Media, {
-  // `isLoaded` returns `true` if all the assets have been loaded, `false` if there are assets still being loaded
+  // `isLoaded` returns `true` if all the assets have been loaded, `false` if there are assets still being loaded.
+  // Useful to wait actively until all assets are finished loading:
+
+  //       var luv = Luv();
+  //       var dogImage;
+  //       luv.load = function() {
+  //         dogImage = luv.graphics.Image('dog.png');
+  //       }
+  //       luv.draw = function() {
+  //         // wait until all images are loaded before drawing anything
+  //         if(!luv.media.isLoaded()) { return; }
+  //         luv.graphics.drawImage(dogImage, 100, 100);
+  //       }
   isLoaded     : function() { return this.pending === 0; },
 
   // Returns the numbers of assets that are loading, but not yet ready

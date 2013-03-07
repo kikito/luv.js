@@ -2,7 +2,7 @@
 (function() {
 
 // ## Luv.Graphics.Image
-// Internal object used by the images created inside Luv.Graphics()
+// This type encapsulates images loaded from the internet
 Luv.Graphics.Image = function(path) {
   var media = this.media;
   var image = Luv.extend(Object.create(Luv.Graphics.Image), {
