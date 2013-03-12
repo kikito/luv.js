@@ -36,7 +36,7 @@ if (!window.cancelAnimationFrame) {
 
 }());
 
-// # Luv.js
+// # core.js
 (function() {
 
 // ## Main Luv function
