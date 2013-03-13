@@ -104,13 +104,13 @@ describe("Luv", function(){
   describe("Luv.create", function() {
     it("instantiates modules", function() {
       var m = Luv.module('foo', {bar: 'baz'});
-      var obj = m.create();
+      var obj = Luv.create(m);
       expect(obj.bar).to.equal('baz');
     });
 
     it("extends properties, if present", function() {
       var m = Luv.module('foo');
-      var obj = m.create({myProperty: 1});
+      var obj = Luv.create(m, {myProperty: 1});
       expect(obj.myProperty).to.equal(1);
     });
   });
