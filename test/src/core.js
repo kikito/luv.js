@@ -86,7 +86,33 @@ describe("Luv", function(){
       var obj = Luv.extend({}, {a: 1, b: 2}, {b: 3, c: 4});
       expect(obj).to.deep.equal({a: 1, b: 3, c: 4});
     });
+  });
 
+  describe("Luv.module", function() {
+    it("adds getType and toString, returns the object", function() {
+      var m = Luv.module('foo');
+      expect(m.getType()).to.equal('foo');
+      expect(m+"").to.equal('foo');
+    });
+
+    it("adds methods to the object", function() {
+      var m = Luv.module('foo', {bar: 'baz'});
+      expect(m.bar).to.equal('baz');
+    });
+  });
+
+  describe("Luv.create", function() {
+    it("instantiates modules", function() {
+      var m = Luv.module('foo', {bar: 'baz'});
+      var obj = m.create();
+      expect(obj.bar).to.equal('baz');
+    });
+
+    it("extends properties, if present", function() {
+      var m = Luv.module('foo');
+      var obj = m.create({myProperty: 1});
+      expect(obj.myProperty).to.equal(1);
+    });
   });
 
   describe("luv.run", function() {

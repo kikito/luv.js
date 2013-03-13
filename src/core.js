@@ -24,7 +24,7 @@ Luv = function(options) {
 
   options = initializeOptions(options);
 
-  var luv = Object.create(Luv);
+  var luv = Luv.create(LuvModule);
 
   luv.el  = options.el;
 
@@ -126,10 +126,20 @@ Luv.extend = function(dest) {
   return dest;
 };
 
+// internal function used for initializing Luv submodules
+Luv.module = function(name, methods) {
+  var f = function(){ return name; };
+  return Luv.extend(Object.create(null), {getType: f, toString: f}, methods);
+};
+
+// internal function used to create instances of modules
+Luv.create = function(module, properties) {
+  return Luv.extend(Object.create(module), properties);
+};
 
 // ## Luv default methods
 // Contains the default implementation of Luv.load, Luv.draw, Luv.update and Luv.run
-Luv.extend(Luv, {
+var LuvModule = Luv.module('Luv', {
   // Use the `load` function to start loading up resources:
 
   //       var image;
@@ -233,15 +243,8 @@ Luv.extend(Luv, {
 
   // `onResize` gets called when `fullWindow` is active and the window is resized. It can be used to
   // control game resizings, i.e. recalculate your camera's viewports. By default, it does nothing.
-  onResize  : function(newWidth, newHeight) {},
-
-  // `setType` internal function used for initializing Luv submodules
-  setType : function(module, name) {
-    module.getType = module.toString = function(){ return name; };
-  }
+  onResize  : function(newWidth, newHeight) {}
 });
-
-Luv.setType(Luv, 'Luv');
 
 
 }());

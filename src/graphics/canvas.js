@@ -29,13 +29,11 @@ Luv.Graphics.Canvas = function(width, height) {
   el.setAttribute('width', width);
   el.setAttribute('height', height);
 
-  return Luv.extend(Object.create(Luv.Graphics.Canvas), {el: el});
+  return Luv.create(CanvasModule, {el: el});
 };
 
-Luv.setType(Luv.Graphics.Canvas, 'Luv.Graphics.Canvas');
-
 // ## Luv.Graphics.Canvas methods
-Luv.extend(Luv.Graphics.Canvas, {
+var CanvasModule = Luv.module('Luv.Graphics.Canvas', {
   getContext    : function(){ return this.el.getContext('2d'); },
   getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
   getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },

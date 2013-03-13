@@ -62,7 +62,7 @@ Luv = function(options) {
 
   options = initializeOptions(options);
 
-  var luv = Object.create(Luv);
+  var luv = Luv.create(LuvModule);
 
   luv.el  = options.el;
 
@@ -164,10 +164,20 @@ Luv.extend = function(dest) {
   return dest;
 };
 
+// internal function used for initializing Luv submodules
+Luv.module = function(name, methods) {
+  var f = function(){ return name; };
+  return Luv.extend(Object.create(null), {getType: f, toString: f}, methods);
+};
+
+// internal function used to create instances of modules
+Luv.create = function(module, properties) {
+  return Luv.extend(Object.create(module), properties);
+};
 
 // ## Luv default methods
 // Contains the default implementation of Luv.load, Luv.draw, Luv.update and Luv.run
-Luv.extend(Luv, {
+var LuvModule = Luv.module('Luv', {
   // Use the `load` function to start loading up resources:
 
   //       var image;
@@ -271,15 +281,8 @@ Luv.extend(Luv, {
 
   // `onResize` gets called when `fullWindow` is active and the window is resized. It can be used to
   // control game resizings, i.e. recalculate your camera's viewports. By default, it does nothing.
-  onResize  : function(newWidth, newHeight) {},
-
-  // `setType` internal function used for initializing Luv submodules
-  setType : function(module, name) {
-    module.getType = module.toString = function(){ return name; };
-  }
+  onResize  : function(newWidth, newHeight) {}
 });
-
-Luv.setType(Luv, 'Luv');
 
 
 }());
@@ -298,7 +301,7 @@ Luv.Timer = function() {
 // library, except to obtain the Frames per second or maybe to tweak the
 // deltaTimeLimit (see below)
 
-  return Luv.extend(Object.create(Luv.Timer), {
+  return Luv.create(TimerModule, {
     // The time that has passed since the timer was created, in milliseconds
     microTime : 0,
 
@@ -314,10 +317,8 @@ Luv.Timer = function() {
   });
 };
 
-Luv.setType(Luv.Timer, 'Luv.Timer');
-
 // ## Timer Methods
-Luv.extend(Luv.Timer, {
+var TimerModule = Luv.module('Luv.Timer', {
 
   // updates the timer with a new timestamp.
   step : function(time) {
@@ -386,7 +387,7 @@ Luv.Keyboard = function(el) {
   // luv.js itself when it creates a Luv() game. The two most usual ways to
   // interact with it are via the `onPress` and `onRelease` callbacks, or the
   // `isPressed` method (see below).
-  var keyboard = Luv.extend(Object.create(Luv.Keyboard), {
+  var keyboard = Luv.create(KeyboardModule, {
     keysDown : {},
     el: el
   });
@@ -409,11 +410,8 @@ Luv.Keyboard = function(el) {
   return keyboard;
 };
 
-Luv.setType(Luv.Keyboard, 'Luv.Keyboard');
-
 // ## Keyboard Methods
-// provides the three main keyboard methods
-Luv.extend(Luv.Keyboard, {
+var KeyboardModule = Luv.module('Luv.Keyboard', {
   // `onPressed` is a user-overrideable that is triggered when a keyboard key
   // is pressed.
   //
@@ -520,7 +518,7 @@ Luv.Mouse = function(el) {
 
   //       var luv = Luv();
   //       luv.mouse // Already instantiated mouse handler
-  var mouse = Luv.extend(Object.create(Luv.Mouse), {
+  var mouse = Luv.create(MouseModule, {
     x: 0,
     y: 0,
     pressedButtons: {},
@@ -574,12 +572,8 @@ Luv.Mouse = function(el) {
   return mouse;
 };
 
-
-
-Luv.setType(Luv.Mouse, 'Luv.Mouse');
-
 // ## Mouse Methods
-Luv.extend(Luv.Mouse, {
+var MouseModule = Luv.module('Luv.Mouse', {
   // Returns the x coordinate where the mouse is (relative to the DOM element)
   getX: function() { return this.x; },
 
@@ -648,15 +642,11 @@ Luv.Media = function() {
   // The media object is an "asset manager". It keeps track of those
   // assets (i.e. images) that load asynchronously, or can fail to load.
   //
-  return Luv.extend(Object.create(Luv.Media), {
-    pending: 0
-  });
+  return Luv.create(MediaModule, { pending: 0 });
 };
 
-Luv.setType(Luv.Media, 'Luv.Media');
-
 // ## Media Methods
-Luv.extend(Luv.Media, {
+var MediaModule = Luv.module('Luv.Media', {
   // `isLoaded` returns `true` if all the assets have been loaded, `false` if there are assets still being loaded.
   // Useful to wait actively until all assets are finished loading:
 
@@ -717,29 +707,30 @@ Luv.extend(Luv.Media, {
     asset.status = "error";
 
     this.onAssetError(asset);
-  },
-
-  // This just a method holding object, to be extended by specialized assets
-  // like Image or Sound. Usage:
-
-  //       Luv.extend(MyAwesomeAsset, Luv.Media.Asset)
-
-  // See `Luv.Graphics.Image` for an example.
-  Asset: {
-    isPending: function() { return this.status == "pending"; },
-    isLoaded:  function() { return this.status == "loaded"; },
-    isError:   function() { return this.status == "error"; }
   }
-
 });
 
+// This just a method holding object, to be extended by specialized assets
+// like Image or Sound. Usage:
+
+//       Luv.extend(MyAwesomeAsset, Luv.Media.Asset)
+
+// See `Luv.Graphics.Image` for an example.
+Luv.Media.Asset = {
+  isPending: function() { return this.status == "pending"; },
+  isLoaded:  function() { return this.status == "loaded"; },
+  isError:   function() { return this.status == "error"; }
+};
+
 }());
+
+
 
 
 (function(){
 
 Luv.Graphics = function(el, media) {
-  var gr = Luv.extend(Object.create(Luv.Graphics), {
+  var gr = Luv.create(GraphicsModule, {
     el:        el,
     media:     media,
     lineWidth: 1,
@@ -759,9 +750,7 @@ Luv.Graphics = function(el, media) {
   return gr;
 };
 
-Luv.setType(Luv.Graphics, 'Luv.Graphics');
-
-Luv.extend(Luv.Graphics, {
+var GraphicsModule = Luv.module('Luv.Graphics', {
   setCanvas : function(canvas) {
     canvas = canvas || this.defaultCanvas;
     this.canvas = canvas;
@@ -920,6 +909,14 @@ Luv.extend(Luv.Graphics, {
 
   pop : function() {
     this.ctx.restore();
+  },
+
+  Canvas : function(width, height) {
+    return Luv.Graphics.Canvas.call(this, width, height);
+  },
+
+  Image : function(path) {
+    return Luv.Graphics.Image.call(this, path);
   }
 
 });
@@ -1015,13 +1012,11 @@ Luv.Graphics.Canvas = function(width, height) {
   el.setAttribute('width', width);
   el.setAttribute('height', height);
 
-  return Luv.extend(Object.create(Luv.Graphics.Canvas), {el: el});
+  return Luv.create(CanvasModule, {el: el});
 };
 
-Luv.setType(Luv.Graphics.Canvas, 'Luv.Graphics.Canvas');
-
 // ## Luv.Graphics.Canvas methods
-Luv.extend(Luv.Graphics.Canvas, {
+var CanvasModule = Luv.module('Luv.Graphics.Canvas', {
   getContext    : function(){ return this.el.getContext('2d'); },
   getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
   getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },
@@ -1041,9 +1036,7 @@ Luv.extend(Luv.Graphics.Canvas, {
 // This type encapsulates images loaded from the internet
 Luv.Graphics.Image = function(path) {
   var media = this.media;
-  var image = Luv.extend(Object.create(Luv.Graphics.Image), {
-    path: path
-  });
+  var image = Luv.create(ImageModule, { path: path });
 
   media.newAsset(image);
 
@@ -1057,10 +1050,7 @@ Luv.Graphics.Image = function(path) {
   return image;
 };
 
-Luv.setType(Luv.Graphics.Image, 'Luv.Graphics.Image');
-
-// ## Luv.Graphics.Image methods
-Luv.extend(Luv.Graphics.Image, Luv.Media.Asset, {
+var ImageModule = Luv.module('Luv.Graphics.Image', {
   toString      : function() {
     return 'Luv.Graphics.Image("' + this.path + '")';
   },
@@ -1071,5 +1061,6 @@ Luv.extend(Luv.Graphics.Image, Luv.Media.Asset, {
   }
 });
 
+Luv.extend(ImageModule, Luv.Media.Asset);
 
 }());

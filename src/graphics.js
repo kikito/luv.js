@@ -2,7 +2,7 @@
 (function(){
 
 Luv.Graphics = function(el, media) {
-  var gr = Luv.extend(Object.create(Luv.Graphics), {
+  var gr = Luv.create(GraphicsModule, {
     el:        el,
     media:     media,
     lineWidth: 1,
@@ -22,9 +22,7 @@ Luv.Graphics = function(el, media) {
   return gr;
 };
 
-Luv.setType(Luv.Graphics, 'Luv.Graphics');
-
-Luv.extend(Luv.Graphics, {
+var GraphicsModule = Luv.module('Luv.Graphics', {
   setCanvas : function(canvas) {
     canvas = canvas || this.defaultCanvas;
     this.canvas = canvas;
@@ -183,6 +181,14 @@ Luv.extend(Luv.Graphics, {
 
   pop : function() {
     this.ctx.restore();
+  },
+
+  Canvas : function(width, height) {
+    return Luv.Graphics.Canvas.call(this, width, height);
+  },
+
+  Image : function(path) {
+    return Luv.Graphics.Image.call(this, path);
   }
 
 });

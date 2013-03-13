@@ -5,9 +5,7 @@
 // This type encapsulates images loaded from the internet
 Luv.Graphics.Image = function(path) {
   var media = this.media;
-  var image = Luv.extend(Object.create(Luv.Graphics.Image), {
-    path: path
-  });
+  var image = Luv.create(ImageModule, { path: path });
 
   media.newAsset(image);
 
@@ -21,10 +19,7 @@ Luv.Graphics.Image = function(path) {
   return image;
 };
 
-Luv.setType(Luv.Graphics.Image, 'Luv.Graphics.Image');
-
-// ## Luv.Graphics.Image methods
-Luv.extend(Luv.Graphics.Image, Luv.Media.Asset, {
+var ImageModule = Luv.module('Luv.Graphics.Image', {
   toString      : function() {
     return 'Luv.Graphics.Image("' + this.path + '")';
   },
@@ -35,5 +30,6 @@ Luv.extend(Luv.Graphics.Image, Luv.Media.Asset, {
   }
 });
 
+Luv.extend(ImageModule, Luv.Media.Asset);
 
 }());

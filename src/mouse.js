@@ -9,7 +9,7 @@ Luv.Mouse = function(el) {
 
   //       var luv = Luv();
   //       luv.mouse // Already instantiated mouse handler
-  var mouse = Luv.extend(Object.create(Luv.Mouse), {
+  var mouse = Luv.create(MouseModule, {
     x: 0,
     y: 0,
     pressedButtons: {},
@@ -63,12 +63,8 @@ Luv.Mouse = function(el) {
   return mouse;
 };
 
-
-
-Luv.setType(Luv.Mouse, 'Luv.Mouse');
-
 // ## Mouse Methods
-Luv.extend(Luv.Mouse, {
+var MouseModule = Luv.module('Luv.Mouse', {
   // Returns the x coordinate where the mouse is (relative to the DOM element)
   getX: function() { return this.x; },
 

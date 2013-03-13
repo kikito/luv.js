@@ -11,15 +11,11 @@ Luv.Media = function() {
   // The media object is an "asset manager". It keeps track of those
   // assets (i.e. images) that load asynchronously, or can fail to load.
   //
-  return Luv.extend(Object.create(Luv.Media), {
-    pending: 0
-  });
+  return Luv.create(MediaModule, { pending: 0 });
 };
 
-Luv.setType(Luv.Media, 'Luv.Media');
-
 // ## Media Methods
-Luv.extend(Luv.Media, {
+var MediaModule = Luv.module('Luv.Media', {
   // `isLoaded` returns `true` if all the assets have been loaded, `false` if there are assets still being loaded.
   // Useful to wait actively until all assets are finished loading:
 
@@ -80,20 +76,21 @@ Luv.extend(Luv.Media, {
     asset.status = "error";
 
     this.onAssetError(asset);
-  },
-
-  // This just a method holding object, to be extended by specialized assets
-  // like Image or Sound. Usage:
-
-  //       Luv.extend(MyAwesomeAsset, Luv.Media.Asset)
-
-  // See `Luv.Graphics.Image` for an example.
-  Asset: {
-    isPending: function() { return this.status == "pending"; },
-    isLoaded:  function() { return this.status == "loaded"; },
-    isError:   function() { return this.status == "error"; }
   }
-
 });
 
+// This just a method holding object, to be extended by specialized assets
+// like Image or Sound. Usage:
+
+//       Luv.extend(MyAwesomeAsset, Luv.Media.Asset)
+
+// See `Luv.Graphics.Image` for an example.
+Luv.Media.Asset = {
+  isPending: function() { return this.status == "pending"; },
+  isLoaded:  function() { return this.status == "loaded"; },
+  isError:   function() { return this.status == "error"; }
+};
+
 }());
+
+
