@@ -39,9 +39,43 @@ if (!window.cancelAnimationFrame) {
 // # core.js
 (function() {
 
+var extend = function(dest) {
+  var properties;
+  for(var i=1; i < arguments.length; i++) {
+    properties = arguments[i];
+    for(var property in properties) {
+      if(properties.hasOwnProperty(property)) {
+        dest[property] = properties[property];
+      }
+    }
+  }
+  return dest;
+};
+
+var Class = function(name, methods) {
+  methods = methods || {};
+  var proto = Object.create(null);
+  var theClass = function() {
+    var instance = Object.create(proto);
+    theClass.init.apply(instance, arguments);
+    return instance;
+  };
+
+  theClass.init = methods.init || function(){};
+  theClass.getName = theClass.toString = function() { return name; };
+
+  extend(proto, {
+    getClass: function() { return theClass; },
+    toString: function() { return 'instance of ' + name; }
+  }, methods);
+  delete proto.init;
+
+  return theClass;
+};
+
 // ## Main Luv function
-Luv = function(options) {
-// The main Luv function, and the only global variable defined by luv.js
+Luv = Class('Luv', {
+// The main Luv class, and the only global variable defined by luv.js
 // It basically parses the given options (see `initializeOptions` for a list of accepted options).
 // Returns a game.
 // The recommended name for the variable to store the game is `luv`, but you are free to choose any other.
@@ -59,125 +93,37 @@ Luv = function(options) {
 // without storing it into a variable:
 
 //       Luv({...}).run();
+  init: function(options) {
 
-  options = initializeOptions(options);
+    options = initializeOptions(options);
 
-  var luv = Luv.create(LuvModule);
+    this.el  = options.el;
 
-  luv.el  = options.el;
+    if(options.load)     { this.load     = options.load; }
+    if(options.update)   { this.update   = options.update; }
+    if(options.draw)     { this.draw     = options.draw; }
+    if(options.run)      { this.run      = options.run; }
+    if(options.onResize) { this.onResize = options.onResize; }
 
-  if(options.load)     { luv.load     = options.load; }
-  if(options.update)   { luv.update   = options.update; }
-  if(options.draw)     { luv.draw     = options.draw; }
-  if(options.run)      { luv.run      = options.run; }
-  if(options.onResize) { luv.onResize = options.onResize; }
+    // Initialize all the game submodules (see their docs for more info about each one)
+    this.media     = Luv.Media();
+    this.timer     = Luv.Timer();
+    this.keyboard  = Luv.Keyboard(this.el);
+    this.mouse     = Luv.Mouse(this.el);
+    this.graphics  = Luv.Graphics(this.el, this.media);
 
-  // Initialize all the game submodules (see their docs for more info about each one)
-  luv.media     = Luv.Media();
-  luv.timer     = Luv.Timer();
-  luv.keyboard  = Luv.Keyboard(luv.el);
-  luv.mouse     = Luv.Mouse(luv.el);
-  luv.graphics  = Luv.Graphics(luv.el, luv.media);
-
-  if(options.fullWindow) {
-    var resize = function() {
-      luv.graphics.setDimensions(window.innerWidth, window.innerHeight);
-      luv.onResize(window.innerWidth, window.innerHeight);
-    };
-    window.addEventListener('resize', resize, false);
-    window.addEventListener('orientationChange', resize, false);
-  }
-
-  return luv;
-};
-
-// ## initializeOptions
-var initializeOptions = function(options) {
-// Accepted options:
-
-// * `el`: A canvas DOM element to be used
-// * `id`: A canvas DOM id to be used (Ignored if `el` is provided)
-// * `width`: Sets the width of the canvas, in pixels
-// * `height`: Sets the height of the canvas, in pixels
-// * `fullWindow`: If set to true, the game canvas will ocuppy the whole window, and auto-adjust (off by default)
-// * `load`: A load function (see below)
-// * `update`: A load function (see below)
-// * `draw`: A draw function (see below)
-// * `run`: A run function (see below)
-// * `onResize`: A callback that is called when the window is resized (only works when `fullWindow` is active)
-
-// Notes:
-
-// * All options are ... well, optional.
-// * The options parameter itself is optional (you can do `var luv = Luv();`)
-// * Any other options passed through the `options` hash are ignored
-// * If neither `el` or `id` is specified, a new DOM canvas element will be generated and appended to the window. Overrides width and height.
-// * `width` and `height` will attempt to get their values from the DOM element. If they can't, and they are not
-//    provided as options, they will default to 800x600px
-  options = options || {};
-  var el      = options.el,
-      id      = options.id,
-      width   = options.width,
-      height  = options.height,
-      body    = document.getElementsByTagName('body')[0],
-      html    = document.getElementsByTagName('html')[0],
-      fullCss = "width: 100%; height: 100%; margin: 0; overflow: hidden;";
-
-  if(!el && id) { el = document.getElementById(id); }
-  if(el) {
-    if(!width  && el.getAttribute('width'))  { width = parseInt(el.getAttribute('width'), 10); }
-    if(!height && el.getAttribute('height')) { height = parseInt(el.getAttribute('height'), 10); }
-  } else {
-    el = document.createElement('canvas');
-    body.appendChild(el);
-  }
-  if(options.fullWindow) {
-    html.style.cssText = body.style.cssText = fullCss;
-    width  = window.innerWidth;
-    height = window.innerHeight;
-  } else {
-    width = width   || 800;
-    height = height || 600;
-  }
-  el.setAttribute('width', width);
-  el.setAttribute('height', height);
-
-  options.el      = el;
-  options.width   = width;
-  options.height  = height;
-
-  return options;
-};
-
-// ## Luv.extend
-// This is a cheap knockoff of [underscore's extend](http://underscorejs.org/#extend): it copies `properties` into `dest`, and returns `dest`.
-Luv.extend = function(dest) {
-  var properties;
-  for(var i=1; i < arguments.length; i++) {
-    properties = arguments[i];
-    for(var property in properties) {
-      if(properties.hasOwnProperty(property)) {
-        dest[property] = properties[property];
-      }
+    if(options.fullWindow) {
+      var resize = function() {
+        this.graphics.setDimensions(window.innerWidth, window.innerHeight);
+        this.onResize(window.innerWidth, window.innerHeight);
+      };
+      window.addEventListener('resize', resize, false);
+      window.addEventListener('orientationChange', resize, false);
     }
-  }
-  return dest;
-};
+  },
 
-// internal function used for initializing Luv submodules
-Luv.module = function(name, methods) {
-  var f = function(){ return name; };
-  return Luv.extend(Object.create(null), {getType: f, toString: f}, methods);
-};
 
-// internal function used to create instances of modules
-Luv.create = function(module, properties) {
-  return Luv.extend(Object.create(module), properties);
-};
 
-// ## Luv default methods
-// Contains the default implementation of Luv.load, Luv.draw, Luv.update and Luv.run
-var LuvModule = Luv.module('Luv', {
   // Use the `load` function to start loading up resources:
 
   //       var image;
@@ -283,6 +229,80 @@ var LuvModule = Luv.module('Luv', {
   // control game resizings, i.e. recalculate your camera's viewports. By default, it does nothing.
   onResize  : function(newWidth, newHeight) {}
 });
+
+// ## initializeOptions
+var initializeOptions = function(options) {
+  // Accepted options:
+
+  // * `el`: A canvas DOM element to be used
+  // * `id`: A canvas DOM id to be used (Ignored if `el` is provided)
+  // * `width`: Sets the width of the canvas, in pixels
+  // * `height`: Sets the height of the canvas, in pixels
+  // * `fullWindow`: If set to true, the game canvas will ocuppy the whole window, and auto-adjust (off by default)
+  // * `load`: A load function (see below)
+  // * `update`: A load function (see below)
+  // * `draw`: A draw function (see below)
+  // * `run`: A run function (see below)
+  // * `onResize`: A callback that is called when the window is resized (only works when `fullWindow` is active)
+
+  // Notes:
+
+  // * All options are ... well, optional.
+  // * The options parameter itself is optional (you can do `var luv = Luv();`)
+  // * Any other options passed through the `options` hash are ignored
+  // * If neither `el` or `id` is specified, a new DOM canvas element will be generated and appended to the window. Overrides width and height.
+  // * `width` and `height` will attempt to get their values from the DOM element. If they can't, and they are not
+  //    provided as options, they will default to 800x600px
+  options = options || {};
+  var el      = options.el,
+      id      = options.id,
+      width   = options.width,
+      height  = options.height,
+      body    = document.getElementsByTagName('body')[0],
+      html    = document.getElementsByTagName('html')[0],
+      fullCss = "width: 100%; height: 100%; margin: 0; overflow: hidden;";
+
+  if(!el && id) { el = document.getElementById(id); }
+  if(el) {
+    if(!width  && el.getAttribute('width'))  { width = parseInt(el.getAttribute('width'), 10); }
+    if(!height && el.getAttribute('height')) { height = parseInt(el.getAttribute('height'), 10); }
+  } else {
+    el = document.createElement('canvas');
+    body.appendChild(el);
+  }
+  if(options.fullWindow) {
+    html.style.cssText = body.style.cssText = fullCss;
+    width  = window.innerWidth;
+    height = window.innerHeight;
+  } else {
+    width = width   || 800;
+    height = height || 600;
+  }
+  el.setAttribute('width', width);
+  el.setAttribute('height', height);
+
+  options.el      = el;
+  options.width   = width;
+  options.height  = height;
+
+  return options;
+};
+
+
+
+// internal function used for initializing Luv submodules
+Luv.module = function(name, methods) {
+  var f = function(){ return name; };
+  return Luv.extend(Object.create(null), {getType: f, toString: f}, methods);
+};
+
+// internal function used to create instances of modules
+Luv.create = function(module, properties) {
+  return Luv.extend(Object.create(module), properties);
+};
+
+Luv.Class = Class;
+Luv.extend = extend;
 
 
 }());

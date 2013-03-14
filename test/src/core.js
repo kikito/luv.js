@@ -101,6 +101,46 @@ describe("Luv", function(){
     });
   });
 
+
+  describe("Luv.Class", function() {
+    it("is a function", function() {
+      expect(Luv.Class).to.be.a('function');
+    });
+
+    describe("the class it creates", function() {
+      it("has a name", function() {
+        var c = Luv.Class('MyClass');
+        expect(c+"").to.equal('MyClass');
+        expect(c.getName()).to.equal('MyClass');
+      });
+
+      it("is capable of instantiating objects", function() {
+        var MyClass = Luv.Class('MyClass');
+        var obj = MyClass();
+
+        expect(obj.getClass()).to.deep.equal(MyClass);
+        expect(obj+"").to.equal('instance of MyClass');
+      });
+
+      it("accepts an optional methods object", function() {
+        var MyClass = Luv.Class('MyClass', {foo: 'bar'});
+        var obj = MyClass();
+        expect(obj.foo).to.equal('bar');
+      });
+
+      it("uses the init method on the instances, if it exists", function() {
+        var MyClass = Luv.Class('MyClass', {
+          init: function(name) {
+            this.name = name;
+          }
+        });
+        var obj = MyClass('peter');
+        expect(obj.name).to.equal('peter');
+      });
+    });
+  });
+
+
   describe("Luv.create", function() {
     it("instantiates modules", function() {
       var m = Luv.module('foo', {bar: 'baz'});
