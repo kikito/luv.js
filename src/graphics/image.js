@@ -2,34 +2,36 @@
 (function() {
 
 // ## Luv.Graphics.Image
-// This type encapsulates images loaded from the internet
-Luv.Graphics.Image = function(path) {
-  var media = this.media;
-  var image = Luv.create(ImageModule, { path: path });
+// This class encapsulates images loaded from the internet
+Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
+  init: function(media, path) {
+    var image = this;
 
-  media.newAsset(image);
+    image.path = path;
 
-  var source   = new Image(); // html image
-  image.source = source;
+    media.newAsset(image);
 
-  source.addEventListener('load',  function(){ media.registerLoad(image); });
-  source.addEventListener('error', function(){ media.registerError(image); });
-  source.src = path;
+    var source   = new Image(); // html image
+    image.source = source;
 
-  return image;
-};
+    source.addEventListener('load',  function(){ media.registerLoad(image); });
+    source.addEventListener('error', function(){ media.registerError(image); });
+    source.src = path;
+  },
 
-var ImageModule = Luv.module('Luv.Graphics.Image', {
   toString      : function() {
     return 'Luv.Graphics.Image("' + this.path + '")';
   },
+
   getWidth      : function() { return this.source.width; },
+
   getHeight     : function() { return this.source.height; },
+
   getDimensions : function() {
     return { width: this.source.width, height: this.source.height };
   }
 });
 
-Luv.extend(ImageModule, Luv.Media.Asset);
+Luv.Graphics.Image.include(Luv.Media.Asset);
 
 }());

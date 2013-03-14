@@ -1,8 +1,8 @@
 // # media.js
 (function() {
 // ## Luv.Media
-Luv.Media = function() {
-  // This function creates the `media` object when you create a luv game. It's usually
+Luv.Media = Luv.Class('Luv.Media', {
+  // This module creates the `media` object when you create a luv game. It's usually
   // instantiated by the Luv function.
 
   //       var luv = Luv();
@@ -11,11 +11,10 @@ Luv.Media = function() {
   // The media object is an "asset manager". It keeps track of those
   // assets (i.e. images) that load asynchronously, or can fail to load.
   //
-  return Luv.create(MediaModule, { pending: 0 });
-};
+  init: function() {
+    this.pending = 0;
+  },
 
-// ## Media Methods
-var MediaModule = Luv.module('Luv.Media', {
   // `isLoaded` returns `true` if all the assets have been loaded, `false` if there are assets still being loaded.
   // Useful to wait actively until all assets are finished loading:
 
@@ -82,7 +81,7 @@ var MediaModule = Luv.module('Luv.Media', {
 // This just a method holding object, to be extended by specialized assets
 // like Image or Sound. Usage:
 
-//       Luv.extend(MyAwesomeAsset, Luv.Media.Asset)
+//       MyAwesomeClass.include(Luv.Media.Asset)
 
 // See `Luv.Graphics.Image` for an example.
 Luv.Media.Asset = {

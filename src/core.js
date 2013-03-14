@@ -16,21 +16,23 @@ var extend = function(dest) {
 
 var Class = function(name, methods) {
   methods = methods || {};
-  var proto = Object.create(null);
+  var instanceMethods = Object.create(null);
+
   var theClass = function() {
-    var instance = Object.create(proto);
+    var instance = Object.create(instanceMethods);
     theClass.init.apply(instance, arguments);
     return instance;
   };
 
-  theClass.init = methods.init || function(){};
+  theClass.init    = methods.init || function(){};
   theClass.getName = theClass.toString = function() { return name; };
+  theClass.include = function(mixin) { extend(instanceMethods, mixin); };
 
-  extend(proto, {
+  extend(instanceMethods, {
     getClass: function() { return theClass; },
     toString: function() { return 'instance of ' + name; }
   }, methods);
-  delete proto.init;
+  delete instanceMethods.init;
 
   return theClass;
 };
@@ -250,21 +252,7 @@ var initializeOptions = function(options) {
   return options;
 };
 
-
-
-// internal function used for initializing Luv submodules
-Luv.module = function(name, methods) {
-  var f = function(){ return name; };
-  return Luv.extend(Object.create(null), {getType: f, toString: f}, methods);
-};
-
-// internal function used to create instances of modules
-Luv.create = function(module, properties) {
-  return Luv.extend(Object.create(module), properties);
-};
-
 Luv.Class = Class;
-Luv.extend = extend;
 
 
 }());

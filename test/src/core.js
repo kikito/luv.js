@@ -76,32 +76,6 @@ describe("Luv", function(){
 
   });
 
-  describe("Luv.extend", function() {
-    it("copies properties inside an object, and returns the object", function() {
-      var obj = {};
-      expect(Luv.extend(obj, {bar: 'baz'})).to.equal(obj);
-      expect(obj.bar).to.equal('baz');
-    });
-    it("copies more than one argument", function() {
-      var obj = Luv.extend({}, {a: 1, b: 2}, {b: 3, c: 4});
-      expect(obj).to.deep.equal({a: 1, b: 3, c: 4});
-    });
-  });
-
-  describe("Luv.module", function() {
-    it("adds getType and toString, returns the object", function() {
-      var m = Luv.module('foo');
-      expect(m.getType()).to.equal('foo');
-      expect(m+"").to.equal('foo');
-    });
-
-    it("adds methods to the object", function() {
-      var m = Luv.module('foo', {bar: 'baz'});
-      expect(m.bar).to.equal('baz');
-    });
-  });
-
-
   describe("Luv.Class", function() {
     it("is a function", function() {
       expect(Luv.Class).to.be.a('function');
@@ -137,21 +111,17 @@ describe("Luv", function(){
         var obj = MyClass('peter');
         expect(obj.name).to.equal('peter');
       });
-    });
-  });
 
+      it("has an 'include' class method", function() {
+        var Dodo = Luv.Class('Dodo');
+        var flyMixing = { fly: function(){ this.flying = true; } };
+        Dodo.include(flyMixing);
 
-  describe("Luv.create", function() {
-    it("instantiates modules", function() {
-      var m = Luv.module('foo', {bar: 'baz'});
-      var obj = Luv.create(m);
-      expect(obj.bar).to.equal('baz');
-    });
+        var ronald = Dodo();
+        ronald.fly();
 
-    it("extends properties, if present", function() {
-      var m = Luv.module('foo');
-      var obj = Luv.create(m, {myProperty: 1});
-      expect(obj.myProperty).to.equal(1);
+        expect(ronald.flying).to.be.True;
+      });
     });
   });
 

@@ -2,69 +2,68 @@
 (function() {
 
 // ## Luv.Mouse
-Luv.Mouse = function(el) {
+Luv.Mouse = Luv.Class('Luv.Mouse', {
   // This function creates a mouse handler for a mouse game.
   // It is usually instantiated directly by the main Luv() function,
   // you will probably not need to call `Luv.Mouse()` yourself:
 
   //       var luv = Luv();
   //       luv.mouse // Already instantiated mouse handler
-  var mouse = Luv.create(MouseModule, {
-    x: 0,
-    y: 0,
-    pressedButtons: {},
-    wheelTimeOuts: {}
-  });
 
-  // The mouse module works by attaching several event listeners to the
-  // given el element. That's how mouse position, button presses and wheel state
-  // are detected.
+  init: function(el) {
 
-  var handlePress = function(button) {
-    mouse.pressedButtons[button] = true;
-    mouse.onPressed(mouse.x, mouse.y, button);
-  };
+    var mouse  = this;
 
-  var handleRelease = function(button) {
-    mouse.pressedButtons[button] = false;
-    mouse.onReleased(mouse.x, mouse.y, button);
-  };
+    mouse.x               = 0;
+    mouse.y               = 0;
+    mouse.pressedButtons  = {};
+    mouse.wheelTimeOuts   = {};
 
-  var handleWheel = function(evt) {
-    evt.preventDefault();
-    var button = getWheelButtonFromEvent(evt);
-    // The 'wheel has stopped scrolling' event is triggered via setTimeout, since
-    // browsers don't provide a native 'stopped scrolling' event
-    clearTimeout(mouse.wheelTimeOuts[button]);
-    // The default time it takes the browser to detect that the mouse wheel stopped
-    // is 20 milliseconds
-    mouse.wheelTimeOuts[button] = setTimeout(function() { handleRelease(button); }, 20);
-    handlePress(button);
-  };
+    // The mouse module works by attaching several event listeners to the
+    // given el element. That's how mouse position, button presses and wheel state
+    // are detected.
 
-  // mousemove is particularly laggy in Chrome. I'd love to find a better solution
-  el.addEventListener('mousemove', function(evt) {
-    var rect = el.getBoundingClientRect();
-    mouse.x = evt.pageX - rect.left;
-    mouse.y = evt.pageY - rect.top;
-  });
+    var handlePress = function(button) {
+      mouse.pressedButtons[button] = true;
+      mouse.onPressed(mouse.x, mouse.y, button);
+    };
 
-  el.addEventListener('mousedown', function(evt) {
-    handlePress(getButtonFromEvent(evt));
-  });
+    var handleRelease = function(button) {
+      mouse.pressedButtons[button] = false;
+      mouse.onReleased(mouse.x, mouse.y, button);
+    };
 
-  el.addEventListener('mouseup', function(evt) {
-    handleRelease(getButtonFromEvent(evt));
-  });
+    var handleWheel = function(evt) {
+      evt.preventDefault();
+      var button = getWheelButtonFromEvent(evt);
+      // The 'wheel has stopped scrolling' event is triggered via setTimeout, since
+      // browsers don't provide a native 'stopped scrolling' event
+      clearTimeout(mouse.wheelTimeOuts[button]);
+      // The default time it takes the browser to detect that the mouse wheel stopped
+      // is 20 milliseconds
+      mouse.wheelTimeOuts[button] = setTimeout(function() { handleRelease(button); }, 20);
+      handlePress(button);
+    };
 
-  el.addEventListener('DOMMouseScroll', handleWheel); // firefox
-  el.addEventListener('mousewheel', handleWheel); // everyone else
+    // mousemove is particularly laggy in Chrome. I'd love to find a better solution
+    el.addEventListener('mousemove', function(evt) {
+      var rect = el.getBoundingClientRect();
+      mouse.x = evt.pageX - rect.left;
+      mouse.y = evt.pageY - rect.top;
+    });
 
-  return mouse;
-};
+    el.addEventListener('mousedown', function(evt) {
+      handlePress(getButtonFromEvent(evt));
+    });
 
-// ## Mouse Methods
-var MouseModule = Luv.module('Luv.Mouse', {
+    el.addEventListener('mouseup', function(evt) {
+      handleRelease(getButtonFromEvent(evt));
+    });
+
+    el.addEventListener('DOMMouseScroll', handleWheel); // firefox
+    el.addEventListener('mousewheel', handleWheel); // everyone else
+  },
+
   // Returns the x coordinate where the mouse is (relative to the DOM element)
   getX: function() { return this.x; },
 

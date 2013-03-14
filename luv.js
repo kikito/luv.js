@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-14) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-03-15) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -54,21 +54,23 @@ var extend = function(dest) {
 
 var Class = function(name, methods) {
   methods = methods || {};
-  var proto = Object.create(null);
+  var instanceMethods = Object.create(null);
+
   var theClass = function() {
-    var instance = Object.create(proto);
+    var instance = Object.create(instanceMethods);
     theClass.init.apply(instance, arguments);
     return instance;
   };
 
-  theClass.init = methods.init || function(){};
+  theClass.init    = methods.init || function(){};
   theClass.getName = theClass.toString = function() { return name; };
+  theClass.include = function(mixin) { extend(instanceMethods, mixin); };
 
-  extend(proto, {
+  extend(instanceMethods, {
     getClass: function() { return theClass; },
     toString: function() { return 'instance of ' + name; }
   }, methods);
-  delete proto.init;
+  delete instanceMethods.init;
 
   return theClass;
 };
@@ -288,21 +290,7 @@ var initializeOptions = function(options) {
   return options;
 };
 
-
-
-// internal function used for initializing Luv submodules
-Luv.module = function(name, methods) {
-  var f = function(){ return name; };
-  return Luv.extend(Object.create(null), {getType: f, toString: f}, methods);
-};
-
-// internal function used to create instances of modules
-Luv.create = function(module, properties) {
-  return Luv.extend(Object.create(module), properties);
-};
-
 Luv.Class = Class;
-Luv.extend = extend;
 
 
 }());
@@ -311,7 +299,7 @@ Luv.extend = extend;
 (function(){
 
 // ## Luv.Timer
-Luv.Timer = function() {
+Luv.Timer = Luv.Class('Luv.Timer', {
 
 // In luv, time is managed via instances of this constructor, instead of with
 // javascript's setInterval.
@@ -321,24 +309,20 @@ Luv.Timer = function() {
 // library, except to obtain the Frames per second or maybe to tweak the
 // deltaTimeLimit (see below)
 
-  return Luv.create(TimerModule, {
+  init: function() {
     // The time that has passed since the timer was created, in milliseconds
-    microTime : 0,
+    this.microTime = 0;
 
     // The time that has passed between the last two frames, in seconds
-    deltaTime : 0,
+    this.deltaTime = 0;
 
     // The upper value that deltaTime can have, in seconds. Defaults to 0.25.
     // Can be changed via `setDeltaTimeLimit`.
     // Note that this does *not* magically make a game go faster. If a game has
     // very low FPS, this makes sure that the delta time is not too great (its bad
     // for things like physics simulations, etc).
-    deltaTimeLimit : 0.25
-  });
-};
-
-// ## Timer Methods
-var TimerModule = Luv.module('Luv.Timer', {
+    this.deltaTimeLimit = 0.25;
+  },
 
   // updates the timer with a new timestamp.
   step : function(time) {
@@ -402,36 +386,35 @@ var TimerModule = Luv.module('Luv.Timer', {
 // *Disclaimer*: the code on this module was inspired by [selfcontained.us](http://www.selfcontained.us/2009/09/16/getting-keycode-values-in-javascript/)
 
 // ## Luv.Keyboard
-Luv.Keyboard = function(el) {
+Luv.Keyboard = Luv.Class('Luv.Keyboard', {
   // This luv module manages the keyboard. It is usually instantiated by
   // luv.js itself when it creates a Luv() game. The two most usual ways to
   // interact with it are via the `onPress` and `onRelease` callbacks, or the
   // `isPressed` method (see below).
-  var keyboard = Luv.create(KeyboardModule, {
-    keysDown : {},
-    el: el
-  });
+  init: function(el) {
+    var keyboard = this;
 
-  el.tabIndex = 1;
-  el.focus();
+    keyboard.keysDown  = {};
+    keyboard.el        = el;
 
-  el.addEventListener('keydown', function(evt) {
-    var key  = getKeyFromEvent(evt);
-    keyboard.keysDown[key] = true;
-    keyboard.onPressed(key, evt.which);
-  });
+    el.tabIndex = 1;
+    el.focus();
 
-  el.addEventListener('keyup', function(evt) {
-    var key  = getKeyFromEvent(evt);
-    keyboard.keysDown[key] = false;
-    keyboard.onReleased(key, evt.which);
-  });
+    el.addEventListener('keydown', function(evt) {
+      var key  = getKeyFromEvent(evt);
+      keyboard.keysDown[key] = true;
+      keyboard.onPressed(key, evt.which);
+    });
 
-  return keyboard;
-};
+    el.addEventListener('keyup', function(evt) {
+      var key  = getKeyFromEvent(evt);
+      keyboard.keysDown[key] = false;
+      keyboard.onReleased(key, evt.which);
+    });
 
-// ## Keyboard Methods
-var KeyboardModule = Luv.module('Luv.Keyboard', {
+    return keyboard;
+  },
+
   // `onPressed` is a user-overrideable that is triggered when a keyboard key
   // is pressed.
   //
@@ -531,69 +514,68 @@ var getKeyFromEvent = function(event) {
 (function() {
 
 // ## Luv.Mouse
-Luv.Mouse = function(el) {
+Luv.Mouse = Luv.Class('Luv.Mouse', {
   // This function creates a mouse handler for a mouse game.
   // It is usually instantiated directly by the main Luv() function,
   // you will probably not need to call `Luv.Mouse()` yourself:
 
   //       var luv = Luv();
   //       luv.mouse // Already instantiated mouse handler
-  var mouse = Luv.create(MouseModule, {
-    x: 0,
-    y: 0,
-    pressedButtons: {},
-    wheelTimeOuts: {}
-  });
 
-  // The mouse module works by attaching several event listeners to the
-  // given el element. That's how mouse position, button presses and wheel state
-  // are detected.
+  init: function(el) {
 
-  var handlePress = function(button) {
-    mouse.pressedButtons[button] = true;
-    mouse.onPressed(mouse.x, mouse.y, button);
-  };
+    var mouse  = this;
 
-  var handleRelease = function(button) {
-    mouse.pressedButtons[button] = false;
-    mouse.onReleased(mouse.x, mouse.y, button);
-  };
+    mouse.x               = 0;
+    mouse.y               = 0;
+    mouse.pressedButtons  = {};
+    mouse.wheelTimeOuts   = {};
 
-  var handleWheel = function(evt) {
-    evt.preventDefault();
-    var button = getWheelButtonFromEvent(evt);
-    // The 'wheel has stopped scrolling' event is triggered via setTimeout, since
-    // browsers don't provide a native 'stopped scrolling' event
-    clearTimeout(mouse.wheelTimeOuts[button]);
-    // The default time it takes the browser to detect that the mouse wheel stopped
-    // is 20 milliseconds
-    mouse.wheelTimeOuts[button] = setTimeout(function() { handleRelease(button); }, 20);
-    handlePress(button);
-  };
+    // The mouse module works by attaching several event listeners to the
+    // given el element. That's how mouse position, button presses and wheel state
+    // are detected.
 
-  // mousemove is particularly laggy in Chrome. I'd love to find a better solution
-  el.addEventListener('mousemove', function(evt) {
-    var rect = el.getBoundingClientRect();
-    mouse.x = evt.pageX - rect.left;
-    mouse.y = evt.pageY - rect.top;
-  });
+    var handlePress = function(button) {
+      mouse.pressedButtons[button] = true;
+      mouse.onPressed(mouse.x, mouse.y, button);
+    };
 
-  el.addEventListener('mousedown', function(evt) {
-    handlePress(getButtonFromEvent(evt));
-  });
+    var handleRelease = function(button) {
+      mouse.pressedButtons[button] = false;
+      mouse.onReleased(mouse.x, mouse.y, button);
+    };
 
-  el.addEventListener('mouseup', function(evt) {
-    handleRelease(getButtonFromEvent(evt));
-  });
+    var handleWheel = function(evt) {
+      evt.preventDefault();
+      var button = getWheelButtonFromEvent(evt);
+      // The 'wheel has stopped scrolling' event is triggered via setTimeout, since
+      // browsers don't provide a native 'stopped scrolling' event
+      clearTimeout(mouse.wheelTimeOuts[button]);
+      // The default time it takes the browser to detect that the mouse wheel stopped
+      // is 20 milliseconds
+      mouse.wheelTimeOuts[button] = setTimeout(function() { handleRelease(button); }, 20);
+      handlePress(button);
+    };
 
-  el.addEventListener('DOMMouseScroll', handleWheel); // firefox
-  el.addEventListener('mousewheel', handleWheel); // everyone else
+    // mousemove is particularly laggy in Chrome. I'd love to find a better solution
+    el.addEventListener('mousemove', function(evt) {
+      var rect = el.getBoundingClientRect();
+      mouse.x = evt.pageX - rect.left;
+      mouse.y = evt.pageY - rect.top;
+    });
 
-  return mouse;
-};
+    el.addEventListener('mousedown', function(evt) {
+      handlePress(getButtonFromEvent(evt));
+    });
 
-// ## Mouse Methods
-var MouseModule = Luv.module('Luv.Mouse', {
+    el.addEventListener('mouseup', function(evt) {
+      handleRelease(getButtonFromEvent(evt));
+    });
+
+    el.addEventListener('DOMMouseScroll', handleWheel); // firefox
+    el.addEventListener('mousewheel', handleWheel); // everyone else
+  },
+
   // Returns the x coordinate where the mouse is (relative to the DOM element)
   getX: function() { return this.x; },
 
@@ -652,8 +634,8 @@ var getWheelButtonFromEvent = function(evt) {
 // # media.js
 (function() {
 // ## Luv.Media
-Luv.Media = function() {
-  // This function creates the `media` object when you create a luv game. It's usually
+Luv.Media = Luv.Class('Luv.Media', {
+  // This module creates the `media` object when you create a luv game. It's usually
   // instantiated by the Luv function.
 
   //       var luv = Luv();
@@ -662,11 +644,10 @@ Luv.Media = function() {
   // The media object is an "asset manager". It keeps track of those
   // assets (i.e. images) that load asynchronously, or can fail to load.
   //
-  return Luv.create(MediaModule, { pending: 0 });
-};
+  init: function() {
+    this.pending = 0;
+  },
 
-// ## Media Methods
-var MediaModule = Luv.module('Luv.Media', {
   // `isLoaded` returns `true` if all the assets have been loaded, `false` if there are assets still being loaded.
   // Useful to wait actively until all assets are finished loading:
 
@@ -733,7 +714,7 @@ var MediaModule = Luv.module('Luv.Media', {
 // This just a method holding object, to be extended by specialized assets
 // like Image or Sound. Usage:
 
-//       Luv.extend(MyAwesomeAsset, Luv.Media.Asset)
+//       MyAwesomeClass.include(Luv.Media.Asset)
 
 // See `Luv.Graphics.Image` for an example.
 Luv.Media.Asset = {
@@ -749,28 +730,24 @@ Luv.Media.Asset = {
 
 (function(){
 
-Luv.Graphics = function(el, media) {
-  var gr = Luv.create(GraphicsModule, {
-    el:        el,
-    media:     media,
-    lineWidth: 1,
-    lineCap:   "butt",
-    color:     {},
-    backgroundColor: {}
-  });
+Luv.Graphics = Luv.Class('Luv.Graphics', {
+  init: function(el, media) {
+    this.el               = el;
+    this.media            = media;
+    this.lineWidth        = 1;
+    this.lineCap          = "butt";
+    this.color            = {};
+    this.backgroundColor  = {};
 
-  var d = gr.getDimensions();
-  gr.defaultCanvas    = gr.Canvas(d.width, d.height);
-  gr.defaultCanvas.el = el;
+    var d = this.getDimensions();
+    this.defaultCanvas    = this.Canvas(d.width, d.height);
+    this.defaultCanvas.el = el;
 
-  gr.setColor(255,255,255);
-  gr.setBackgroundColor(0,0,0);
-  gr.setCanvas();
+    this.setColor(255,255,255);
+    this.setBackgroundColor(0,0,0);
+    this.setCanvas();
+  },
 
-  return gr;
-};
-
-var GraphicsModule = Luv.module('Luv.Graphics', {
   setCanvas : function(canvas) {
     canvas = canvas || this.defaultCanvas;
     this.canvas = canvas;
@@ -780,16 +757,23 @@ var GraphicsModule = Luv.module('Luv.Graphics', {
     this.setLineCap(this.lineCap);
     this.reset();
   },
+
   getCanvas : function() { return this.canvas; },
+
   setColor  : function(r,g,b,a) { setColor(this, 'color', r,g,b,a); },
+
   getColor  : function() { return getColor(this.color); },
 
   setBackgroundColor : function(r,g,b,a) { setColor(this, 'backgroundColor', r,g,b,a); },
+
   getBackgroundColor : function() { return getColor(this.backgroundColor); },
 
   getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
+
   getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },
+
   getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
+
   setDimensions : function(width, height) {
     this.el.setAttribute('width', width);
     this.el.setAttribute('height', height);
@@ -932,11 +916,11 @@ var GraphicsModule = Luv.module('Luv.Graphics', {
   },
 
   Canvas : function(width, height) {
-    return Luv.Graphics.Canvas.call(this, width, height);
+    return Luv.Graphics.Canvas(width || this.getWidth(), height || this.getHeight());
   },
 
   Image : function(path) {
-    return Luv.Graphics.Image.call(this, path);
+    return Luv.Graphics.Image(this.media, path);
   }
 
 });
@@ -1005,6 +989,9 @@ var normalizeAngle = function(angle) {
 (function() {
 
 // ## Luv.Graphics.Canvas
+
+Luv.Graphics.Canvas = Luv.Class('Luv.Graphics.Canvas', {
+
 // represents aon off-screen drawing surface, useful
 // for precalculating costly drawing operations or
 // applying effects. Usage:
@@ -1024,23 +1011,23 @@ var normalizeAngle = function(angle) {
 //       luv.graphics.draw(canvas, 200, 500);
 
 // The default canvas is reset at the beginning of each draw cycle, before calling luv.draw()
-Luv.Graphics.Canvas = function(width, height) {
-  width  = width || this.getWidth();
-  height = height || this.getHeight();
 
-  var el = document.createElement('canvas');
-  el.setAttribute('width', width);
-  el.setAttribute('height', height);
+  init: function(width, height) {
+    var el = document.createElement('canvas');
+    el.setAttribute('width', width);
+    el.setAttribute('height', height);
 
-  return Luv.create(CanvasModule, {el: el});
-};
+    this.el = el;
+  },
 
-// ## Luv.Graphics.Canvas methods
-var CanvasModule = Luv.module('Luv.Graphics.Canvas', {
   getContext    : function(){ return this.el.getContext('2d'); },
+
   getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
+
   getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },
+
   getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
+
   setDimensions : function(width, height) {
     this.el.setAttribute('width', width);
     this.el.setAttribute('height', height);
@@ -1053,34 +1040,36 @@ var CanvasModule = Luv.module('Luv.Graphics.Canvas', {
 (function() {
 
 // ## Luv.Graphics.Image
-// This type encapsulates images loaded from the internet
-Luv.Graphics.Image = function(path) {
-  var media = this.media;
-  var image = Luv.create(ImageModule, { path: path });
+// This class encapsulates images loaded from the internet
+Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
+  init: function(media, path) {
+    var image = this;
 
-  media.newAsset(image);
+    image.path = path;
 
-  var source   = new Image(); // html image
-  image.source = source;
+    media.newAsset(image);
 
-  source.addEventListener('load',  function(){ media.registerLoad(image); });
-  source.addEventListener('error', function(){ media.registerError(image); });
-  source.src = path;
+    var source   = new Image(); // html image
+    image.source = source;
 
-  return image;
-};
+    source.addEventListener('load',  function(){ media.registerLoad(image); });
+    source.addEventListener('error', function(){ media.registerError(image); });
+    source.src = path;
+  },
 
-var ImageModule = Luv.module('Luv.Graphics.Image', {
   toString      : function() {
     return 'Luv.Graphics.Image("' + this.path + '")';
   },
+
   getWidth      : function() { return this.source.width; },
+
   getHeight     : function() { return this.source.height; },
+
   getDimensions : function() {
     return { width: this.source.width, height: this.source.height };
   }
 });
 
-Luv.extend(ImageModule, Luv.Media.Asset);
+Luv.Graphics.Image.include(Luv.Media.Asset);
 
 }());

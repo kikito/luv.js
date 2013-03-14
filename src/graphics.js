@@ -1,28 +1,24 @@
 
 (function(){
 
-Luv.Graphics = function(el, media) {
-  var gr = Luv.create(GraphicsModule, {
-    el:        el,
-    media:     media,
-    lineWidth: 1,
-    lineCap:   "butt",
-    color:     {},
-    backgroundColor: {}
-  });
+Luv.Graphics = Luv.Class('Luv.Graphics', {
+  init: function(el, media) {
+    this.el               = el;
+    this.media            = media;
+    this.lineWidth        = 1;
+    this.lineCap          = "butt";
+    this.color            = {};
+    this.backgroundColor  = {};
 
-  var d = gr.getDimensions();
-  gr.defaultCanvas    = gr.Canvas(d.width, d.height);
-  gr.defaultCanvas.el = el;
+    var d = this.getDimensions();
+    this.defaultCanvas    = this.Canvas(d.width, d.height);
+    this.defaultCanvas.el = el;
 
-  gr.setColor(255,255,255);
-  gr.setBackgroundColor(0,0,0);
-  gr.setCanvas();
+    this.setColor(255,255,255);
+    this.setBackgroundColor(0,0,0);
+    this.setCanvas();
+  },
 
-  return gr;
-};
-
-var GraphicsModule = Luv.module('Luv.Graphics', {
   setCanvas : function(canvas) {
     canvas = canvas || this.defaultCanvas;
     this.canvas = canvas;
@@ -32,16 +28,23 @@ var GraphicsModule = Luv.module('Luv.Graphics', {
     this.setLineCap(this.lineCap);
     this.reset();
   },
+
   getCanvas : function() { return this.canvas; },
+
   setColor  : function(r,g,b,a) { setColor(this, 'color', r,g,b,a); },
+
   getColor  : function() { return getColor(this.color); },
 
   setBackgroundColor : function(r,g,b,a) { setColor(this, 'backgroundColor', r,g,b,a); },
+
   getBackgroundColor : function() { return getColor(this.backgroundColor); },
 
   getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
+
   getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },
+
   getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
+
   setDimensions : function(width, height) {
     this.el.setAttribute('width', width);
     this.el.setAttribute('height', height);
@@ -184,11 +187,11 @@ var GraphicsModule = Luv.module('Luv.Graphics', {
   },
 
   Canvas : function(width, height) {
-    return Luv.Graphics.Canvas.call(this, width, height);
+    return Luv.Graphics.Canvas(width || this.getWidth(), height || this.getHeight());
   },
 
   Image : function(path) {
-    return Luv.Graphics.Image.call(this, path);
+    return Luv.Graphics.Image(this.media, path);
   }
 
 });

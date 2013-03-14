@@ -4,36 +4,35 @@
 // *Disclaimer*: the code on this module was inspired by [selfcontained.us](http://www.selfcontained.us/2009/09/16/getting-keycode-values-in-javascript/)
 
 // ## Luv.Keyboard
-Luv.Keyboard = function(el) {
+Luv.Keyboard = Luv.Class('Luv.Keyboard', {
   // This luv module manages the keyboard. It is usually instantiated by
   // luv.js itself when it creates a Luv() game. The two most usual ways to
   // interact with it are via the `onPress` and `onRelease` callbacks, or the
   // `isPressed` method (see below).
-  var keyboard = Luv.create(KeyboardModule, {
-    keysDown : {},
-    el: el
-  });
+  init: function(el) {
+    var keyboard = this;
 
-  el.tabIndex = 1;
-  el.focus();
+    keyboard.keysDown  = {};
+    keyboard.el        = el;
 
-  el.addEventListener('keydown', function(evt) {
-    var key  = getKeyFromEvent(evt);
-    keyboard.keysDown[key] = true;
-    keyboard.onPressed(key, evt.which);
-  });
+    el.tabIndex = 1;
+    el.focus();
 
-  el.addEventListener('keyup', function(evt) {
-    var key  = getKeyFromEvent(evt);
-    keyboard.keysDown[key] = false;
-    keyboard.onReleased(key, evt.which);
-  });
+    el.addEventListener('keydown', function(evt) {
+      var key  = getKeyFromEvent(evt);
+      keyboard.keysDown[key] = true;
+      keyboard.onPressed(key, evt.which);
+    });
 
-  return keyboard;
-};
+    el.addEventListener('keyup', function(evt) {
+      var key  = getKeyFromEvent(evt);
+      keyboard.keysDown[key] = false;
+      keyboard.onReleased(key, evt.which);
+    });
 
-// ## Keyboard Methods
-var KeyboardModule = Luv.module('Luv.Keyboard', {
+    return keyboard;
+  },
+
   // `onPressed` is a user-overrideable that is triggered when a keyboard key
   // is pressed.
   //

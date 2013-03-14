@@ -2,7 +2,7 @@
 (function(){
 
 // ## Luv.Timer
-Luv.Timer = function() {
+Luv.Timer = Luv.Class('Luv.Timer', {
 
 // In luv, time is managed via instances of this constructor, instead of with
 // javascript's setInterval.
@@ -12,24 +12,20 @@ Luv.Timer = function() {
 // library, except to obtain the Frames per second or maybe to tweak the
 // deltaTimeLimit (see below)
 
-  return Luv.create(TimerModule, {
+  init: function() {
     // The time that has passed since the timer was created, in milliseconds
-    microTime : 0,
+    this.microTime = 0;
 
     // The time that has passed between the last two frames, in seconds
-    deltaTime : 0,
+    this.deltaTime = 0;
 
     // The upper value that deltaTime can have, in seconds. Defaults to 0.25.
     // Can be changed via `setDeltaTimeLimit`.
     // Note that this does *not* magically make a game go faster. If a game has
     // very low FPS, this makes sure that the delta time is not too great (its bad
     // for things like physics simulations, etc).
-    deltaTimeLimit : 0.25
-  });
-};
-
-// ## Timer Methods
-var TimerModule = Luv.module('Luv.Timer', {
+    this.deltaTimeLimit = 0.25;
+  },
 
   // updates the timer with a new timestamp.
   step : function(time) {
