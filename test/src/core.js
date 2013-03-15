@@ -122,6 +122,17 @@ describe("Luv", function(){
 
         expect(ronald.flying).to.be.True;
       });
+
+      it("is capable of creating subclasses", function() {
+        var Bird = Luv.Class('Bird', {fly: 'high', eat: 'worms'});
+        var Eagle = Bird.subclass('Eagle', {hotel: 'california', eat: 'rabbits'});
+
+        var john = Eagle();
+        expect(Eagle.getSuper()).to.deep.equal(Bird);
+        expect(john.hotel).to.equal('california');
+        expect(john.fly).to.equal('high');
+        expect(john.eat).to.equal('rabbits');
+      });
     });
   });
 

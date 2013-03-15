@@ -14,31 +14,57 @@ var extend = function(dest) {
   return dest;
 };
 
-var Class = function(name, methods) {
-  methods = methods || {};
-  var instanceMethods = Object.create(null);
-
-  var theClass = function() {
-    var instance = Object.create(instanceMethods);
-    theClass.init.apply(instance, arguments);
-    return instance;
-  };
-
-  theClass.init    = methods.init || function(){};
-  theClass.getName = theClass.toString = function() { return name; };
-  theClass.include = function(mixin) { extend(instanceMethods, mixin); };
-
-  extend(instanceMethods, {
-    getClass: function() { return theClass; },
-    toString: function() { return 'instance of ' + name; }
-  }, methods);
-  delete instanceMethods.init;
-
-  return theClass;
+var baseInstanceProto = {
+  toString: function() { return 'instance of ' + this.getClass().getName(); }
 };
 
+var Base = extend(function() {
+  return Object.create(baseInstanceProto);
+}, {
+  init:     function() {},
+  instanceProto: baseInstanceProto,
+  toString: function() { return "Base"; },
+  getName:  function() { return "Base"; },
+  getSuper: function() { return null; },
+  include:  function() {
+    var args = [this.instanceProto];
+    for(var i=0; i<arguments.length; i++) { args.push(arguments[i]); }
+    extend.apply(this, args);
+    return this;
+  },
+  subclass: function(name, methods) {
+    methods = methods || {};
+    var superClass = this;
+
+    var getName = function(){ return name; };
+    var newInstanceProto = extend(Object.create(superClass.instanceProto), methods);
+
+    delete newInstanceProto.init;
+
+    var newClass = extend(function() {
+      var instance = Object.create(newInstanceProto);
+      newClass.init.apply(instance, arguments);
+      return instance;
+    }, {
+      init    : methods.init || superClass.init,
+      getName : getName,
+      toString: getName,
+      getSuper: function(){ return superClass; },
+      include : superClass.include,
+      subclass: superClass.subclass,
+      instanceProto:  newInstanceProto
+    });
+
+    newInstanceProto.getClass = function() { return newClass; };
+
+    return newClass;
+  }
+});
+
+baseInstanceProto.getClass = function() { return Base; };
+
 // ## Main Luv function
-Luv = Class('Luv', {
+Luv = Base.subclass('Luv', {
 // The main Luv class, and the only global variable defined by luv.js
 // It basically parses the given options (see `initializeOptions` for a list of accepted options).
 // Returns a game.
@@ -194,6 +220,10 @@ Luv = Class('Luv', {
   onResize  : function(newWidth, newHeight) {}
 });
 
+Luv.Class = function(name, methods) {
+  return Base.subclass(name, methods);
+};
+
 // ## initializeOptions
 var initializeOptions = function(options) {
   // Accepted options:
@@ -251,8 +281,6 @@ var initializeOptions = function(options) {
 
   return options;
 };
-
-Luv.Class = Class;
 
 
 }());
