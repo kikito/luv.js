@@ -1,6 +1,13 @@
 // # core.js
 (function() {
 
+// ## Class system bootstrapping
+// Luv.js has a very minimal (and optional) class system, based on functions and, in
+// some cases, in prototypes. The following helper functions are needed for it.
+
+// ### extend
+// Similar to [underscore's extend](underscorejs.org/#extend), it copies adds to dest
+// all the methods of the objects passed in as extra arguments.
 var extend = function(dest) {
   var properties;
   for(var i=1; i < arguments.length; i++) {
@@ -14,54 +21,67 @@ var extend = function(dest) {
   return dest;
 };
 
-var baseInstanceProto = {
-  toString: function() { return 'instance of ' + this.getClass().getName(); }
+// ### remove
+// Deletes the elements from an object, given an array of names of methods to be deleted
+var remove = function(dest, names) {
+  names = Array.isArray(names) ? names : [names];
+  for(var i=0; i < names.length; i++) { delete dest[names[i]]; }
+  return dest;
 };
 
+// ### create
+// Expects an object, and creates another one which "points to it" through its __proto__
+// For now, it's just an alias to Object.create
+var create = Object.create;
+
+// ## Base class definition
+
+// Contains the instance methods of a basic object (by default just two: toString and getClass)
+var baseMethods = extend(create(null), {
+  toString: function() { return 'instance of ' + this.getClass().getName(); }
+});
+
+// Base class definition
 var Base = extend(function() {
-  return Object.create(baseInstanceProto);
+  return create(baseMethods);
 }, {
-  init:     function() {},
-  instanceProto: baseInstanceProto,
+  // Default constructor
+  init    : function() {},
+  getName : function() { return "Base"; },
   toString: function() { return "Base"; },
-  getName:  function() { return "Base"; },
   getSuper: function() { return null; },
-  include:  function() {
-    var args = [this.instanceProto];
-    for(var i=0; i<arguments.length; i++) { args.push(arguments[i]); }
-    extend.apply(this, args);
-    return this;
+  methods : baseMethods,
+  // Extend a class with one or more objects, which act as mixins in this case
+  include : function() {
+    return extend.apply(this, [this.methods].concat(Array.prototype.slice.call(arguments, 0)));
   },
   subclass: function(name, methods) {
     methods = methods || {};
     var superClass = this;
 
     var getName = function(){ return name; };
-    var newInstanceProto = extend(Object.create(superClass.instanceProto), methods);
-
-    delete newInstanceProto.init;
+    var newMethods = remove(extend(create(superClass.methods), methods), 'init');
 
     var newClass = extend(function() {
-      var instance = Object.create(newInstanceProto);
+      var instance = create(newMethods);
       newClass.init.apply(instance, arguments);
       return instance;
-    }, {
-      init    : methods.init || superClass.init,
+    },
+    superClass,
+    methods, {
       getName : getName,
       toString: getName,
       getSuper: function(){ return superClass; },
-      include : superClass.include,
-      subclass: superClass.subclass,
-      instanceProto:  newInstanceProto
+      methods : newMethods
     });
 
-    newInstanceProto.getClass = function() { return newClass; };
+    newMethods.getClass = function() { return newClass; };
 
     return newClass;
   }
 });
 
-baseInstanceProto.getClass = function() { return Base; };
+baseMethods.getClass = function() { return Base; };
 
 // ## Main Luv function
 Luv = Base.subclass('Luv', {
@@ -102,6 +122,7 @@ Luv = Base.subclass('Luv', {
     this.mouse     = Luv.Mouse(this.el);
     this.graphics  = Luv.Graphics(this.el, this.media);
 
+    // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
     if(options.fullWindow) {
       var resize = function() {
         this.graphics.setDimensions(window.innerWidth, window.innerHeight);
@@ -111,8 +132,6 @@ Luv = Base.subclass('Luv', {
       window.addEventListener('orientationChange', resize, false);
     }
   },
-
-
 
   // Use the `load` function to start loading up resources:
 
@@ -135,7 +154,6 @@ Luv = Base.subclass('Luv', {
 
   // `load` will be called once at the beginning of the first game cycle, and then never again (see the `run`
   // function below for details). By default, it does nothing (it is an empty function).
-
   load  : function(){},
 
   // Use the draw function to draw everything on the canvas. For example:
@@ -220,6 +238,9 @@ Luv = Base.subclass('Luv', {
   onResize  : function(newWidth, newHeight) {}
 });
 
+// ## Luv.Class
+// Creates classes; takes two parameters: the class name and an object containing instance methods
+// For inheritance, do <BaseClass>.subclass(<name>, <methods>) instead
 Luv.Class = function(name, methods) {
   return Base.subclass(name, methods);
 };
