@@ -25,7 +25,7 @@
       } else {
         luv.graphics.setColor(0,0,color);
       }
-      luv.graphics.drawCanvas(canvas, 0, 0);
+      luv.graphics.draw(canvas, 0, 0);
       var pos = luv.mouse.getPosition();
       luv.graphics.circle('fill', pos.x, pos.y, radius);
       prevPos = pos;

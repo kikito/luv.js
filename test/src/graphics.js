@@ -316,30 +316,28 @@ describe("Luv.Graphics", function(){
       });
     });
 
-    describe(".drawImage", function() {
+    describe(".draw", function() {
 
       it("throws an error when attempting to draw a not loaded image", function(){
         sinon.stub(media, 'onAssetError');
         var img = gr.Image();
-        expect(function(){ gr.drawImage(img, 10, 20); }).to.Throw(Error);
+        expect(function(){ gr.draw(img, 10, 20); }).to.Throw(Error);
       });
 
       it("draws an image given two coordinates", function(){
         var drawImage = sinon.spy(gr.ctx, 'drawImage');
         // need a real image here, can not stub it
         var img = gr.Image('img/foo.png', function() {
-          gr.drawImage(img, 10, 20);
+          gr.draw(img, 10, 20);
           expect(drawImage).to.have.been.calledWith(img.source, 10, 20);
         });
       });
-    });
 
-    describe(".drawCanvas", function() {
-      it("calls drawImage on the context", function(){
+      it("draws a canvas given two coordinates", function(){
         var drawImage = sinon.spy(gr.ctx, 'drawImage');
         var canvas = gr.Canvas();
 
-        gr.drawCanvas(canvas, 10, 20);
+        gr.draw(canvas, 10, 20);
         expect(drawImage).to.have.been.calledWith(canvas.el, 10, 20);
       });
     });

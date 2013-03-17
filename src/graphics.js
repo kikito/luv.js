@@ -123,11 +123,8 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
     drawPath(this, mode);
   },
 
-  drawImage : function(img, x, y, sx, sy, angle, ox, oy) {
+  draw : function(drawable, x, y, sx, sy, angle, ox, oy) {
     var ctx = this.ctx;
-    if(!img.isLoaded()) {
-      throw new Error("Attepted to draw a non loaded image: " + img);
-    }
 
     sx    = typeof sx    === "undefined" ? 1 : sx;
     sy    = typeof sy    === "undefined" ? 1 : sy;
@@ -140,26 +137,23 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 
       ctx.translate(x,y);
 
-      ctx.translate(ox,oy);
+      ctx.translate(ox, oy);
       ctx.rotate(angle);
       ctx.scale(sx,sy);
-      ctx.drawImage(img.source, -ox, -oy);
+      ctx.translate(-ox, -oy);
+      drawable.draw(ctx, 0, 0);
 
       ctx.restore();
     } else {
-      ctx.drawImage(img.source, x, y);
+      drawable.draw(ctx, x, y);
     }
   },
 
-  drawCenteredImage : function(img, x,y, sx, sy, angle) {
-    var d = img.getDimensions();
+  drawCentered : function(drawable, x,y, sx, sy, angle) {
+    var d = drawable.getDimensions();
     var ox = d.width / 2,
         oy = d.height / 2;
-    this.drawImage(img, x-ox,y-oy, sx,sy, angle, ox, oy);
-  },
-
-  drawCanvas : function(canvas, x, y) {
-    this.ctx.drawImage(canvas.el, x, y);
+    this.draw(drawable, x-ox,y-oy, sx,sy, angle, ox, oy);
   },
 
   translate : function(x,y) {

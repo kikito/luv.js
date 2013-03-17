@@ -44,6 +44,10 @@ Luv.Graphics.Canvas = Luv.Class('Luv.Graphics.Canvas', {
   setDimensions : function(width, height) {
     this.el.setAttribute('width', width);
     this.el.setAttribute('height', height);
+  },
+
+  draw: function(context, x, y) {
+    context.drawImage(this.el, x, y);
   }
 });
 

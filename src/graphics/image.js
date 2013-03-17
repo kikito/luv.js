@@ -29,7 +29,15 @@ Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
 
   getDimensions : function() {
     return { width: this.source.width, height: this.source.height };
+  },
+
+  draw: function(context, x, y) {
+    if(!this.isLoaded()) {
+      throw new Error("Attepted to draw a non loaded image: " + this);
+    }
+    context.drawImage(this.source, x, y);
   }
+
 });
 
 Luv.Graphics.Image.include(Luv.Media.Asset);
