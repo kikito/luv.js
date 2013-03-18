@@ -17,6 +17,11 @@
 
     luv.keyboard.onPressed = luv.mouse.onPressed = doDing;
 
+    luv.draw = function() {
+      luv.graphics.print("Instances: " + dingSound.countInstances(), 100, 100);
+      luv.graphics.print("Playing: " + dingSound.countPlayingInstances(), 100, 150);
+    };
+
     luv.run();
   </script>
 </body>
