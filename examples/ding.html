@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+  <title>Anything you do is just Ding</title>
+  <script src="../luv.js"></script>
+</head>
+<body>
+  <script>
+    var luv = Luv();
+
+    var dingSound = luv.audio.Sound('sfx/ding.ogg', 'sfx/ding.mp3');
+
+    var doDing = function() {
+      if(!luv.media.isLoaded()) { return; }
+      dingSound.play();
+    }
+
+    luv.keyboard.onPressed = luv.mouse.onPressed = doDing;
+
+    luv.run();
+  </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-17) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-03-18) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -158,6 +158,7 @@ Luv = Base.subclass('Luv', {
     this.timer     = Luv.Timer();
     this.keyboard  = Luv.Keyboard(this.el);
     this.mouse     = Luv.Mouse(this.el);
+    this.audio     = Luv.Audio(this.media);
     this.graphics  = Luv.Graphics(this.el, this.media);
 
     // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
@@ -775,6 +776,132 @@ Luv.Media.Asset = {
 }());
 
 
+
+// # audio.js
+(function(){
+
+// ## Luv.Audio
+Luv.Audio = Luv.Class('Luv.Audio', {
+  init: function(media) {
+    this.media = media;
+  },
+
+  isAvailable: function() { return Luv.Audio.isAvailable(); },
+
+  getSupportedTypes: function() {
+    return Luv.Audio.getSupportedTypes();
+  },
+
+  canPlayType: function(type) {
+    return this.supportedTypes[type.toLowerCase()];
+  },
+
+  Sound: function() {
+    if(this.isAvailable()) {
+      var args = [this.media].concat(Array.prototype.slice.call(arguments, 0));
+      return Luv.Audio.Sound.apply(Luv.Audio.Sound, args);
+    } else {
+      return Luv.Audio.NullSound();
+    }
+  }
+
+});
+
+Luv.Audio.isAvailable = function() {
+  return audioAvailable;
+};
+
+Luv.Audio.canPlayType = function(type) {
+  return !!supportedTypes[type.toLowerCase()];
+};
+
+Luv.Audio.getSupportedTypes = function() {
+  return Object.keys(supportedTypes);
+};
+
+var el = document.createElement('audio');
+var supportedTypes = {};
+var audioAvailable = !!el.canPlayType;
+if(audioAvailable) {
+  supportedTypes.ogg = !!el.canPlayType('audio/ogg; codecs="vorbis"');
+  supportedTypes.mp3 = !!el.canPlayType('audio/mpeg;');
+  supportedTypes.wav = !!el.canPlayType('audio/wav; codecs="1"');
+  supportedTypes.m4a = !!el.canPlayType('audio/x-m4a;');
+  supportedTypes.aac = !!el.canPlayType('audio/aac;');
+}
+
+
+})();
+
+// # audio/null_sound.js
+(function(){
+
+// ## Luv.Audio.NullSound
+Luv.Audio.NullSound = Luv.Class('Luv.Audio.NullSound', {
+  play: function() {
+  }
+});
+
+})();
+
+// # audio/sound.js
+(function(){
+
+// ## Luv.Audio.Sound
+Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
+  init: function(media) {
+    var paths = Array.prototype.slice.call(arguments, 1);
+    if(paths.length === 0) {
+      throw new Error("Must provide at least one path for the Sound");
+    }
+    paths = paths.filter(isPathExtensionSupported);
+    if(paths.length === 0) {
+      throw new Error("None of the proposed sound types (" +
+                      paths.join(", ") +
+                      ") is supported by the browser: (" +
+                      Luv.Audio.getSupportedTypes().join(", ") +
+                      ")");
+    }
+
+    var sound = this;
+    sound.path = paths[0];
+
+    media.newAsset(sound);
+
+    sound.el         = document.createElement('audio');
+    sound.el.preload = "auto";
+
+    sound.el.addEventListener('canplaythrough', function() { media.registerLoad(sound); });
+    sound.el.addEventListener('error', function() { media.registerError(sound); });
+
+    sound.el.src     = sound.path;
+    sound.el.load();
+  },
+
+  toString: function() {
+    return 'Luv.Audio.Sound("' + this.path + '")';
+  },
+
+  play: function() {
+    if(!this.isLoaded()) {
+      throw new Error("Attepted to play a non loaded sound: " + this);
+    }
+    this.el.play();
+  }
+});
+
+Luv.Audio.Sound.include(Luv.Media.Asset);
+
+var getExtension = function(path) {
+  var match = path.match(/.+\.([^?]+)(\?|$)/);
+  return match ? match[1].toLowerCase() : "";
+};
+
+var isPathExtensionSupported = function(path) {
+  return Luv.Audio.canPlayType(getExtension(path));
+};
+
+})();
 
 
 (function(){
