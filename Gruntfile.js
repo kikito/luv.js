@@ -1,6 +1,5 @@
 module.exports = function(grunt) {
   var shell = require('shelljs');
-  var fs    = require('fs');
 
   // order of these files is important, that's why you can't do src/*
   var srcFiles  = [
@@ -10,9 +9,10 @@ module.exports = function(grunt) {
     "src/keyboard.js",
     "src/mouse.js",
     "src/media.js",
+    "src/audio.js",
+    "src/audio/*",
     "src/graphics.js",
-    "src/graphics/canvas.js",
-    "src/graphics/image.js"
+    "src/graphics/*"
   ];
   var testFiles = "test/**/*.js";
   var docFiles = ['README.md', 'MIT-LICENSE.md'].concat(srcFiles);

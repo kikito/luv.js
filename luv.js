@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-17) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-03-19) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -158,6 +158,7 @@ Luv = Base.subclass('Luv', {
     this.timer     = Luv.Timer();
     this.keyboard  = Luv.Keyboard(this.el);
     this.mouse     = Luv.Mouse(this.el);
+    this.audio     = Luv.Audio(this.media);
     this.graphics  = Luv.Graphics(this.el, this.media);
 
     // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
@@ -775,6 +776,320 @@ Luv.Media.Asset = {
 }());
 
 
+
+// # audio.js
+(function(){
+
+// ## Luv.Audio
+Luv.Audio = Luv.Class('Luv.Audio', {
+  init: function(media) {
+    this.media = media;
+  },
+
+  isAvailable: function() { return Luv.Audio.isAvailable(); },
+
+  getSupportedTypes: function() {
+    return Luv.Audio.getSupportedTypes();
+  },
+
+  canPlayType: function(type) {
+    return this.supportedTypes[type.toLowerCase()];
+  },
+
+  Sound: function() {
+    if(this.isAvailable()) {
+      var args = [this.media].concat(Array.prototype.slice.call(arguments, 0));
+      return Luv.Audio.Sound.apply(Luv.Audio.Sound, args);
+    } else {
+      return Luv.Audio.NullSound();
+    }
+  }
+
+});
+
+Luv.Audio.isAvailable = function() {
+  return audioAvailable;
+};
+
+Luv.Audio.canPlayType = function(type) {
+  return !!supportedTypes[type.toLowerCase()];
+};
+
+Luv.Audio.getSupportedTypes = function() {
+  return Object.keys(supportedTypes);
+};
+
+var el = document.createElement('audio');
+var supportedTypes = {};
+var audioAvailable = !!el.canPlayType;
+if(audioAvailable) {
+  supportedTypes.ogg = !!el.canPlayType('audio/ogg; codecs="vorbis"');
+  supportedTypes.mp3 = !!el.canPlayType('audio/mpeg;');
+  supportedTypes.wav = !!el.canPlayType('audio/wav; codecs="1"');
+  supportedTypes.m4a = !!el.canPlayType('audio/x-m4a;');
+  supportedTypes.aac = !!el.canPlayType('audio/aac;');
+}
+
+
+})();
+
+// # audio/null_sound.js
+(function(){
+
+// ## Luv.Audio.NullSound
+Luv.Audio.NullSound = Luv.Class('Luv.Audio.NullSound', {
+  play: function() {
+    return Luv.Audio.SoundInstance(FakeAudioElement());
+  }
+});
+
+var nopFunctions = {};
+"pause stop setVolume setVolume setLoop setSpeed setTime setExpirationTime".split(" ").forEach(function(name){
+  nopFunctions[name] = function(){};
+});
+
+var zeroFunctions = {};
+"countInstances countPlayingInstances getExpirationTime getVolume getSpeed getTime getDuration".split(" ").forEach(function(name){
+  nopFunctions[name] = function(){ return 0; };
+});
+
+Luv.Audio.NullSound.include(nopFunctions, zeroFunctions);
+
+var FakeAudioElement = function() {
+  return {
+    volume: 1,
+    playbackRate: 1,
+    // loop: undefined
+    currentTime: 0,
+    play: function(){},
+    pause: function(){},
+    addEventListener: function(ignored, f) { f(); }
+  };
+};
+
+
+})();
+
+// # audio/sound.js
+(function(){
+
+// ## Luv.Audio.Sound
+Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
+  init: function(media) {
+    var paths = Array.prototype.slice.call(arguments, 1);
+    if(paths.length === 0) {
+      throw new Error("Must provide at least one path for the Sound");
+    }
+    paths = paths.filter(isPathExtensionSupported);
+    if(paths.length === 0) {
+      throw new Error("None of the provided sound types (" +
+                      paths.join(", ") +
+                      ") is supported by the browser: (" +
+                      Luv.Audio.getSupportedTypes().join(", ") +
+                      ")");
+    }
+
+    var sound = this;
+
+    sound.path = paths[0];
+
+    media.newAsset(sound);
+    var el = sound.el= document.createElement('audio');
+    el.preload = "auto";
+
+    el.addEventListener('canplaythrough', function() { media.registerLoad(sound); });
+    el.addEventListener('error', function() { media.registerError(sound); });
+
+    el.src     = sound.path;
+    el.load();
+
+    sound.instances = [];
+    sound.expirationTime = Luv.Audio.Sound.DEFAULT_EXPIRATION_TIME;
+  },
+
+  toString: function() {
+    return 'Luv.Audio.Sound("' + this.path + '")';
+  },
+
+  play: function(options) {
+    if(!this.isLoaded()) {
+      throw new Error("Attepted to play a non loaded sound: " + this);
+    }
+    var instance = this.getReadyInstance(options);
+    instance.play();
+    return instance;
+  },
+
+  pause: function() {
+    this.instances.forEach(function(instance){ instance.pause(); });
+  },
+
+  stop: function() {
+    this.instances.forEach(function(instance){ instance.stop(); });
+  },
+
+  countInstances: function() {
+    return this.instances.length;
+  },
+
+  countPlayingInstances: function() {
+    var count = 0;
+    this.instances.forEach(function(inst){ count += inst.isPlaying() ? 1 : 0; });
+    return count;
+  },
+
+  getReadyInstance: function(options) {
+    var sound = this;
+    var instance = getExistingReadyInstance(this.instances);
+    if(instance) {
+      instance.reset(options);
+    } else {
+      instance = Luv.Audio.SoundInstance(this.el.cloneNode(true), options);
+      this.instances.push(instance);
+    }
+    resetInstanceExpirationTimeOut(this, instance);
+    return instance;
+  },
+
+  getExpirationTime: function() {
+    return this.expirationTime;
+  },
+
+  setExpirationTime: function(time) {
+    this.expirationTime = time;
+  }
+});
+
+Luv.Audio.Sound.DEFAULT_EXPIRATION_TIME = 3000; // 3 seconds
+
+Luv.Audio.Sound.include(Luv.Media.Asset);
+
+Luv.Audio.SoundMethods = {
+  setVolume: function(volume) {
+    volume = clampNumber(volume, 0, 1);
+    this.el.volume = volume;
+  },
+  getVolume: function() {
+    return this.el.volume;
+  },
+  setLoop: function(loop) {
+    this.loop = !!loop;
+    if(loop) {
+      this.el.loop = "loop";
+    } else {
+      this.el.removeAttribute("loop");
+    }
+  },
+  getLoop: function() {
+    return this.loop;
+  },
+  setSpeed: function(speed) {
+    this.el.playbackRate = speed;
+  },
+  getSpeed: function() {
+    return this.el.playbackRate;
+  },
+  setTime: function(time) {
+    try {
+      this.el.currentTime = time;
+    } catch(err) {
+      // some browsers throw an error when setting currentTime right after loading
+      // a node. See https://bugzilla.mozilla.org/show_bug.cgi?id=465498
+    }
+  },
+  getTime: function() {
+    return this.el.currentTime;
+  },
+  getDuration: function() {
+    return this.el.duration;
+  }
+};
+
+Luv.Audio.Sound.include(Luv.Audio.SoundMethods);
+
+var getExistingReadyInstance = function(instances) {
+  var instance;
+  for(var i=0; i< instances.length; i++) {
+    instance = instances[i];
+    if(instance.isReady()) {
+      return instance;
+    }
+  }
+};
+
+var resetInstanceExpirationTimeOut = function(sound, instance) {
+  clearTimeout(instance.expirationTimeOut);
+  instance.expirationTimeOut = setTimeout(function() {
+    var index = sound.instances.indexOf(instance);
+    if(index != -1){ sound.instances.splice(index, 1); }
+  }, sound.expirationTime);
+};
+
+var getExtension = function(path) {
+  var match = path.match(/.+\.([^?]+)(\?|$)/);
+  return match ? match[1].toLowerCase() : "";
+};
+
+var isPathExtensionSupported = function(path) {
+  return Luv.Audio.canPlayType(getExtension(path));
+};
+
+var clampNumber = function(x, min, max) {
+  return Math.max(min, Math.min(max, Number(x)));
+};
+
+})();
+
+// # audio/sound_instance.js
+(function() {
+
+// ## Luv.Audio.SoundInstance
+
+Luv.Audio.SoundInstance = Luv.Class('Luv.Audio.SoundInstance', {
+  init: function(el, options) {
+    var soundInstance = this;
+    soundInstance.el = el;
+    soundInstance.el.addEventListener('ended', function(){ soundInstance.stop(); });
+    soundInstance.reset(options);
+  },
+  reset: function(options) {
+    options = options || {};
+    var el = this.el;
+    var volume = typeof options.volume === "undefined" ? el.volume       : options.volume,
+        loop   = typeof options.loop   === "undefined" ? !!el.loop       : options.loop,
+        speed  = typeof options.speed  === "undefined" ? el.playbackRate : options.speed,
+        time   = typeof options.time   === "undefined" ? el.currentTime  : options.time,
+        status = typeof options.status === "undefined" ? "ready"         : options.status;
+
+    this.setVolume(volume);
+    this.setLoop(loop);
+    this.setSpeed(speed);
+    this.setTime(time);
+    this.status = status;
+  },
+  play: function() {
+    this.el.play();
+    this.status = "playing";
+  },
+  pause: function() {
+    if(this.isPlaying()) {
+      this.el.pause();
+      this.status = "paused";
+    }
+  },
+  stop: function() {
+    this.el.pause();
+    this.setTime(0);
+    this.status = "ready";
+  },
+  isPaused : function() { return this.status == "paused"; },
+  isReady  : function() { return this.status == "ready"; },
+  isPlaying: function() { return this.status == "playing"; }
+});
+
+Luv.Audio.SoundInstance.include(Luv.Audio.SoundMethods);
+
+}());
 
 
 (function(){

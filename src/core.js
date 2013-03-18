@@ -120,6 +120,7 @@ Luv = Base.subclass('Luv', {
     this.timer     = Luv.Timer();
     this.keyboard  = Luv.Keyboard(this.el);
     this.mouse     = Luv.Mouse(this.el);
+    this.audio     = Luv.Audio(this.media);
     this.graphics  = Luv.Graphics(this.el, this.media);
 
     // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
