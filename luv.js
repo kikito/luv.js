@@ -886,7 +886,7 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
     if(!this.isLoaded()) {
       throw new Error("Attepted to play a non loaded sound: " + this);
     }
-    this.el.play();
+    this.el.cloneNode(true).play();
   }
 });
 
