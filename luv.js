@@ -878,6 +878,7 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
     el.load();
 
     sound.instances = [];
+    sound.expirationTime = Luv.Audio.Sound.DEFAULT_EXPIRATION_TIME;
   },
 
   toString: function() {
@@ -912,6 +913,7 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
   },
 
   getReadyInstance: function(options) {
+    var sound = this;
     var instance = getExistingReadyInstance(this.instances);
     if(instance) {
       instance.reset(options);
@@ -919,9 +921,20 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
       instance = Luv.Audio.SoundInstance(this.el.cloneNode(true), options);
       this.instances.push(instance);
     }
+    resetInstanceExpirationTimeOut(this, instance);
     return instance;
+  },
+
+  getExpirationTime: function() {
+    return this.expirationTime;
+  },
+
+  setExpirationTime: function(time) {
+    this.expirationTime = time;
   }
 });
+
+Luv.Audio.Sound.DEFAULT_EXPIRATION_TIME = 3000; // 3 seconds
 
 Luv.Audio.Sound.include(Luv.Media.Asset);
 
@@ -976,6 +989,14 @@ var getExistingReadyInstance = function(instances) {
       return instance;
     }
   }
+};
+
+var resetInstanceExpirationTimeOut = function(sound, instance) {
+  clearTimeout(instance.expirationTimeOut);
+  instance.expirationTimeOut = setTimeout(function() {
+    var index = sound.instances.indexOf(instance);
+    if(index != -1){ sound.instances.splice(index, 1); }
+  }, sound.expirationTime);
 };
 
 var getExtension = function(path) {

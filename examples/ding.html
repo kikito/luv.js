@@ -18,8 +18,8 @@
     luv.keyboard.onPressed = luv.mouse.onPressed = doDing;
 
     luv.draw = function() {
-      luv.graphics.print("Instances: " + dingSound.countInstances(), 100, 100);
-      luv.graphics.print("Playing: " + dingSound.countPlayingInstances(), 100, 150);
+      luv.graphics.print("Total Instances: " + dingSound.countInstances(), 100, 100);
+      luv.graphics.print("Playing Instances: " + dingSound.countPlayingInstances(), 100, 150);
     };
 
     luv.run();
