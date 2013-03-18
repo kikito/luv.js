@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-18) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-03-19) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -839,8 +839,34 @@ if(audioAvailable) {
 // ## Luv.Audio.NullSound
 Luv.Audio.NullSound = Luv.Class('Luv.Audio.NullSound', {
   play: function() {
+    return Luv.Audio.SoundInstance(FakeAudioElement());
   }
 });
+
+var nopFunctions = {};
+"pause stop setVolume setVolume setLoop setSpeed setTime setExpirationTime".split(" ").forEach(function(name){
+  nopFunctions[name] = function(){};
+});
+
+var zeroFunctions = {};
+"countInstances countPlayingInstances getExpirationTime getVolume getSpeed getTime getDuration".split(" ").forEach(function(name){
+  nopFunctions[name] = function(){ return 0; };
+});
+
+Luv.Audio.NullSound.include(nopFunctions, zeroFunctions);
+
+var FakeAudioElement = function() {
+  return {
+    volume: 1,
+    playbackRate: 1,
+    // loop: undefined
+    currentTime: 0,
+    play: function(){},
+    pause: function(){},
+    addEventListener: function(ignored, f) { f(); }
+  };
+};
+
 
 })();
 
@@ -1030,7 +1056,7 @@ Luv.Audio.SoundInstance = Luv.Class('Luv.Audio.SoundInstance', {
     options = options || {};
     var el = this.el;
     var volume = typeof options.volume === "undefined" ? el.volume       : options.volume,
-        loop   = typeof options.loop   === "undefined" ? el.loop         : options.loop,
+        loop   = typeof options.loop   === "undefined" ? !!el.loop       : options.loop,
         speed  = typeof options.speed  === "undefined" ? el.playbackRate : options.speed,
         time   = typeof options.time   === "undefined" ? el.currentTime  : options.time,
         status = typeof options.status === "undefined" ? "ready"         : options.status;

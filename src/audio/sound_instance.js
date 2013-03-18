@@ -14,7 +14,7 @@ Luv.Audio.SoundInstance = Luv.Class('Luv.Audio.SoundInstance', {
     options = options || {};
     var el = this.el;
     var volume = typeof options.volume === "undefined" ? el.volume       : options.volume,
-        loop   = typeof options.loop   === "undefined" ? el.loop         : options.loop,
+        loop   = typeof options.loop   === "undefined" ? !!el.loop       : options.loop,
         speed  = typeof options.speed  === "undefined" ? el.playbackRate : options.speed,
         time   = typeof options.time   === "undefined" ? el.currentTime  : options.time,
         status = typeof options.status === "undefined" ? "ready"         : options.status;
