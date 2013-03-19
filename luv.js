@@ -1101,8 +1101,6 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   init: function(el, media) {
     this.el               = el;
     this.media            = media;
-    this.lineWidth        = 1;
-    this.lineCap          = "butt";
     this.color            = {};
     this.backgroundColor  = {};
 
@@ -1110,9 +1108,8 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
     this.defaultCanvas    = this.Canvas(d.width, d.height);
     this.defaultCanvas.el = el;
 
-    this.setColor(255,255,255);
-    this.setBackgroundColor(0,0,0);
     this.setCanvas();
+    this.reset();
   },
 
   setCanvas : function(canvas) {
@@ -1120,8 +1117,6 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
     this.canvas = canvas;
     this.el     = canvas.el;
     this.ctx    = canvas.getContext();
-    this.setLineWidth(this.lineWidth);
-    this.setLineCap(this.lineCap);
     this.reset();
   },
 
@@ -1157,7 +1152,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 
   setLineCap : function(cap) {
     if(cap != "butt" && cap != "round" && cap != "square") {
-      throw new Error("Line cap must be either 'butt', 'round' or 'square'");
+      throw new Error("Line cap must be either 'butt', 'round' or 'square' (was: " + cap + ")");
     }
     this.ctx.lineCap = cap;
     this.lineCap     = this.ctx.lineCap;
@@ -1266,6 +1261,11 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 
   reset : function() {
     this.ctx.setTransform(1,0,0,1,0,0);
+    this.setColor(255,255,255);
+    this.setBackgroundColor(0,0,0);
+    this.setImageSmoothing(true);
+    this.setLineWidth(1);
+    this.setLineCap('butt');
   },
 
   push : function() {
@@ -1274,6 +1274,19 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 
   pop : function() {
     this.ctx.restore();
+  },
+
+  setImageSmoothing: function(smoothing) {
+    this.imageSmoothing = smoothing = !!smoothing;
+    if(smoothing) {
+      this.ctx.webkitImageSmoothingEnabled = smoothing;
+      this.ctx.mozImageSmoothingEnabled    = smoothing;
+      this.ctx.imageSmoothingEnabled       = smoothing;
+    }
+  },
+
+  getImageSmoothing: function() {
+    return this.imageSmoothing;
   },
 
   Canvas : function(width, height) {
