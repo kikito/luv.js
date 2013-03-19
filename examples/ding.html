@@ -16,7 +16,7 @@
       dingSound.play();
     }
 
-    luv.keyboard.onPressed = doDing;
+    luv.keyboard.onPressed = luv.mouse.onPressed = doDing;
 
     luv.draw = function() {
       luv.graphics.print("Total Instances: " + dingSound.countInstances(), 100, 100);
