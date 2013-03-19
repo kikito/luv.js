@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+  <meta charset="utf-8" />
   <title>Anything you do is just Ding</title>
   <script src="../luv.js"></script>
 </head>
@@ -15,7 +16,7 @@
       dingSound.play();
     }
 
-    luv.keyboard.onPressed = luv.mouse.onPressed = doDing;
+    luv.keyboard.onPressed = doDing;
 
     luv.draw = function() {
       luv.graphics.print("Total Instances: " + dingSound.countInstances(), 100, 100);

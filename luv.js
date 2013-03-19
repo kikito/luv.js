@@ -897,7 +897,10 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
     var el = sound.el= document.createElement('audio');
     el.preload = "auto";
 
-    el.addEventListener('canplaythrough', function() { media.registerLoad(sound); });
+    el.addEventListener('canplaythrough', function() {
+      if(sound.isLoaded()){ return; }
+      media.registerLoad(sound);
+    });
     el.addEventListener('error', function() { media.registerError(sound); });
 
     el.src     = sound.path;
