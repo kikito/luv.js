@@ -16,37 +16,6 @@ describe("Luv.Timer", function(){
       this.clock.restore();
     });
 
-    describe(".getMicroTime()", function() {
-      it("returns the time passed, in milliseconds", function() {
-        expect(timer.getMicroTime()).to.equal(0);
-
-        timer.step(50);
-        expect(timer.getMicroTime()).to.equal(50);
-
-        timer.step(75);
-        expect(timer.getMicroTime()).to.equal(75);
-
-        timer.step(-10);
-        expect(timer.getMicroTime()).to.equal(75);
-      });
-    });
-
-    describe(".getTime()", function() {
-      it("returns the time passed, in seconds", function() {
-        expect(timer.getTime()).to.equal(0);
-
-        timer.step(50);
-        expect(timer.getTime()).to.equal(0.05);
-
-        timer.step(75);
-        expect(timer.getTime()).to.equal(0.075);
-
-        timer.step(-10);
-        expect(timer.getTime()).to.equal(0.075);
-      });
-    });
-
-
     describe("deltaTimeLimit", function() {
       it("has a getter and a setter, and defaults to 0.25", function() {
         expect(timer.getDeltaTimeLimit()).to.equal(0.25);
@@ -58,44 +27,42 @@ describe("Luv.Timer", function(){
     });
 
     describe(".getDeltaTime()", function() {
-      it("returns the time passed between steps, in seconds", function() {
+      it("returns 0 by default", function() {
         expect(timer.getDeltaTime()).to.equal(0);
+      });
 
-        timer.step(50);
-        expect(timer.getDeltaTime()).to.equal(0.05);
-
-        timer.step(75);
-        expect(timer.getDeltaTime()).to.equal(0.025);
-
-        timer.step(-10);
-        expect(timer.getDeltaTime()).to.equal(0.025);
+      it("returns the time passed between steps, in seconds", function() {
+        timer.update(0.005);
+        expect(timer.getDeltaTime()).to.equal(0.005);
       });
 
       it("is limited by maxDeltaTime", function() {
-        timer.step(500);
+        timer.update(5);
         expect(timer.getDeltaTime()).to.equal(0.25);
-
-        timer.setDeltaTimeLimit(0.2);
-        expect(timer.getDeltaTime()).to.equal(0.2);
-
-        timer.setDeltaTimeLimit(0.7);
-        expect(timer.getDeltaTime()).to.equal(0.5);
       });
 
+      it("can not go back in time", function() {
+        timer.update(-10);
+        expect(timer.getDeltaTime()).to.equal(0);
+      });
     });
 
     describe(".getFPS()", function() {
-      it("returns the frames per second", function() {
+      it("returns 0 when no data is available", function() {
         expect(timer.getFPS()).to.equal(0);
+      });
 
-        timer.step(50);
+      it("returns the frames per second", function() {
+        timer.update(0.050);
         expect(timer.getFPS()).to.equal(20);
 
-        timer.step(75);
+        timer.update(0.025);
         expect(timer.getFPS()).to.equal(40);
+      });
 
-        timer.step(-10);
-        expect(timer.getFPS()).to.equal(40);
+      it("returns 0 if the dt is made 0", function() {
+        timer.update(0);
+        expect(timer.getFPS()).to.equal(0);
       });
     });
   });

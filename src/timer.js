@@ -14,7 +14,7 @@ Luv.Timer = Luv.Class('Luv.Timer', {
 
   init: function() {
     // The time that has passed since the timer was created, in milliseconds
-    this.microTime = 0;
+    this.microTime = performance.now();
 
     // The time that has passed between the last two frames, in seconds
     this.deltaTime = 0;
@@ -24,17 +24,18 @@ Luv.Timer = Luv.Class('Luv.Timer', {
     // Note that this does *not* magically make a game go faster. If a game has
     // very low FPS, this makes sure that the delta time is not too great (its bad
     // for things like physics simulations, etc).
-    this.deltaTimeLimit = 0.25;
+    this.deltaTimeLimit = Luv.Timer.DEFAULT_DELTA_TIME_LIMIT;
   },
 
   // updates the timer with a new timestamp.
-  step : function(time) {
-    // In some rare cases (the first couple frames) the time readings might
-    // overflow. This conditional makes sure that case does not happen.
-    if(time > this.microTime) {
-      this.deltaTime = (time - this.microTime) / 1000;
-      this.microTime = time;
-    }
+  step : function() {
+    this.update((performance.now() - this.microTime) / 1000);
+  },
+
+  // updates the timer with a new deltatime
+  update : function(dt) {
+    this.deltaTime = Math.max(0, Math.min(this.deltaTimeLimit, dt));
+    this.microTime += dt * 1000;
   },
 
   // `deltaTimeLimit` means "the maximum delta time that the timer will report".
@@ -59,16 +60,6 @@ Luv.Timer = Luv.Class('Luv.Timer', {
     return Math.min(this.deltaTime, this.deltaTimeLimit);
   },
 
-  // Returns how much time has passed since the timer was created, in milliseconds
-  getMicroTime : function() {
-    return this.microTime;
-  },
-
-  // Returns how much time has passed since the timer was created, in seconds
-  getTime : function() {
-    return this.getMicroTime() / 1000;
-  },
-
   // Returns the frames per second
   getFPS : function() {
     return this.deltaTime === 0 ? 0 : 1 / this.deltaTime;
@@ -80,5 +71,7 @@ Luv.Timer = Luv.Class('Luv.Timer', {
   }
 
 });
+
+Luv.Timer.DEFAULT_DELTA_TIME_LIMIT = 0.25;
 
 }());

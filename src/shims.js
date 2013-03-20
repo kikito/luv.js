@@ -1,8 +1,14 @@
 // #shims.js
-(function() {
 // This file contains browser fixes that make several old browsers compatible
 // with some basic html5 functionality via workarounds and clever hacks.
 
+(function() {
+// ## `window.performance.now` polyfill
+window.performance = window.performance || {};
+performance.now = performance.now || performance.webkitNow || performance.msNow || performance.mozNow || Date.now;
+}());
+
+(function() {
 // ## `requestAnimationFrame` polyfill
 // polyfill by [Erik Möller](http://creativejs.com/resources/requestanimationframe/)
 // adding fixes to [Paul Irish](http://paulirish.com/2011/requestanimationframe-for-smart-animating/)
@@ -18,7 +24,7 @@ for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
 
 if (!window.requestAnimationFrame) {
   window.requestAnimationFrame = function(callback, element) {
-    var currTime = new Date().getTime();
+    var currTime = performance.now;
     var timeToCall = Math.max(0, 16 - (currTime - lastTime));
     var id = window.setTimeout(function() { callback(currTime + timeToCall); },
                                timeToCall);

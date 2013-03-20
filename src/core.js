@@ -212,10 +212,10 @@ Luv = Base.subclass('Luv', {
 
     luv.load(); // luv.run execute luv.load just once, at the beginning
 
-    var loop = function(time) {
+    var loop = function() {
 
       // The first thing we do is updating the timer with the new frame
-      luv.timer.step(time);
+      luv.timer.step();
 
       // We obtain dt (the difference between previous and this frame's timestamp, in seconds) and pass it
       // to luv.update
