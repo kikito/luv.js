@@ -107,27 +107,29 @@ Luv = Base.subclass('Luv', {
 
     options = initializeOptions(options);
 
-    this.el  = options.el;
+    var luv = this;
 
-    if(options.load)     { this.load     = options.load; }
-    if(options.update)   { this.update   = options.update; }
-    if(options.draw)     { this.draw     = options.draw; }
-    if(options.run)      { this.run      = options.run; }
-    if(options.onResize) { this.onResize = options.onResize; }
+    luv.el  = options.el;
+
+    if(options.load)     { luv.load     = options.load; }
+    if(options.update)   { luv.update   = options.update; }
+    if(options.draw)     { luv.draw     = options.draw; }
+    if(options.run)      { luv.run      = options.run; }
+    if(options.onResize) { luv.onResize = options.onResize; }
 
     // Initialize all the game submodules (see their docs for more info about each one)
-    this.media     = Luv.Media();
-    this.timer     = Luv.Timer();
-    this.keyboard  = Luv.Keyboard(this.el);
-    this.mouse     = Luv.Mouse(this.el);
-    this.audio     = Luv.Audio(this.media);
-    this.graphics  = Luv.Graphics(this.el, this.media);
+    luv.media     = Luv.Media();
+    luv.timer     = Luv.Timer();
+    luv.keyboard  = Luv.Keyboard(luv.el);
+    luv.mouse     = Luv.Mouse(luv.el);
+    luv.audio     = Luv.Audio(luv.media);
+    luv.graphics  = Luv.Graphics(luv.el, luv.media);
 
     // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
     if(options.fullWindow) {
       var resize = function() {
-        this.graphics.setDimensions(window.innerWidth, window.innerHeight);
-        this.onResize(window.innerWidth, window.innerHeight);
+        luv.graphics.setDimensions(window.innerWidth, window.innerHeight);
+        luv.onResize(window.innerWidth, window.innerHeight);
       };
       window.addEventListener('resize', resize, false);
       window.addEventListener('orientationChange', resize, false);
