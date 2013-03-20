@@ -223,8 +223,9 @@ Luv = Base.subclass('Luv', {
       luv.update(dt);           // Execute luv.update(dt) once per frame
 
       luv.graphics.setCanvas(); // And then invoke luv.draw()
-      luv.graphics.clear();     // Right after setting the default canvas and erasing it
-      luv.draw();               // with the default background color
+      luv.graphics.reset();     // But first set the defaults
+      luv.graphics.clear();     // And clear everything
+      luv.draw();
 
       // This enqueues another call to the loop function in the next available frame
       luv.timer.nextFrame(loop);

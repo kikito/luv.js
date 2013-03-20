@@ -12,6 +12,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
     this.defaultCanvas    = this.Canvas(d.width, d.height);
     this.defaultCanvas.el = el;
 
+    this.setBackgroundColor(0,0,0);
     this.setCanvas();
     this.reset();
   },
@@ -166,7 +167,6 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   reset : function() {
     this.ctx.setTransform(1,0,0,1,0,0);
     this.setColor(255,255,255);
-    this.setBackgroundColor(0,0,0);
     this.setImageSmoothing(true);
     this.setLineWidth(1);
     this.setLineCap('butt');
