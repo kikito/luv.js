@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-20) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-03-21) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -1244,9 +1244,10 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   },
 
   drawCentered : function(drawable, x,y, sx, sy, angle) {
-    var d = drawable.getDimensions();
-    var ox = d.width / 2,
-        oy = d.height / 2;
+    var w = drawable.getWidth();
+        h = drawable.getHeight();
+    var ox = w / 2,
+        oy = h / 2;
     this.draw(drawable, x-ox,y-oy, sx,sy, angle, ox, oy);
   },
 
@@ -1297,6 +1298,10 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 
   Image : function(path) {
     return Luv.Graphics.Image(this.media, path);
+  },
+
+  Sprite : function(image, l,t,w,h) {
+    return Luv.Graphics.Sprite(image, l,t,w,h);
   }
 
 });
@@ -1438,7 +1443,7 @@ Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
   },
 
   toString      : function() {
-    return 'Luv.Graphics.Image("' + this.path + '")';
+    return 'instance of Luv.Graphics.Image("' + this.path + '")';
   },
 
   getWidth      : function() { return this.source.width; },
@@ -1454,10 +1459,59 @@ Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
       throw new Error("Attepted to draw a non loaded image: " + this);
     }
     context.drawImage(this.source, x, y);
+  },
+
+  Sprite: function(l,t,w,h) {
+    return Luv.Graphics.Sprite(this, l,t,w,h);
   }
 
 });
 
 Luv.Graphics.Image.include(Luv.Media.Asset);
+
+}());
+
+// # sprite.js
+(function() {
+
+// ## Luv.Graphics.Sprite
+// Represents a rectangular region of an image
+// Useful for spritesheets and animations
+Luv.Graphics.Sprite = Luv.Class('Luv.Graphics.Sprite', {
+  init: function(image, l,t,w,h) {
+    this.image = image;
+    this.l = l;
+    this.t = t;
+    this.w = w;
+    this.h = h;
+  },
+
+  toString : function() {
+    return 'instance of Luv.Graphics.Sprite(' +
+            this.image + ', ' +
+            this.l + ', ' +
+            this.t + ', ' +
+            this.w + ', ' +
+            this.h + ')'  ;
+  },
+
+  getImage      : function() { return this.image; },
+
+  getWidth      : function() { return this.w; },
+
+  getHeight     : function() { return this.h; },
+
+  getDimensions : function() {
+    return { width: this.w, height: this.h };
+  },
+
+  draw: function(context, x, y) {
+    if(!this.image.isLoaded()) {
+      throw new Error("Attepted to draw a prite of a non loaded image: " + this);
+    }
+    context.drawImage(this.image.source, this.l, this.t, this.w, this.h, x, y, this.w, this.h);
+  }
+
+});
 
 }());

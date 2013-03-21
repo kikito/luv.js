@@ -20,7 +20,7 @@ Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
   },
 
   toString      : function() {
-    return 'Luv.Graphics.Image("' + this.path + '")';
+    return 'instance of Luv.Graphics.Image("' + this.path + '")';
   },
 
   getWidth      : function() { return this.source.width; },
@@ -36,6 +36,10 @@ Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
       throw new Error("Attepted to draw a non loaded image: " + this);
     }
     context.drawImage(this.source, x, y);
+  },
+
+  Sprite: function(l,t,w,h) {
+    return Luv.Graphics.Sprite(this, l,t,w,h);
   }
 
 });

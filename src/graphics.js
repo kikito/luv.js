@@ -146,9 +146,10 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   },
 
   drawCentered : function(drawable, x,y, sx, sy, angle) {
-    var d = drawable.getDimensions();
-    var ox = d.width / 2,
-        oy = d.height / 2;
+    var w = drawable.getWidth();
+        h = drawable.getHeight();
+    var ox = w / 2,
+        oy = h / 2;
     this.draw(drawable, x-ox,y-oy, sx,sy, angle, ox, oy);
   },
 
@@ -199,6 +200,10 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 
   Image : function(path) {
     return Luv.Graphics.Image(this.media, path);
+  },
+
+  Sprite : function(image, l,t,w,h) {
+    return Luv.Graphics.Sprite(image, l,t,w,h);
   }
 
 });
