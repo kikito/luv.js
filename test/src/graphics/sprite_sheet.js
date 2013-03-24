@@ -65,6 +65,48 @@ describe("Luv.Graphics.SpriteSheet", function() {
         });
       });
     });
+
+    describe("when given strings", function(){
+      it("parses the string as a range, returning several sprites", function(){
+        var sheet = gr.SpriteSheet(img, 16,16);
+        var arr = sheet.getSprites(0,'0-10');
+
+        expect(arr.length).to.equal(11);
+        expect(arr[0].getBoundingBox()).to.deep.equal({
+          left: 0, top: 0, width: 16, height: 16
+        });
+        expect(arr[10].getBoundingBox()).to.deep.equal({
+          left: 0, top: 160, width: 16, height: 16
+        });
+      });
+
+      it("can parse ranges as two strings", function() {
+        var sheet = gr.SpriteSheet(img, 16,16);
+        var arr = sheet.getSprites('0-2','0-2');
+
+        expect(arr.length).to.equal(9);
+        expect(arr[0].getBoundingBox()).to.deep.equal({
+          left: 0, top: 0, width: 16, height: 16
+        });
+        expect(arr[8].getBoundingBox()).to.deep.equal({
+          left: 32, top: 32, width: 16, height: 16
+        });
+      });
+
+      it("can parse ranges specified in reverse", function() {
+        var sheet = gr.SpriteSheet(img, 16,16);
+        var arr = sheet.getSprites('2-0', 0);
+
+        expect(arr.length).to.equal(3);
+        expect(arr[0].getBoundingBox()).to.deep.equal({
+          left: 32, top: 0, width: 16, height: 16
+        });
+        expect(arr[2].getBoundingBox()).to.deep.equal({
+          left: 0, top: 0, width: 16, height: 16
+        });
+      });
+    });
+
   });
 
 });

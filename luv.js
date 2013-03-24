@@ -1541,10 +1541,16 @@ Luv.Graphics.SpriteSheet = Luv.Class('Luv.Graphics.SpriteSheet', {
   },
 
   getSprites: function() {
-    var result = [];
+    var result = [], xCoords, yCoords;
 
     for(var i=0; i<arguments.length; i+=2) {
-      result.push(this.getSprite(arguments[i], arguments[i+1]));
+      xCoords = parseRange(arguments[i]);
+      yCoords = parseRange(arguments[i+1]);
+      for(var ix=0; ix < xCoords.length; ix++) {
+        for(var iy=0; iy < yCoords.length; iy++) {
+          result.push(this.getSprite(xCoords[ix], yCoords[iy]));
+        }
+      }
     }
     return result;
   },
@@ -1560,5 +1566,28 @@ Luv.Graphics.SpriteSheet = Luv.Class('Luv.Graphics.SpriteSheet', {
   }
 
 });
+
+var parseRange = function(r) {
+  if(typeof r == "number") { return [r]; }
+  if(typeof r == "string") {
+    var split = r.split("-");
+    if(split.length != 2) {
+      throw new Error("Could not parse from '" + r + "'. Must be of the form 'start-end'");
+    }
+    var result = [],
+        start  = Number(split[0]),
+        end    = Number(split[1]),
+        i;
+
+    if(start < end) {
+      for(i=start; i<=end; i++) { result.push(i); }
+    } else {
+      for(i=start; i>=end; i--) { result.push(i); }
+    }
+
+    return result;
+  }
+  throw new Error("Ranges must be integers or strings of the form 'start-end'. Got " + r);
+};
 
 }());
