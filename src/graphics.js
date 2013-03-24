@@ -204,6 +204,10 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 
   Sprite : function(image, l,t,w,h) {
     return Luv.Graphics.Sprite(image, l,t,w,h);
+  },
+
+  SpriteSheet : function(image, w,h,l,t,b) {
+    return Luv.Graphics.SpriteSheet(image, w,h,l,t,b);
   }
 
 });

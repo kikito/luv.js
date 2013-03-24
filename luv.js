@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-21) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-03-24) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -1302,6 +1302,10 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 
   Sprite : function(image, l,t,w,h) {
     return Luv.Graphics.Sprite(image, l,t,w,h);
+  },
+
+  SpriteSheet : function(image, w,h,l,t,b) {
+    return Luv.Graphics.SpriteSheet(image, w,h,l,t,b);
   }
 
 });
@@ -1505,11 +1509,54 @@ Luv.Graphics.Sprite = Luv.Class('Luv.Graphics.Sprite', {
     return { width: this.w, height: this.h };
   },
 
+  getBoundingBox : function() {
+    return { left: this.l, top: this.t, width: this.w, height: this.h };
+  },
+
   draw: function(context, x, y) {
     if(!this.image.isLoaded()) {
       throw new Error("Attepted to draw a prite of a non loaded image: " + this);
     }
     context.drawImage(this.image.source, this.l, this.t, this.w, this.h, x, y, this.w, this.h);
+  }
+
+});
+
+}());
+
+// # sprite_sheet.js
+(function() {
+
+// ## Luv.Graphics.SpriteSheet
+// A Spritesheet is used to easily divide an image in rectangular blocks (sprites)
+// These can later on be used for other means (like animations)
+Luv.Graphics.SpriteSheet = Luv.Class('Luv.Graphics.SpriteSheet', {
+  init: function(image, width, height, left, top, border) {
+    this.image   = image;
+    this.width   = width;
+    this.height  = height;
+    this.left    = left   || 0;
+    this.top     = top    || 0;
+    this.border  = border || 0;
+  },
+
+  getSprites: function() {
+    var result = [];
+
+    for(var i=0; i<arguments.length; i+=2) {
+      result.push(this.getSprite(arguments[i], arguments[i+1]));
+    }
+    return result;
+  },
+
+  getSprite: function(x,y) {
+    return Luv.Graphics.Sprite(
+      this.image,
+      this.left + this.width * x + this.border * (x+1),
+      this.top + this.height * y + this.border * (y+1),
+      this.width,
+      this.height
+    );
   }
 
 });

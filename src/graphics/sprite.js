@@ -32,6 +32,10 @@ Luv.Graphics.Sprite = Luv.Class('Luv.Graphics.Sprite', {
     return { width: this.w, height: this.h };
   },
 
+  getBoundingBox : function() {
+    return { left: this.l, top: this.t, width: this.w, height: this.h };
+  },
+
   draw: function(context, x, y) {
     if(!this.image.isLoaded()) {
       throw new Error("Attepted to draw a prite of a non loaded image: " + this);
