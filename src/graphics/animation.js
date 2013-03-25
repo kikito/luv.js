@@ -3,23 +3,30 @@
 
 // ## Luv.Graphics.Animation
 Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
-  init: function(mode, sprites, delays) {
-    if(mode != "loop" && mode != "once" && mode != "bounce") {
-      throw new Error("Animation mode must be 'loop', 'once' or 'bounce'. Was " + mode);
-    }
+  init: function(sprites, delays) {
     if(!Array.isArray(sprites)) {
       throw new Error('Array of sprites needed. Got ' + sprites);
     }
     if(sprites.length === 0) {
       throw new Error('No sprites where provided. Must provide at least one');
     }
-    this.mode      = mode;
     this.sprites   = sprites.slice(0);
     this.timer     = 0;
     this.position  = 0;
-    this.direction = 1;
     this.status    = "playing";
     this.delays    = parseDelays(sprites.length, delays);
+  },
+
+  update: function(dt) {
+    this.timer += dt;
+
+    while(this.timer > this.delays[this.position]) {
+      this.timer    -= this.delays[this.position];
+      this.position += 1;
+      if(this.position >= this.sprites.length) {
+        this.position = 0;
+      }
+    }
   }
 
 });
