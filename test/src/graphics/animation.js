@@ -116,5 +116,4 @@ describe('Luv.Graphics.Animation', function() {
       expect(a.time).to.equal(2);
     });
   });
-
 });

@@ -1685,14 +1685,14 @@ Luv.Graphics.SpriteSheet = Luv.Class('Luv.Graphics.SpriteSheet', {
       yCoords = parseRange(arguments[i+1]);
       for(var iy=0; iy < yCoords.length; iy++) {
         for(var ix=0; ix < xCoords.length; ix++) {
-          result.push(this.getSprite(xCoords[ix], yCoords[iy]));
+          result.push(this.Sprite(xCoords[ix], yCoords[iy]));
         }
       }
     }
     return result;
   },
 
-  getSprite: function(x,y) {
+  Sprite: function(x,y) {
     return Luv.Graphics.Sprite(
       this.image,
       this.left + this.width * x + this.border * (x+1),
@@ -1700,6 +1700,11 @@ Luv.Graphics.SpriteSheet = Luv.Class('Luv.Graphics.SpriteSheet', {
       this.width,
       this.height
     );
+  },
+
+  Animation: function(spriteInfo, delays) {
+    var sprites = this.getSprites.apply(this, spriteInfo);
+    return Luv.Graphics.Animation(sprites, delays);
   }
 
 });
