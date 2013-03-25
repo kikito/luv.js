@@ -19,9 +19,7 @@ describe('Luv.Graphics.Animation', function() {
     describe('when a number is used for the delays', function() {
       it('sets the same delays for all the sprites', function() {
         var a = Luv.Graphics.Animation('loop', [1,2,3], 4);
-        expect([a.mode, a.timer, a.position, a.direction, a.status, a.sprites, a.delays]).to.deep.equal(
-               ["loop", 0,       0,          1,          "playing", [1,2,3],   [4,4,4] ]
-        );
+        expect(a.delays).to.deep.equal([4,4,4]);
       });
     });
 
@@ -32,29 +30,22 @@ describe('Luv.Graphics.Animation', function() {
       });
       it('accepts the array values as delays', function() {
         var a = Luv.Graphics.Animation('loop', [1,2,3], [4,5,6]);
-        expect([a.mode, a.timer, a.position, a.direction, a.status, a.sprites, a.delays]).to.deep.equal(
-               ["loop", 0,       0,          1,          "playing", [1,2,3],   [4,5,6] ]
-        );
+        expect(a.delays).to.deep.equal([4,5,6]);
       });
     });
 
     describe('when an object is used for the delays', function() {
-
       describe('when the keys are integers', function() {
         it('uses the values as delays', function() {
           var a = Luv.Graphics.Animation('loop', [1,2,3], {0: 4, 1: 5, 2: 6});
-          expect([a.mode, a.timer, a.position, a.direction, a.status, a.sprites, a.delays]).to.deep.equal(
-                 ["loop", 0,       0,          1,          "playing", [1,2,3],   [4,5,6] ]
-          );
+          expect(a.delays).to.deep.equal([4,5,6]);
         });
       });
 
       describe('when the keys are strings', function() {
         it('accepts ranges', function() {
           var a = Luv.Graphics.Animation('loop', [1,2,3,4], {'0-2': 2, 3: 3});
-          expect([a.mode, a.timer, a.position, a.direction, a.status, a.sprites, a.delays]).to.deep.equal(
-                 ["loop", 0,       0,          1,          "playing", [1,2,3,4],   [2,2,2,3] ]
-          );
+          expect(a.delays).to.deep.equal([2,2,2,3]);
         });
       });
 
@@ -64,6 +55,15 @@ describe('Luv.Graphics.Animation', function() {
       });
     });
 
-
+    describe('when delays is not a number, an array or an object', function() {
+      it('tries to convert it to a number', function() {
+        var a = Luv.Graphics.Animation('loop', [1,2,3], '1');
+        expect(a.delays).to.deep.equal([1,1,1]);
+      });
+      it('throws an error if its not convertible to number', function() {
+        expect(function() { Luv.Graphics.Animation('loop', [1,2,3], 'foo'); }).to.Throw(Error);
+      });
+    });
   });
+
 });

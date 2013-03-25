@@ -58,6 +58,9 @@ var parseDelays = function(length, delays) {
     if(typeof result[i] === "undefined") {
       throw new Error('Missing delay for sprite ' + i);
     }
+    if(isNaN(result[i])) {
+      throw new Error('Could not parse the delay for sprite ' + i);
+    }
   }
   return result;
 };
