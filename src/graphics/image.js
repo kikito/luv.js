@@ -36,10 +36,6 @@ Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
       throw new Error("Attepted to draw a non loaded image: " + this);
     }
     context.drawImage(this.source, x, y);
-  },
-
-  Sprite: function(l,t,w,h) {
-    return Luv.Graphics.Sprite(this, l,t,w,h);
   }
 
 });
