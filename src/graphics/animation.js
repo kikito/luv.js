@@ -10,27 +10,69 @@ Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
     if(sprites.length === 0) {
       throw new Error('No sprites where provided. Must provide at least one');
     }
-    this.sprites   = sprites.slice(0);
-    this.timer     = 0;
-    this.position  = 0;
-    this.status    = "playing";
-    this.delays    = parseDelays(sprites.length, delays);
+    this.sprites      = sprites.slice(0);
+    this.timer        = 0;
+    this.spriteIndex  = 0;
+    this.status       = "playing";
+    this.delays       = parseDelays(sprites.length, delays);
+    this.timeFrames   = calculateTimeFrames(this.delays);
+    this.loopDuration = this.timeFrames[this.timeFrames.length - 1];
   },
 
   update: function(dt) {
-    this.timer += dt;
+    var loops, i;
 
-    while(this.timer > this.delays[this.position]) {
-      this.timer    -= this.delays[this.position];
-      this.position += 1;
-      if(this.position >= this.sprites.length) {
-        this.position = 0;
+    this.timer += dt;
+    loops = Math.floor(this.timer / this.loopDuration);
+    this.timer -= this.loopDuration * loops;
+
+    for(i=0; i<loops; i++) { this.loopEnded(); }
+
+    for(i=0; i<this.timeFrames.length-1; i++) {
+      if(this.timer >= this.timeFrames[i] &&
+         this.timer < this.timeFrames[i+1]) {
+        this.spriteIndex = i;
+        return;
       }
     }
+    this.spriteIndex = this.timeFrames.length;
+  },
+
+  gotoSprite: function(newSpriteIndex) {
+    this.spriteIndex = newSpriteIndex;
+    this.time = this.timeFrames[newSpriteIndex];
+  },
+
+  loopEnded: function() {},
+
+  getWidth: function() {
+    return this.sprites[this.spriteIndex].getWidth();
+  },
+
+  getHeight: function() {
+    return this.sprites[this.spriteIndex].getHeight();
+  },
+
+  getDimensions: function() {
+    return this.sprites[this.spriteIndex].getDimensions();
+  },
+
+  draw: function (context, x, y) {
+    return this.sprites[this.spriteIndex].draw(context, x, y);
   }
 
 });
 
+
+var calculateTimeFrames = function(delays) {
+  var result = [0],
+      time   = 0;
+  for(var i=0; i<delays.length; i++) {
+    time += delays[i];
+    result.push(time);
+  }
+  return result;
+};
 
 var parseDelays = function(length, delays) {
   var result=[], r, i, range, value;

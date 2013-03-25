@@ -67,37 +67,54 @@ describe('Luv.Graphics.Animation', function() {
   });
 
   describe('.update', function() {
-    describe('during the first loop', function() {
-      it('changes frames correctly', function() {
-        var a = Luv.Graphics.Animation([1,2,3,4], 1);
+    var a;
+    beforeEach(function() {
+      a = Luv.Graphics.Animation([1,2,3,4], 1);
+    });
 
-        expect(a.position).to.equal(0);
+    it('starts on the first frame', function() {
+      expect(a.spriteIndex).to.equal(0);
+    });
 
-        a.update(1);
-        expect(a.position).to.equal(0);
+    it('does not update the frame until it is needed', function() {
+      a.update(0.5);
+      expect(a.spriteIndex).to.equal(0);
 
-        a.update(0.1);
-        expect(a.position).to.equal(1);
+      a.update(0.5);
+      expect(a.spriteIndex).to.equal(1);
 
-        a.update(0.1);
-        expect(a.position).to.equal(1);
+      a.update(0.1);
+      expect(a.spriteIndex).to.equal(1);
+    });
+
+    it('skips frames if needed', function() {
+      a.update(2.1);
+      expect(a.spriteIndex).to.equal(2);
+    });
+
+    describe('when a loop ends', function() {
+      it('goes back to the first frame when the first loop ends', function() {
+        a.update(4.5);
+        expect(a.spriteIndex).to.equal(0);
       });
 
-      it('skips frames if needed', function() {
-        var a = Luv.Graphics.Animation([1,2,3,4], 1);
-        a.update(2.1);
-        expect(a.position).to.equal(2);
+      it('invokes the endLoop callback as many times as needed', function() {
+        var count = 0;
+        a.loopEnded = function(){ count ++; };
+        a.update(10);
+        expect(count).to.equal(2);
       });
     });
 
-    describe('when the first loop ends', function() {
-      it('goes back to the first frame', function() {
-        var a = Luv.Graphics.Animation([1,2,3,4], 1);
-        a.update(5);
-        expect(a.position).to.equal(0);
-      });
-    });
+  });
 
+  describe('.gotoSprite', function() {
+    it('updates the sprite index and the internal time counter', function() {
+      var a = Luv.Graphics.Animation([1,2,3,4], 1);
+      a.gotoSprite(2);
+      expect(a.spriteIndex).to.equal(2);
+      expect(a.time).to.equal(2);
+    });
   });
 
 });
