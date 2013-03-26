@@ -41,7 +41,9 @@ Luv.Mouse = Luv.Class('Luv.Mouse', {
       clearTimeout(mouse.wheelTimeOuts[button]);
       // The default time it takes the browser to detect that the mouse wheel stopped
       // is 20 milliseconds
-      mouse.wheelTimeOuts[button] = setTimeout(function() { handleRelease(button); }, 20);
+      mouse.wheelTimeOuts[button] = setTimeout(function() {
+        handleRelease(button);
+      }, Luv.Mouse.WHEEL_TIMEOUT);
       handlePress(button);
     };
 
@@ -103,6 +105,9 @@ Luv.Mouse = Luv.Class('Luv.Mouse', {
     return !!this.pressedButtons[button];
   }
 });
+
+// The mouse considers it has stopped scrolling after 20ms
+Luv.Mouse.WHEEL_TIMEOUT = 20;
 
 // Internal variable + function to transform DOM event magic numbers into human button names
 // (left, middle, right)
