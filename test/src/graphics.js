@@ -292,14 +292,6 @@ describe("Luv.Graphics", function(){
       });
     });
 
-    describe(".reset", function() {
-      it("resets the canvas transformation", function() {
-        var setTransform = sinon.spy(gr.ctx, 'setTransform');
-        gr.reset();
-        expect(setTransform).to.have.been.calledWith(1,0,0,1,0,0);
-      });
-    });
-
     describe(".push", function() {
       it("adds a new transformation level onto the stack", function() {
         var save = sinon.spy(gr.ctx, 'save');

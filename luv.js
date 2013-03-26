@@ -1105,14 +1105,18 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
     this.media            = media;
     this.color            = {};
     this.backgroundColor  = {};
+    this.lineCap          = "butt";
+    this.lineWidth        = 1;
+    this.imageSmoothing   = true;
 
     var d = this.getDimensions();
     this.defaultCanvas    = this.Canvas(d.width, d.height);
     this.defaultCanvas.el = el;
 
-    this.setBackgroundColor(0,0,0);
     this.setCanvas();
-    this.reset();
+
+    this.setBackgroundColor(0,0,0);
+    this.setColor(255,255,255);
   },
 
   setCanvas : function(canvas) {
@@ -1120,7 +1124,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
     this.canvas = canvas;
     this.el     = canvas.el;
     this.ctx    = canvas.getContext();
-    this.reset();
+    resetCanvas(this, this.ctx);
   },
 
   getCanvas : function() { return this.canvas; },
@@ -1164,9 +1168,11 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   getLineCap : function() { return this.lineCap; },
 
   clear : function() {
-    this.reset();
+    this.ctx.save();
+    this.ctx.setTransform(1,0,0,1,0,0);
     this.ctx.fillStyle = this.backgroundColorStyle;
     this.ctx.fillRect(0, 0, this.getWidth(), this.getHeight());
+    this.ctx.restore();
   },
 
   print : function(str,x,y) {
@@ -1264,11 +1270,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   },
 
   reset : function() {
-    this.ctx.setTransform(1,0,0,1,0,0);
-    this.setColor(255,255,255);
-    this.setImageSmoothing(true);
-    this.setLineWidth(1);
-    this.setLineCap('butt');
+
   },
 
   push : function() {
@@ -1281,11 +1283,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 
   setImageSmoothing: function(smoothing) {
     this.imageSmoothing = smoothing = !!smoothing;
-    if(smoothing) {
-      this.ctx.webkitImageSmoothingEnabled = smoothing;
-      this.ctx.mozImageSmoothingEnabled    = smoothing;
-      this.ctx.imageSmoothingEnabled       = smoothing;
-    }
+    setImageSmoothing(this.ctx, smoothing);
   },
 
   getImageSmoothing: function() {
@@ -1365,6 +1363,19 @@ var drawPolyLine = function(graphics, methodName, minLength, coords) {
 var normalizeAngle = function(angle) {
   angle = angle % twoPI;
   return angle >= 0 ? angle : angle + twoPI;
+};
+
+var resetCanvas = function(graphics, ctx) {
+  ctx.setTransform(1,0,0,1,0,0);
+  setImageSmoothing(ctx, graphics.getImageSmoothing());
+  ctx.setLineWidth(graphics.getLineWidth());
+  ctx.setLineCap(graphics.getLineCap());
+};
+
+var setImageSmoothing = function(ctx, smoothing) {
+  ctx.webkitImageSmoothingEnabled = smoothing;
+  ctx.mozImageSmoothingEnabled    = smoothing;
+  ctx.imageSmoothingEnabled       = smoothing;
 };
 
 
