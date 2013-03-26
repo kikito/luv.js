@@ -155,11 +155,9 @@ Luv = Base.subclass('Luv', {
 
     luv.el  = options.el;
 
-    if(options.load)     { luv.load     = options.load; }
-    if(options.update)   { luv.update   = options.update; }
-    if(options.draw)     { luv.draw     = options.draw; }
-    if(options.run)      { luv.run      = options.run; }
-    if(options.onResize) { luv.onResize = options.onResize; }
+    "load update draw run onResize onBlur onFocus".split(" ").forEach(function(name) {
+      if(options[name]) { luv[name] = options[name]; }
+    });
 
     // Initialize all the game submodules (see their docs for more info about each one)
     luv.media     = Luv.Media();
@@ -168,6 +166,10 @@ Luv = Base.subclass('Luv', {
     luv.mouse     = Luv.Mouse(luv.el);
     luv.audio     = Luv.Audio(luv.media);
     luv.graphics  = Luv.Graphics(luv.el, luv.media);
+
+    // Attach onBlur/onFocus
+    luv.el.addEventListener('blur',  function() { luv.onBlur(); });
+    luv.el.addEventListener('focus', function() { luv.onFocus(); });
 
     // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
     if(options.fullWindow) {
@@ -283,7 +285,17 @@ Luv = Base.subclass('Luv', {
 
   // `onResize` gets called when `fullWindow` is active and the window is resized. It can be used to
   // control game resizings, i.e. recalculate your camera's viewports. By default, it does nothing.
-  onResize  : function(newWidth, newHeight) {}
+  onResize  : function(newWidth, newHeight) {},
+
+  // overridable callback which is called when the main game element loses focus.
+  // useful for things like pausing a game when the user clicks outside of it
+  // Does nothing by default
+  onBlur : function() {},
+
+  // overridable callback called when the main game element gains focus
+  // mainly useful for "undoing" the actions done in onBlur, for example unpausing
+  // the game
+  onFocus : function() {}
 });
 
 // ## Luv.Class
@@ -307,6 +319,8 @@ var initializeOptions = function(options) {
   // * `draw`: A draw function (see below)
   // * `run`: A run function (see below)
   // * `onResize`: A callback that is called when the window is resized (only works when `fullWindow` is active)
+  // * `onBlur`: Callback invoked when the user clicks outside the game (useful for pausing the game, for example)
+  // * `onFocus`: Callback invoked when the user set the focus back on the game (useful for unpausing after pausing with onBlur)
 
   // Notes:
 

@@ -169,5 +169,27 @@ describe("Luv", function(){
     });
   });
 
+  describe("luv.onBlur", function() {
+    it("gets invoked when the main canvas loses focus", function() {
+      var count = 0;
+      var luv = Luv({onBlur: function(){ count ++; }});
+
+      trigger(luv.el, 'blur');
+
+      expect(count).to.equal(1);
+    });
+  });
+
+  describe("luv.onFocus", function() {
+    it("gets invoked when the main canvas gains focus", function() {
+      var count = 0;
+      var luv = Luv({onFocus: function(){ count ++; }});
+
+      trigger(luv.el, 'focus');
+
+      expect(count).to.equal(1);
+    });
+  });
+
 
 });
