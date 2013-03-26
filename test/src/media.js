@@ -7,6 +7,11 @@ describe("Luv.Media", function(){
       media.newAsset(asset);
       return asset;
     };
+    this.clock = sinon.useFakeTimers(0, "setTimeout", "clearTimeout", "Date");
+  });
+
+  afterEach(function() {
+    this.clock.restore();
   });
 
   it("exists", function(){
@@ -37,16 +42,21 @@ describe("Luv.Media", function(){
   });
 
   describe(".onLoaded()", function(){
-    it("is called when all assets are loaded", function() {
-      var onLoaded = sinon.spy(media, 'onLoaded'),
+    it("is called when all assets are loaded and 0.5s have passed", function() {
+      var count = 0,
           r1       = media.FakeAsset(),
           r2       = media.FakeAsset();
 
+      media.onLoaded = function() { count++; };
       media.pending = 2;
       media.registerLoad(r1);
       media.registerLoad(r2);
 
-      expect(onLoaded).to.have.been.calledOnce;
+      expect(count).to.equal(0);
+
+      this.clock.tick(500);
+
+      expect(count).to.equal(1);
     });
   });
 
@@ -62,6 +72,9 @@ describe("Luv.Media", function(){
       expect(media.isLoaded()).to.equal(false);
 
       media.registerLoad(r2);
+      expect(media.isLoaded()).to.equal(false);
+
+      this.clock.tick(500);
       expect(media.isLoaded()).to.equal(true);
     });
   });

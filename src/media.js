@@ -13,6 +13,7 @@ Luv.Media = Luv.Class('Luv.Media', {
   //
   init: function() {
     this.pending = 0;
+    this.loaded = true;
   },
 
   // `isLoaded` returns `true` if all the assets have been loaded, `false` if there are assets still being loaded.
@@ -28,7 +29,7 @@ Luv.Media = Luv.Class('Luv.Media', {
   //         if(!luv.media.isLoaded()) { return; }
   //         luv.graphics.drawImage(dogImage, 100, 100);
   //       }
-  isLoaded     : function() { return this.pending === 0; },
+  isLoaded     : function() { return this.loaded; },
 
   // Returns the numbers of assets that are loading, but not yet ready
   getPending   : function() { return this.pending; },
@@ -54,7 +55,9 @@ Luv.Media = Luv.Class('Luv.Media', {
   // Pseudo-Internal function. Registers the asset in the media object.
   newAsset  : function(asset) {
     this.pending++;
-    asset.status        = "pending";
+    this.loaded = false;
+    clearTimeout(this.onLoadedTimeout);
+    asset.status = "pending";
   },
 
   // Pseudo-internal function. Assets that have been loaded successfully should call this function
@@ -65,7 +68,14 @@ Luv.Media = Luv.Class('Luv.Media', {
     asset.status = "loaded";
 
     this.onAssetLoaded(asset);
-    if(this.isLoaded()) { this.onLoaded(); }
+    if(this.pending === 0) {
+      var self = this;
+      clearTimeout(this.onLoadedTimeout);
+      this.onLoadedTimeout = setTimeout(function() {
+        self.loaded = true;
+        self.onLoaded();
+      }, Luv.Timer.ONLOAD_TIMEOUT);
+    }
   },
 
   // Pseudo-internal function. Assets that can't be loaded must invoke this method
@@ -77,6 +87,8 @@ Luv.Media = Luv.Class('Luv.Media', {
     this.onAssetError(asset);
   }
 });
+
+Luv.Timer.ONLOAD_TIMEOUT = 200;
 
 // This just a method holding object, to be extended by specialized assets
 // like Image or Sound. Usage:
