@@ -125,16 +125,16 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
     drawPath(this, mode);
   },
 
-  draw : function(drawable, x, y, sx, sy, angle, ox, oy) {
+  draw : function(drawable, x, y, angle, sx, sy, ox, oy) {
     var ctx = this.ctx;
 
+    angle = typeof angle === "undefined" ? 0 : normalizeAngle(angle);
     sx    = typeof sx    === "undefined" ? 1 : sx;
     sy    = typeof sy    === "undefined" ? 1 : sy;
-    angle = typeof angle === "undefined" ? 0 : normalizeAngle(angle);
     ox    = typeof ox    === "undefined" ? 0 : ox;
     oy    = typeof oy    === "undefined" ? 0 : oy;
 
-    if(sx !== 1 || sy !== 1 || angle !== 0 || ox !== 0 || oy !== 0) {
+    if(angle !==0 || sx !== 1 || sy !== 1 || ox !== 0 || oy !== 0) {
       ctx.save();
 
       ctx.translate(x,y);
@@ -151,12 +151,12 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
     }
   },
 
-  drawCentered : function(drawable, x,y, sx, sy, angle) {
+  drawCentered : function(drawable, x,y, angle, sx, sy) {
     var w = drawable.getWidth();
         h = drawable.getHeight();
     var ox = w / 2,
         oy = h / 2;
-    this.draw(drawable, x-ox,y-oy, sx,sy, angle, ox, oy);
+    this.draw(drawable, x-ox,y-oy, angle, sx, sy, ox, oy);
   },
 
   translate : function(x,y) {

@@ -21,7 +21,7 @@
 
     luv.draw = function() {
       if(!luv.media.isLoaded()) { return; }
-      luv.graphics.drawCentered(cat.img, cat.x, cat.y, cat.sx, cat.sy, cat.angle);
+      luv.graphics.drawCentered(cat.img, cat.x, cat.y, cat.angle, cat.sx, cat.sy);
       var mo = luv.mouse.getPosition();
       luv.graphics.setColor(255,0,0,125);
       luv.graphics.circle('fill', mo.x, mo.y, 10);
