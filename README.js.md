@@ -28,9 +28,6 @@ The minimal example requires one two files: `luv.js` and `index.html`. You can d
 
 ## Found a bug?
 
-
-    print("hello world");
-
 Please file it using the [issue tracker](https://github.com/kikito/luv.js/issues?)
 
 ## Want to help?
