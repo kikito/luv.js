@@ -17,6 +17,13 @@ module.exports = function(grunt) {
   var testFiles = "test/**/*.js";
   var docFiles = ['README.js.md', 'MIT-LICENSE.md'].concat(srcFiles);
 
+  var generateDocs = function(output) {
+    shell.exec("rm -rf " + output);
+    shell.exec("docco " + docFiles.join(" ") + " -t docco/docco.jst -c docco/docco.css -o " + output);
+    shell.exec("cp -r docco/public " + output + "/public");
+    shell.exec("mv " + output + "/README.js.html " + output + "/index.html");
+  };
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     banner: "/*! <%= pkg.name %> <%= pkg.version %> (<%= grunt.template.today('yyyy-mm-dd') %>) - <%= pkg.homepage %> */\n" +
@@ -52,20 +59,6 @@ module.exports = function(grunt) {
         files: docFiles,
         tasks: ['docs']
       }
-    },
-    groc: {
-      local: {
-        src: docFiles,
-        options: {
-          out:  'docs/'
-        }
-      },
-      github: {
-        src: docFiles,
-        options: {
-          github: true
-        }
-      }
     }
   });
 
@@ -79,12 +72,13 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('docs', 'Runs docco and exports the result to docs', function() {
-    shell.exec("docco " + docFiles.join(" ") + " -t docco-layout/docco.jst -c docco-layout/docco.css");
-    shell.exec("cp -r docco-layout/public docs/public");
-    shell.exec("mv docs/README.js.html docs/index.html");
+    generateDocs('docs');
   });
 
-  grunt.registerTask('gh-pages', ['groc:github']);
+  grunt.registerTask('gh-pages', 'generates the docs with docco and publishes to github pages', function() {
+    generateDocs('.git/docco-tmp');
+    shell.exec("sh ./docco/publish-github-pages.sh");
+  });
 
   grunt.registerTask('compile', 'generate luv.js and luv.min.js from src/', ['jshint:dist', 'concat', 'uglify']);
 
