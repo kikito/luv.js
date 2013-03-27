@@ -15,7 +15,7 @@ module.exports = function(grunt) {
     "src/graphics/*"
   ];
   var testFiles = "test/**/*.js";
-  var docFiles = ['README.md', 'MIT-LICENSE.md'].concat(srcFiles);
+  var docFiles = ['README.js.md', 'MIT-LICENSE.md'].concat(srcFiles);
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -72,15 +72,18 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-groc');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask('mocha', 'Run all tests using mocha-phantomjs (needs mocha-phantomjs to be installed globally)', function(){
     shell.exec("mocha-phantomjs test/index.html");
   });
 
-  // make an alias to groc subtasks because I never remember 'groc'
-  grunt.registerTask('docs',     ['groc:local']);
+  grunt.registerTask('docs', 'Runs docco and exports the result to docs', function() {
+    shell.exec("docco " + docFiles.join(" ") + " -t docco-layout/docco.jst -c docco-layout/docco.css");
+    shell.exec("cp -r docco-layout/public docs/public");
+    shell.exec("mv docs/README.js.html docs/index.html");
+  });
+
   grunt.registerTask('gh-pages', ['groc:github']);
 
   grunt.registerTask('compile', 'generate luv.js and luv.min.js from src/', ['jshint:dist', 'concat', 'uglify']);
