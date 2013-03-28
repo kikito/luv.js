@@ -9,6 +9,7 @@ The minimal example requires one two files: `luv.js` and `index.html`. You can d
     <!doctype html>
     <html>
     <head>
+    <meta charset="utf-8" />
       <title>Basic luv.js example</title>
       <script src="luv.js"></script>
     </head>
