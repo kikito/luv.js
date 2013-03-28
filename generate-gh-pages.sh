@@ -6,7 +6,7 @@ set -e # Stop on the first failure that occurs
 
 GH_PAGES_TEMP_PATH=.git/gh-pages-tmp
 TARGET_BRANCH=gh-pages
-[[ $1 ]] && TARGET_REMOTE=$1 || TARGET_REMOTE=origin
+TARGET_REMOTE=origin
 
 # Git spits out status information on $stderr, and we don't want to relay that as an error to the
 # user.  So we wrap git and do error handling ourselves...
@@ -76,10 +76,6 @@ cp -Rf $GH_PAGES_TEMP_PATH/* .
 if [[ `git status -s` != "" ]]; then
   exec_git add -A
   exec_git commit -m "Generated documentation for $CURRENT_COMMIT"
-  # exec_git push $TARGET_REMOTE $TARGET_BRANCH
 fi
-
-# Clean up after ourselves
-rm -Rf $GH_PAGES_TEMP_PATH
 
 exec_git checkout $CURRENT_BRANCH

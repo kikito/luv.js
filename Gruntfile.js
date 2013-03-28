@@ -89,9 +89,11 @@ module.exports = function(grunt) {
   grunt.registerTask('gh-pages', 'generates the docs with docco and publishes to github pages', function() {
     generateDocco('.git/gh-pages-tmp/docs');
     exec([
-      "cp -Rf examples .git/gh-pages-tmp/",
+      "cp -Rf examples .git/gh-pages-tmp",
       "cp luv.js .git/gh-pages-tmp/",
-      "sh ./publish-gh-pages.sh"
+      "sh ./generate-gh-pages.sh",
+      "rm -Rf .git/gh-pages-tmp"
+      // "git push origin gh-pages"
     ]);
   });
 
