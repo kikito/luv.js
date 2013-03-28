@@ -92,8 +92,8 @@ module.exports = function(grunt) {
       "cp -Rf examples .git/gh-pages-tmp",
       "cp luv.js .git/gh-pages-tmp/",
       "sh ./generate-gh-pages.sh",
-      "rm -Rf .git/gh-pages-tmp"
-      // "git push origin gh-pages"
+      "rm -Rf .git/gh-pages-tmp",
+      "git push origin gh-pages"
     ]);
   });
 
