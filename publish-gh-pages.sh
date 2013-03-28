@@ -4,8 +4,7 @@
 
 set -e # Stop on the first failure that occurs
 
-DOCS_TEMP_PATH=.git/docco-tmp
-DESTINATION_PATH="docs"
+GH_PAGES_TEMP_PATH=.git/gh-pages-tmp
 TARGET_BRANCH=gh-pages
 [[ $1 ]] && TARGET_REMOTE=$1 || TARGET_REMOTE=origin
 
@@ -67,22 +66,20 @@ else
   exec_git checkout $TARGET_BRANCH
 fi
 
-# Create destination path if it doesn't exist
-mkdir -p $DESTINATION_PATH
-
 # We want to keep in complete sync (deleting old docs, or cruft from previous documentation output)
-git ls-files $DESTINATION_PATH | xargs rm
+git ls-files docs     | xargs rm
+git ls-files examples | xargs rm
 
-cp -Rf $DOCS_TEMP_PATH/* $DESTINATION_PATH
+cp -Rf $GH_PAGES_TEMP_PATH/* .
 
 # Do nothing unless we actually have changes
 if [[ `git status -s` != "" ]]; then
   exec_git add -A
   exec_git commit -m "Generated documentation for $CURRENT_COMMIT"
-  exec_git push $TARGET_REMOTE $TARGET_BRANCH
+  # exec_git push $TARGET_REMOTE $TARGET_BRANCH
 fi
 
 # Clean up after ourselves
-rm -Rf $DOCS_TEMP_PATH
+rm -Rf $GH_PAGES_TEMP_PATH
 
 exec_git checkout $CURRENT_BRANCH

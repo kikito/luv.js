@@ -17,13 +17,22 @@ module.exports = function(grunt) {
   var testFiles = "test/**/*.js";
   var docFiles = ['README.js.md', 'MIT-LICENSE.md'].concat(srcFiles);
 
-  var generateDocs = function(output) {
-    shell.exec("rm -rf " + output);
-    shell.exec("cp README.md README.js.md");
-    shell.exec("docco " + docFiles.join(" ") + " -t docco/docco.jst -c docco/docco.css -o " + output);
-    shell.exec("cp -r docco/public " + output + "/public");
-    shell.exec("mv " + output + "/README.js.html " + output + "/index.html");
-    shell.exec("rm README.js.md");
+  var exec = function(arr) {
+    arr = Array.isArray(arr) ? arr : [arr];
+    arr.forEach(function(command) {
+      shell.exec(command);
+    });
+  };
+
+  var generateDocco = function(output) {
+    exec([
+      "rm -rf " + output,
+      "cp README.md README.js.md",
+      "docco " + docFiles.join(" ") + " -t docco/docco.jst -c docco/docco.css -o " + output,
+      "cp -r docco/public " + output + "/public",
+      "mv " + output + "/README.js.html " + output + "/index.html",
+      "rm README.js.md"
+    ]);
   };
 
   grunt.initConfig({
@@ -70,16 +79,20 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask('mocha', 'Run all tests using mocha-phantomjs (needs mocha-phantomjs to be installed globally)', function(){
-    shell.exec("mocha-phantomjs test/index.html");
+    exec("mocha-phantomjs test/index.html");
   });
 
   grunt.registerTask('docs', 'Runs docco and exports the result to docs', function() {
-    generateDocs('docs');
+    generateDocco('docs');
   });
 
   grunt.registerTask('gh-pages', 'generates the docs with docco and publishes to github pages', function() {
-    generateDocs('.git/docco-tmp');
-    shell.exec("sh ./docco/publish-github-pages.sh");
+    generateDocco('.git/gh-pages-tmp/docs');
+    exec([
+      "cp -Rf examples .git/gh-pages-tmp/",
+      "cp luv.js .git/gh-pages-tmp/",
+      "sh ./publish-gh-pages.sh"
+    ]);
   });
 
   grunt.registerTask('compile', 'generate luv.js and luv.min.js from src/', ['jshint:dist', 'concat', 'uglify']);
