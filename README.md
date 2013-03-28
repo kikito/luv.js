@@ -9,7 +9,7 @@ The minimal example requires one two files: `luv.js` and `index.html`. You can d
     <!doctype html>
     <html>
     <head>
-    <meta charset="utf-8" />
+      <meta charset="utf-8" />
       <title>Basic luv.js example</title>
       <script src="luv.js"></script>
     </head>
@@ -43,10 +43,9 @@ If you want to propose an enhancement, start by opening an issue.
 The original source is inside the `src` folder. It needs to be assembled into `luv.js` and `luv.min.js`. In order to do that:
 
 1. Install [node.js](http://nodejs.org/)
-2. Install the top-level packages: `npm install grunt-cli mocha-phantomjs -g`
-3. Install [pygments](http://pygments.org/) if you want to generate the docs
-4. Install the project dependencies `cd /path/to/luv.js/folder && npm install`
-5. Once done,
+2. Install the top-level packages: `npm install grunt-cli mocha-phantomjs docco -g`
+3. Install the project dependencies `cd /path/to/luv.js/folder && npm install`
+4. Once done,
   1. `grunt` will build `luv.js` and execute the test suite
   2. `grunt compile` will just generate `luv.js` and `luv.min.js` from `src`, with no tests.
   3. `grunt docs` will generate the documentation.
