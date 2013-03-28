@@ -19,9 +19,11 @@ module.exports = function(grunt) {
 
   var generateDocs = function(output) {
     shell.exec("rm -rf " + output);
+    shell.exec("cp README.md README.js.md");
     shell.exec("docco " + docFiles.join(" ") + " -t docco/docco.jst -c docco/docco.css -o " + output);
     shell.exec("cp -r docco/public " + output + "/public");
     shell.exec("mv " + output + "/README.js.html " + output + "/index.html");
+    shell.exec("rm README.js.md");
   };
 
   grunt.initConfig({
