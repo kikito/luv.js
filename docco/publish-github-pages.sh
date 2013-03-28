@@ -67,11 +67,11 @@ else
   exec_git checkout $TARGET_BRANCH
 fi
 
-# We want to keep in complete sync (deleting old docs, or cruft from previous documentation output)
-exec_git ls-files $DESTINATION_PATH | xargs rm
-
 # Create destination path if it doesn't exist
 mkdir -p $DESTINATION_PATH
+
+# We want to keep in complete sync (deleting old docs, or cruft from previous documentation output)
+git ls-files $DESTINATION_PATH | xargs rm
 
 cp -Rf $DOCS_TEMP_PATH/* $DESTINATION_PATH
 
@@ -83,6 +83,6 @@ if [[ `git status -s` != "" ]]; then
 fi
 
 # Clean up after ourselves
-rm -rf $DOCS_TEMP_PATH
+rm -Rf $DOCS_TEMP_PATH
 
 exec_git checkout $CURRENT_BRANCH
