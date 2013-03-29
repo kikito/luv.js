@@ -1161,14 +1161,14 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
 
   // `setExpirationTime` sets the time it takes to expire an instance after it has stopped playing.
   // In some browers, it takes time to create each sound instance, so increasing this value can
-  // By default it is 3000 miliseconds.
-  setExpirationTime: function(time) {
-    this.expirationTime = time;
+  // By default it is 3 seconds.
+  setExpirationTime: function(seconds) {
+    this.expirationTime = seconds;
   }
 });
 
 // This class variable controls the default expiration time of sound instances
-Luv.Audio.Sound.DEFAULT_EXPIRATION_TIME = 3000; // 3 seconds
+Luv.Audio.Sound.DEFAULT_EXPIRATION_TIME = 3; // 3 seconds
 
 // Sound is an asset. The `Luv.Media.Asset` mixin adds methods like `isLoaded` and `isPending` to the class.
 Luv.Audio.Sound.include(Luv.Media.Asset);
@@ -1278,7 +1278,7 @@ var createInstance = function(sound) {
       var instance = this;
       instance.expirationTimeOut = setTimeout(
         function() { removeInstance(sound, instance); },
-        sound.getExpirationTime()
+        sound.getExpirationTime() * 1000
       );
   });
 };
