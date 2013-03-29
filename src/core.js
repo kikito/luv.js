@@ -1,13 +1,24 @@
 // # core.js
 (function() {
 
-// ## Class system bootstrapping
-// Luv.js has a very minimal (and optional) class system, based on functions and, in
-// some cases, in prototypes. The following helper functions are needed for it.
+// ## Luv.js Class System
 
-// ### extend
-// Similar to [underscore's extend](underscorejs.org/#extend), it copies adds to dest
-// all the methods of the objects passed in as extra arguments.
+// Luv.js has a very minimal (and optional) class system, based on functions and, in
+// some cases, prototypes.
+
+// By "optional", I mean that you are not required to "inherit from" Luv objects when
+// creating a game with Luv.js. You can build your game entities however you want. You
+// can make them hold references to Luv.js objects when needed.
+// In other words, the relationship between your objects and Luv.js should
+// be composition (`has_a`) not inheritance (`is_a`).
+
+// This said, you can certainly use Luv.js class system as a base, if you like it.
+
+// That is, unless you are programming some sort of Luv.js plugin. Then you will probably
+// be better off using Luv.js' class system.
+
+// `extend` is similar to [underscore's extend](http://underscorejs.org/#extend), it
+// copies into `dest` all the methods of the objects passed in as extra arguments.
 var extend = function(dest) {
   var properties;
   for(var i=1; i < arguments.length; i++) {
@@ -21,40 +32,64 @@ var extend = function(dest) {
   return dest;
 };
 
-// ### remove
-// Deletes the elements from an object, given an array of names of methods to be deleted
+// `remove` deletes the elements from an object, given an array of names of methods to be deleted
 var remove = function(dest, names) {
   names = Array.isArray(names) ? names : [names];
   for(var i=0; i < names.length; i++) { delete dest[names[i]]; }
   return dest;
 };
 
-// ### create
-// Expects an object, and creates another one which "points to it" through its __proto__
+// `create` expects an object, and creates another one which "points to it" through its `__proto__`
 // For now, it's just an alias to Object.create
 var create = Object.create;
 
-// ## Base class definition
 
-// Contains the instance methods of a basic object (by default just two: toString and getClass)
+// `baseMethods` contains the instance methods of a basic object (by default just two: `toString` and `getClass`)
 var baseMethods = extend(create(null), {
   toString: function() { return 'instance of ' + this.getClass().getName(); }
 });
 
-// Base class definition
+// ### Base class definition
 var Base = extend(function() {
   return create(baseMethods);
 }, {
-  // Default constructor
   init    : function() {},
   getName : function() { return "Base"; },
   toString: function() { return "Base"; },
   getSuper: function() { return null; },
   methods : baseMethods,
-  // Extend a class with one or more objects, which act as mixins in this case
+
+  // `include` will extend a class with one or more objects. Acts very similarly to what other languages call
+  // "mixins". Example usage:
+
+  //       var Flyer = { fly: function(){ console.log('flap flap'); } };
+  //       var Bee = Luv.Class('Bee', {...});
+  //       Bee.include(Flyer);
+
+  // It returns the class, so a compressed version of the previous example is:
+
+  //       var Flyer = { fly: function(){ console.log('flap flap'); } };
+  //       var Bee = Luv.Class('Bee', {...}).include(Flyer);
   include : function() {
     return extend.apply(this, [this.methods].concat(Array.prototype.slice.call(arguments, 0)));
   },
+
+  // `subclass` is used like this:
+
+  //       var Enemy = Luv.Class('Enemy', {
+  //         fight: function() { console.log('zap!'); }
+  //         shout: function() { console.log('hey!'); }
+  //       });
+  //
+  //       var Ninja = Enemy.subclass('Ninja', {
+  //         shout: function() { console.log('...'); }
+  //       });
+  //
+  //       // Luv.js' class system doesn't require "new"
+  //       var peter = Ninja();
+  //
+  //       peter.fight(); // zap!
+  //       peter.shout(); // ...
   subclass: function(name, methods) {
     methods = methods || {};
     var superClass = this;
@@ -83,11 +118,12 @@ var Base = extend(function() {
 
 baseMethods.getClass = function() { return Base; };
 
-// ## Main Luv function
-Luv = Base.subclass('Luv', {
+// ## Luv definition
+
 // The main Luv class, and the only global variable defined by luv.js
-// It basically parses the given options (see `initializeOptions` for a list of accepted options).
-// Returns a game.
+Luv = Base.subclass('Luv', {
+// Luv expects a single `options` parameter (see `initializeOptions` for a list of accepted options).
+// and returns a game.
 // The recommended name for the variable to store the game is `luv`, but you are free to choose any other.
 
 //       var luv = Luv({...});
@@ -103,12 +139,22 @@ Luv = Base.subclass('Luv', {
 // without storing it into a variable:
 
 //       Luv({...}).run();
+
+// The `options` param is optional, so you can start with an empty call to `Luv`, personalize the game variable
+// however you want, and then call run:
+
+//       var luv = Luv();
+//       ... // do stuff with luv, i.e. define luv.update and luv.draw
+//       luv.run(); // start the game
   init: function(options) {
 
     options = initializeOptions(options);
 
     var luv = this;
 
+    // `luv.el` contains a reference to the specified DOM element representing the "Main game canvas".
+    // If no element was specified via the `options` parameter, then a new DOM element will be created
+    // and inserted into the document's body.
     luv.el  = options.el;
 
     "load update draw run onResize onBlur onFocus".split(" ").forEach(function(name) {
@@ -261,6 +307,10 @@ Luv.Class = function(name, methods) {
   return Base.subclass(name, methods);
 };
 
+// ## Luv.Base
+// The root of Luv.js' (optional) class system
+Luv.Base = Base;
+
 // ## initializeOptions
 var initializeOptions = function(options) {
   // Accepted options:
@@ -270,10 +320,10 @@ var initializeOptions = function(options) {
   // * `width`: Sets the width of the canvas, in pixels
   // * `height`: Sets the height of the canvas, in pixels
   // * `fullWindow`: If set to true, the game canvas will ocuppy the whole window, and auto-adjust (off by default)
-  // * `load`: A load function (see below)
-  // * `update`: A load function (see below)
-  // * `draw`: A draw function (see below)
-  // * `run`: A run function (see below)
+  // * `load`: A load function (see above for details)
+  // * `update`: A update function (see above for details)
+  // * `draw`: A draw function (see above for details)
+  // * `run`: A run function (see above for details)
   // * `onResize`: A callback that is called when the window is resized (only works when `fullWindow` is active)
   // * `onBlur`: Callback invoked when the user clicks outside the game (useful for pausing the game, for example)
   // * `onFocus`: Callback invoked when the user set the focus back on the game (useful for unpausing after pausing with onBlur)
@@ -283,7 +333,7 @@ var initializeOptions = function(options) {
   // * All options are ... well, optional.
   // * The options parameter itself is optional (you can do `var luv = Luv();`)
   // * Any other options passed through the `options` hash are ignored
-  // * If neither `el` or `id` is specified, a new DOM canvas element will be generated and appended to the window. Overrides width and height.
+  // * If neither `el` or `id` is specified, a new DOM canvas element will be generated and appended to the window.
   // * `width` and `height` will attempt to get their values from the DOM element. If they can't, and they are not
   //    provided as options, they will default to 800x600px
   options = options || {};
