@@ -45,9 +45,9 @@ var create = Object.create;
 
 
 // `baseMethods` contains the instance methods of a basic object (by default just two: `toString` and `getClass`)
-var baseMethods = extend(create(null), {
+var baseMethods = {
   toString: function() { return 'instance of ' + this.getClass().getName(); }
-});
+};
 
 // ### Base class definition
 var Base = extend(function() {
