@@ -156,13 +156,12 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
   getReadyInstance: function(options) {
     var sound = this;
     var instance = getExistingReadyInstance(this.instances);
-    if(instance) {
-      instance.reset(options);
-    } else {
+    if(!instance) {
       instance = Luv.Audio.SoundInstance(this.el.cloneNode(true), options);
       this.instances.push(instance);
     }
-    resetInstanceExpirationTimeOut(this, instance);
+    instance.reset(this.el, options);
+    resetInstanceExpirationTimeOut(sound, instance);
     return instance;
   },
 

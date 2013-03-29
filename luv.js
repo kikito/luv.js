@@ -1146,13 +1146,12 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
   getReadyInstance: function(options) {
     var sound = this;
     var instance = getExistingReadyInstance(this.instances);
-    if(instance) {
-      instance.reset(options);
-    } else {
+    if(!instance) {
       instance = Luv.Audio.SoundInstance(this.el.cloneNode(true), options);
       this.instances.push(instance);
     }
-    resetInstanceExpirationTimeOut(this, instance);
+    instance.reset(this.el, options);
+    resetInstanceExpirationTimeOut(sound, instance);
     return instance;
   },
 
@@ -1338,21 +1337,21 @@ Luv.Audio.SoundInstance = Luv.Class('Luv.Audio.SoundInstance', {
     var soundInstance = this;
     soundInstance.el = el;
     soundInstance.el.addEventListener('ended', function(){ soundInstance.stop(); });
-    soundInstance.reset(options);
+    soundInstance.reset(el, options);
   },
 
-  // `reset` expects an options object (the same one as `Luv.Audio.Sound.play`) and
+  // `reset` expects an audio element (usually, the one wrapped by a sound) and an options object
+  // (with the same properties as `Luv.Audio.Sound.play`). It
   // sets the sound instance properties according to what they specify. When an option
   // is not specified, it resets the instance to a default value (for instance, if volume
   // is not specified, it's reset to 1.0).
-  reset: function(options) {
+  reset: function(soundEl, options) {
     options = options || {};
-    var el = this.el;
-    var volume = typeof options.volume === "undefined" ? el.volume       : options.volume,
-        loop   = typeof options.loop   === "undefined" ? !!el.loop       : options.loop,
-        speed  = typeof options.speed  === "undefined" ? el.playbackRate : options.speed,
-        time   = typeof options.time   === "undefined" ? el.currentTime  : options.time,
-        status = typeof options.status === "undefined" ? "ready"         : options.status;
+    var volume = typeof options.volume === "undefined" ? soundEl.volume       : options.volume,
+        loop   = typeof options.loop   === "undefined" ? !!soundEl.loop       : options.loop,
+        speed  = typeof options.speed  === "undefined" ? soundEl.playbackRate : options.speed,
+        time   = typeof options.time   === "undefined" ? soundEl.currentTime  : options.time,
+        status = typeof options.status === "undefined" ? "ready"              : options.status;
 
     this.setVolume(volume);
     this.setLoop(loop);
