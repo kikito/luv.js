@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-26) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-03-29) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -45,13 +45,24 @@ if (!window.cancelAnimationFrame) {
 // # core.js
 (function() {
 
-// ## Class system bootstrapping
-// Luv.js has a very minimal (and optional) class system, based on functions and, in
-// some cases, in prototypes. The following helper functions are needed for it.
+// ## Luv.js Class System
 
-// ### extend
-// Similar to [underscore's extend](underscorejs.org/#extend), it copies adds to dest
-// all the methods of the objects passed in as extra arguments.
+// Luv.js has a very minimal (and optional) class system, based on functions and, in
+// some cases, prototypes.
+
+// By "optional", I mean that you are not required to "inherit from" Luv objects when
+// creating a game with Luv.js. You can build your game entities however you want. You
+// can make them hold references to Luv.js objects when needed.
+// In other words, the relationship between your objects and Luv.js should
+// be composition (`has_a`) not inheritance (`is_a`).
+
+// This said, you can certainly use Luv.js class system as a base, if you like it.
+
+// That is, unless you are programming some sort of Luv.js plugin. Then you will probably
+// be better off using Luv.js' class system.
+
+// `extend` is similar to [underscore's extend](http://underscorejs.org/#extend), it
+// copies into `dest` all the methods of the objects passed in as extra arguments.
 var extend = function(dest) {
   var properties;
   for(var i=1; i < arguments.length; i++) {
@@ -65,40 +76,64 @@ var extend = function(dest) {
   return dest;
 };
 
-// ### remove
-// Deletes the elements from an object, given an array of names of methods to be deleted
+// `remove` deletes the elements from an object, given an array of names of methods to be deleted
 var remove = function(dest, names) {
   names = Array.isArray(names) ? names : [names];
   for(var i=0; i < names.length; i++) { delete dest[names[i]]; }
   return dest;
 };
 
-// ### create
-// Expects an object, and creates another one which "points to it" through its __proto__
+// `create` expects an object, and creates another one which "points to it" through its `__proto__`
 // For now, it's just an alias to Object.create
 var create = Object.create;
 
-// ## Base class definition
 
-// Contains the instance methods of a basic object (by default just two: toString and getClass)
+// `baseMethods` contains the instance methods of a basic object (by default just two: `toString` and `getClass`)
 var baseMethods = extend(create(null), {
   toString: function() { return 'instance of ' + this.getClass().getName(); }
 });
 
-// Base class definition
+// ### Base class definition
 var Base = extend(function() {
   return create(baseMethods);
 }, {
-  // Default constructor
   init    : function() {},
   getName : function() { return "Base"; },
   toString: function() { return "Base"; },
   getSuper: function() { return null; },
   methods : baseMethods,
-  // Extend a class with one or more objects, which act as mixins in this case
+
+  // `include` will extend a class with one or more objects. Acts very similarly to what other languages call
+  // "mixins". Example usage:
+
+  //       var Flyer = { fly: function(){ console.log('flap flap'); } };
+  //       var Bee = Luv.Class('Bee', {...});
+  //       Bee.include(Flyer);
+
+  // It returns the class, so a compressed version of the previous example is:
+
+  //       var Flyer = { fly: function(){ console.log('flap flap'); } };
+  //       var Bee = Luv.Class('Bee', {...}).include(Flyer);
   include : function() {
     return extend.apply(this, [this.methods].concat(Array.prototype.slice.call(arguments, 0)));
   },
+
+  // `subclass` is used like this:
+
+  //       var Enemy = Luv.Class('Enemy', {
+  //         fight: function() { console.log('zap!'); }
+  //         shout: function() { console.log('hey!'); }
+  //       });
+  //
+  //       var Ninja = Enemy.subclass('Ninja', {
+  //         shout: function() { console.log('...'); }
+  //       });
+  //
+  //       // Luv.js' class system doesn't require "new"
+  //       var peter = Ninja();
+  //
+  //       peter.fight(); // zap!
+  //       peter.shout(); // ...
   subclass: function(name, methods) {
     methods = methods || {};
     var superClass = this;
@@ -127,11 +162,12 @@ var Base = extend(function() {
 
 baseMethods.getClass = function() { return Base; };
 
-// ## Main Luv function
-Luv = Base.subclass('Luv', {
+// ## Luv definition
+
 // The main Luv class, and the only global variable defined by luv.js
-// It basically parses the given options (see `initializeOptions` for a list of accepted options).
-// Returns a game.
+Luv = Base.subclass('Luv', {
+// Luv expects a single `options` parameter (see `initializeOptions` for a list of accepted options).
+// and returns a game.
 // The recommended name for the variable to store the game is `luv`, but you are free to choose any other.
 
 //       var luv = Luv({...});
@@ -147,12 +183,22 @@ Luv = Base.subclass('Luv', {
 // without storing it into a variable:
 
 //       Luv({...}).run();
+
+// The `options` param is optional, so you can start with an empty call to `Luv`, personalize the game variable
+// however you want, and then call run:
+
+//       var luv = Luv();
+//       ... // do stuff with luv, i.e. define luv.update and luv.draw
+//       luv.run(); // start the game
   init: function(options) {
 
     options = initializeOptions(options);
 
     var luv = this;
 
+    // `luv.el` contains a reference to the specified DOM element representing the "Main game canvas".
+    // If no element was specified via the `options` parameter, then a new DOM element will be created
+    // and inserted into the document's body.
     luv.el  = options.el;
 
     "load update draw run onResize onBlur onFocus".split(" ").forEach(function(name) {
@@ -305,6 +351,10 @@ Luv.Class = function(name, methods) {
   return Base.subclass(name, methods);
 };
 
+// ## Luv.Base
+// The root of Luv.js' (optional) class system
+Luv.Base = Base;
+
 // ## initializeOptions
 var initializeOptions = function(options) {
   // Accepted options:
@@ -314,10 +364,10 @@ var initializeOptions = function(options) {
   // * `width`: Sets the width of the canvas, in pixels
   // * `height`: Sets the height of the canvas, in pixels
   // * `fullWindow`: If set to true, the game canvas will ocuppy the whole window, and auto-adjust (off by default)
-  // * `load`: A load function (see below)
-  // * `update`: A load function (see below)
-  // * `draw`: A draw function (see below)
-  // * `run`: A run function (see below)
+  // * `load`: A load function (see above for details)
+  // * `update`: A update function (see above for details)
+  // * `draw`: A draw function (see above for details)
+  // * `run`: A run function (see above for details)
   // * `onResize`: A callback that is called when the window is resized (only works when `fullWindow` is active)
   // * `onBlur`: Callback invoked when the user clicks outside the game (useful for pausing the game, for example)
   // * `onFocus`: Callback invoked when the user set the focus back on the game (useful for unpausing after pausing with onBlur)
@@ -327,7 +377,7 @@ var initializeOptions = function(options) {
   // * All options are ... well, optional.
   // * The options parameter itself is optional (you can do `var luv = Luv();`)
   // * Any other options passed through the `options` hash are ignored
-  // * If neither `el` or `id` is specified, a new DOM canvas element will be generated and appended to the window. Overrides width and height.
+  // * If neither `el` or `id` is specified, a new DOM canvas element will be generated and appended to the window.
   // * `width` and `height` will attempt to get their values from the DOM element. If they can't, and they are not
   //    provided as options, they will default to 800x600px
   options = options || {};
@@ -814,21 +864,65 @@ Luv.Media.Asset = {
 (function(){
 
 // ## Luv.Audio
+// The audio module is in charge of loading and playing sounds in Luv.
+// It is a wrapper around the `audio` tag, so it is relatively cross-browser.
+//
+// The `audio` module is attached to the game object that you receive when
+// you invoke the `Luv` function, and you usually don't need more than one,
+// so you will most likely not be instantiating this class directly. Instead,
+// you will be instantiating `Luv` and using the `audio` attribute of the returned
+// object:
+
+//       var luv = Luv();
+//       luv.audio.isAvailable(); // luv.audio already contains the instance you need
+
+// The function that you will use the most of this module is `Sound`:
+
+//       var luv = Luv();
+//       var cry = luv.audio.Sound('sfx/cry.ogg', 'sfx/cry.mp3');
+
+// Love.audio will not fail if the browser using it is not capable of playing sounds; it will
+// just not play sounds at all. *However*, `audio.Sound` *will* fail if the game tries to
+// load a Sound that is not available. In the example above:
+//
+// * The code will produce no errors (and no sound) in an android phone with no `audio` support.
+// * The code will work in a modern Firefox browser, if `sfx/cry.ogg` is loaded correctly.
+// * The code will produce an error in Internet Explorer, if `sfx/cry.mp3` could not be found.
+
 Luv.Audio = Luv.Class('Luv.Audio', {
+
   init: function(media) {
     this.media = media;
   },
 
+  // `isAvailable` returns whether the browser is capable of reproducing sounds.
+  // You don't have to test for this explicitly. If a browser is totally incapable of using the
+  // audio tag, sounds will not load and the system will not try to emit any sound when
+  // `Sound.play()` gets called.
   isAvailable: function() { return Luv.Audio.isAvailable(); },
 
+  // Returns an array of the supported audio types that the current browser allows.
+  //
+  // * chrome: `['ogg', 'mp3', 'wav', 'm4a', 'aac']`
+  // * firefox: `['ogg', 'mp3', 'wav', 'm4a', 'aac']`
+  // * ie: `['mp3', 'wav', 'm4a', 'aac']`
+  // * others: unknown (try!)
   getSupportedTypes: function() {
     return Luv.Audio.getSupportedTypes();
   },
 
+  // `canPlayType` expects a file extension (i.e. `"mp3"`), and returns whether the current
+  // browser is capable of playing files with that extension.
   canPlayType: function(type) {
     return this.supportedTypes[type.toLowerCase()];
   },
 
+  // `Sound` creates sounds. Once loaded, sounds can be played, if the browser supports them.
+  //
+  //       var luv = Luv();
+  //       var cry = luv.audio.Sound('sfx/cry.ogg', 'sfx/cry.mp3');
+  //
+  // See audio/sound.js for more information.
   Sound: function() {
     if(this.isAvailable()) {
       var args = [this.media].concat(Array.prototype.slice.call(arguments, 0));
@@ -840,6 +934,7 @@ Luv.Audio = Luv.Class('Luv.Audio', {
 
 });
 
+// The following three are class methods; they return the same as the instance methods described above.
 Luv.Audio.isAvailable = function() {
   return audioAvailable;
 };
@@ -852,6 +947,7 @@ Luv.Audio.getSupportedTypes = function() {
   return Object.keys(supportedTypes);
 };
 
+// These internal variables are the ones that really allow sound type detection
 var el = document.createElement('audio');
 var supportedTypes = {};
 var audioAvailable = !!el.canPlayType;
@@ -866,48 +962,39 @@ if(audioAvailable) {
 
 })();
 
-// # audio/null_sound.js
-(function(){
-
-// ## Luv.Audio.NullSound
-Luv.Audio.NullSound = Luv.Class('Luv.Audio.NullSound', {
-  play: function() {
-    return Luv.Audio.SoundInstance(FakeAudioElement());
-  }
-});
-
-var nopFunctions = {};
-"pause stop setVolume setVolume setLoop setSpeed setTime setExpirationTime".split(" ").forEach(function(name){
-  nopFunctions[name] = function(){};
-});
-
-var zeroFunctions = {};
-"countInstances countPlayingInstances getExpirationTime getVolume getSpeed getTime getDuration".split(" ").forEach(function(name){
-  nopFunctions[name] = function(){ return 0; };
-});
-
-Luv.Audio.NullSound.include(nopFunctions, zeroFunctions);
-
-var FakeAudioElement = function() {
-  return {
-    volume: 1,
-    playbackRate: 1,
-    // loop: undefined
-    currentTime: 0,
-    play: function(){},
-    pause: function(){},
-    addEventListener: function(ignored, f) { f(); }
-  };
-};
-
-
-})();
-
 // # audio/sound.js
 (function(){
 
 // ## Luv.Audio.Sound
+
+// This class wraps an `<audio>` tag. You will likely not instantiate this
+// class directly; instead you will create a `Luv` instance, which has an
+// `audio` module. And that module will have a `Sound` method, which will
+// internally call `Luv.Audio.Sound` with the appropiate parameters. In other
+// words, you will probably do this:
+
+//       var luv = Luv();
+//       var cry = luv.audio.Sound('sfx/cry.ogg', 'sfx/cry.mp3');
+
+// `Luv.Audio.Sound` accepts a variable number of paths (strings). This is due to the fact
+// that different browsers have different sound codecs. Luv will detect which
+// codecs the browser supports, and load the first one on the given list that is
+// available.
+
+// If the browser is not capable of playing sounds reliably (for example in some
+// old iphone browsers) then creating sounds will not produce any errors; no files
+// will be downloaded, but calling `cry.play()` will not produce any sound.
+// For more information about sound calls in non-sound-capable browsers, see
+// `audio/null_sound.js`
+
+// However, if the browser is capable of playing sounds, but it could not load
+// them (for a network reason, or because the list of file paths doesn't include
+// a file format that the browser can handle) then an error will be produced.
+
+// Notice that Sounds can't be played right after they are created; they must
+// finish loading first. See the `play` method below for details.
 Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
+
   init: function(media) {
     var paths = Array.prototype.slice.call(arguments, 1);
     if(paths.length === 0) {
@@ -947,6 +1034,48 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
     return 'Luv.Audio.Sound("' + this.path + '")';
   },
 
+  // `play` is the main way one has for playing sounds in Luv. Usually you call it
+  // inside the `update` function.
+  //
+  // There is a catch, though. If you attempt to play a sound that has not been
+  // completely loaded, you might get an error:
+  //
+  //       var luv = Luv();
+  //       var cry;
+  //
+  //       luv.load = function() {
+  //         cry = luv.audio.Sound('sfx/cry.ogg', 'sfx/cry.mp3');
+  //       };
+  //
+  //       luv.update = function() {
+  //         // This will throw an error;
+  //         // cry might need some time to load.
+  //         // Continue reading for a working version.
+  //         if(something) { cry.play(); }
+  //       };
+  //
+  // A simple way to fix this is to check that all media has been loaded before
+  // attempting to play any sounds. The `luv.media` object has a `isLoaded` method
+  // that we can use for that. A simple way is to just end the `luv.update` call
+  // if media is still being loaded. Like this:
+  //
+  //       luv.update = function() {
+  //         if(!luv.media.isLoaded()) { return; }
+  //         // All sounds (and images) are loaded now, we can play them
+  //         if(something) { cry.play(); }
+  //       };
+  //
+  // Note: play returns a *sound instance*. The same sound can have several sound
+  // instances playing simultaneously; each of those is one instance. See `audio/sound_instance.js` for
+  // details.
+  //
+  // Possible options:
+  //
+  // * `volume`: float number, from 0 (muted) to 1 (max volume). Default: 1.
+  // * `loop`: boolean, true if the instance must loop, false otherwise. Default: false.
+  // * `speed`: float number, 1 is regular velocity, 2 is 2x, 0.5 is half, etc. Default: 1.
+  // * `time`: float number, in seconds. The time offset to be used. Default: 0
+  // * `status`: string, it can be either "paused" or "ready". Defaults to "ready".
   play: function(options) {
     if(!this.isLoaded()) {
       throw new Error("Attepted to play a non loaded sound: " + this);
@@ -956,24 +1085,38 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
     return instance;
   },
 
+  // Pauses all the instances of the sound. If you want to pause an individual instance,
+  // call `instance.pause()` instead of `sound.pause()`.
   pause: function() {
     this.instances.forEach(function(instance){ instance.pause(); });
   },
 
+  // Stops all the instances of the sound. The difference between `pause` and `stop` is that
+  // stop "rewinds" each instance, and marks it as "ready to be reused";
   stop: function() {
     this.instances.forEach(function(instance){ instance.stop(); });
   },
 
+  // `countInstances` returns how many instances the sound has.
+  // Includes both playing and finished instances.
   countInstances: function() {
     return this.instances.length;
   },
 
+  // `countPlayingInstances` counts how many instances of the sound are currently playing.
+  // Non-playing instances are destroyed after 3 seconds of inactivity by default.
   countPlayingInstances: function() {
     var count = 0;
     this.instances.forEach(function(inst){ count += inst.isPlaying() ? 1 : 0; });
     return count;
   },
 
+  // `getReadyInstance` returns the first instance which is available for playing.
+  // The method tries to find one available instance in the list of instances; if no
+  // available instances are found, it creates a new one.
+  //
+  // accepts the same options as `play`. The only difference is that getReadyInstance returns
+  // an instance in the `"ready"` status, while the one returned by `play` is in the `"playing"` status.
   getReadyInstance: function(options) {
     var sound = this;
     var instance = getExistingReadyInstance(this.instances);
@@ -987,27 +1130,51 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
     return instance;
   },
 
+  // `getExpirationTime` returns how much time instances are preserved before they
+  // expire. By default it's 3000 miliseconds.
   getExpirationTime: function() {
     return this.expirationTime;
   },
 
+  // `setExpirationTime` sets the time it takes to expire an instance after it has stopped playing.
+  // In some browers, it takes time to create each sound instance, so increasing this value can
+  // By default it is 3000 miliseconds.
   setExpirationTime: function(time) {
     this.expirationTime = time;
   }
 });
 
+// This class variable controls the default expiration time of sound instances
 Luv.Audio.Sound.DEFAULT_EXPIRATION_TIME = 3000; // 3 seconds
 
+// Sound is an asset. The `Luv.Media.Asset` mixin adds methods like `isLoaded` and `isPending` to the class.
 Luv.Audio.Sound.include(Luv.Media.Asset);
 
+// `Luv.Audio.SoundMethods` is a mixin shared by both `Luv.Audio.Sound` and `Luv.Audio.SoundInstance`.
+// In `Sound`, they modify the "defaults" used for creating new instances. In `SoundInstance` they modify
+// the instances themselves.
 Luv.Audio.SoundMethods = {
+
+  // `setVolume` expects a float between 0.0 (no sound) and 1.0 (full sound). Defaults to 1.
+  //
+  // * When invoked in a `Sound`, it alters how any subsequent calls to sound.play() sound. Alternatively, you can invoke
+  //   `sound.play({sound: 0.5})` to alter the volume of only one sound instance.
+  // * When invoked in a `SoundInstance`, it alters the volume of that particular instance.
   setVolume: function(volume) {
     volume = clampNumber(volume, 0, 1);
     this.el.volume = volume;
   },
+
+  // `getVolume` returns the volume of a particular sound/sound instance. See `setVolume` for more details.
   getVolume: function() {
     return this.el.volume;
   },
+
+  // `setLoop` expects a `true` or `false` value.
+  //
+  // * When invoked in a `Sound`, it will make the sound "play in loop" in all sucessive calls to `sound.play()`. It is
+  //   usually a better idea to call `sound.play({loop: true})` instead. That way, only one instance of the sound will loop.
+  // * When invoked in a `SoundInstance`, it will make the instance loop (or deactivate the looping).
   setLoop: function(loop) {
     this.loop = !!loop;
     if(loop) {
@@ -1016,15 +1183,36 @@ Luv.Audio.SoundMethods = {
       this.el.removeAttribute("loop");
     }
   },
+
+  // `getLoop` returns the state of the internal `loop` variable (true if the sound/sound instance starts over after finishing, false
+  // if the sound/sound instance just halts after the first play).
   getLoop: function() {
     return this.loop;
   },
+
+  // `setSpeed` expects a numeric float with the speed at which the sound/sound instance will play. 1.0 is regular. 2.0 is 2x. 0.5 is half
+  // speed. And so on.
+  // If nothing is specified, the default speed of any sound is 1.0.
+  //
+  // * When invoked in a `Sound`, it alters the speed of all the sound instances produced by calls to `sound.play()`. You can also invoke
+  //   `sound.play({speed: 2.0})` to alter the speed of a particular sound instance without modifying the others.
+  // * When invoked in a `SoundInstance`, it alters the speed of that instance only.
   setSpeed: function(speed) {
     this.el.playbackRate = speed;
   },
+
+  // `getSpeed` returns the sound/sound instance speed. See `setSpeed` for details.
   getSpeed: function() {
     return this.el.playbackRate;
   },
+
+  // `setTime` expects a float number specifying the "time offset" of a particular sound/sound instance. Defaults to 0.
+  //
+  // * When invoked in a `Sound`, it will make all the sound instances created by `sound.play()` have a default time when they start playing.
+  //   You can alternatively do `sound.play({time: 4})` to only modify one particular instance.
+  // * When invoked in a `SoundInstance`:
+  //   * If the instance is playing, it will "jump" to that time.
+  //   * If the instance is not playing, it will "start" on that time when it is played.
   setTime: function(time) {
     try {
       this.el.currentTime = time;
@@ -1033,9 +1221,13 @@ Luv.Audio.SoundMethods = {
       // a node. See https://bugzilla.mozilla.org/show_bug.cgi?id=465498
     }
   },
+
+  // `getTime` returns the internal `time` attribute of a sound/sound instance. See `setTime` for details.
   getTime: function() {
     return this.el.currentTime;
   },
+
+  // `getDuration` returns the total duration of a sound instance.
   getDuration: function() {
     return this.el.duration;
   }
@@ -1043,6 +1235,8 @@ Luv.Audio.SoundMethods = {
 
 Luv.Audio.Sound.include(Luv.Audio.SoundMethods);
 
+
+// Internal function used by Luv.Sound.getReadyInstance
 var getExistingReadyInstance = function(instances) {
   var instance;
   for(var i=0; i< instances.length; i++) {
@@ -1053,6 +1247,7 @@ var getExistingReadyInstance = function(instances) {
   }
 };
 
+// Internal function to reset the expiration time of a sound instance (usually because it's played again)
 var resetInstanceExpirationTimeOut = function(sound, instance) {
   clearTimeout(instance.expirationTimeOut);
   instance.expirationTimeOut = setTimeout(function() {
@@ -1061,15 +1256,19 @@ var resetInstanceExpirationTimeOut = function(sound, instance) {
   }, sound.expirationTime);
 };
 
+// Internal function to get the file extension from a path. It takes into account things like removing query
+// parameters (it takes something like `"http://example.com/foo.mp3?x=1&y=2"` and returns `"mp3"`).
 var getExtension = function(path) {
   var match = path.match(/.+\.([^?]+)(\?|$)/);
   return match ? match[1].toLowerCase() : "";
 };
 
+// Internal function. Given a path, return whether its file extension is playable by the current browser.
 var isPathExtensionSupported = function(path) {
   return Luv.Audio.canPlayType(getExtension(path));
 };
 
+// Internal function. If x < min, return min. If x > max, return max. Otherwise, return x.
 var clampNumber = function(x, min, max) {
   return Math.max(min, Math.min(max, Number(x)));
 };
@@ -1126,6 +1325,53 @@ Luv.Audio.SoundInstance = Luv.Class('Luv.Audio.SoundInstance', {
 Luv.Audio.SoundInstance.include(Luv.Audio.SoundMethods);
 
 }());
+
+// # audio/null_sound.js
+(function(){
+
+// ## Luv.Audio.NullSound
+//
+// This class has the same methods as Luv.Audio.Sound, but they do nothing; they don't
+// play or try to load any sounds.
+//
+// Browsers which don't support the `<audio>` tag will instantiate this class instead
+// of Luv.Audio.Sound.
+Luv.Audio.NullSound = Luv.Class('Luv.Audio.NullSound', {
+  // `play` creates and returns a `SoundInstance` whose internal element is a "fake"
+  // audio tag (in reality, a plain js object).
+  // This makes it interface-compatible with Luv.Audio.Sound, but with no side effects,
+  // since the sound instances it produces do nothing.
+  play: function() {
+    return Luv.Audio.SoundInstance(FakeAudioElement());
+  }
+});
+
+var nopFunctions = {};
+"pause stop setVolume setVolume setLoop setSpeed setTime setExpirationTime".split(" ").forEach(function(name){
+  nopFunctions[name] = function(){};
+});
+
+var zeroFunctions = {};
+"countInstances countPlayingInstances getExpirationTime getVolume getSpeed getTime getDuration".split(" ").forEach(function(name){
+  nopFunctions[name] = function(){ return 0; };
+});
+
+Luv.Audio.NullSound.include(nopFunctions, zeroFunctions);
+
+var FakeAudioElement = function() {
+  return {
+    volume: 1,
+    playbackRate: 1,
+    loop: undefined,
+    currentTime: 0,
+    play: function(){},
+    pause: function(){},
+    addEventListener: function(ignored, f) { f(); }
+  };
+};
+
+
+})();
 
 
 (function(){
