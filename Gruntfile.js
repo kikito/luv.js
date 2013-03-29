@@ -10,7 +10,9 @@ module.exports = function(grunt) {
     "src/mouse.js",
     "src/media.js",
     "src/audio.js",
-    "src/audio/*",
+    "src/audio/sound.js",
+    "src/audio/sound_instance.js",
+    "src/audio/null_sound.js",
     "src/graphics.js",
     "src/graphics/*"
   ];
