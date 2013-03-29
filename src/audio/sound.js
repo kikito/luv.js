@@ -154,14 +154,12 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
   // accepts the same options as `play`. The only difference is that getReadyInstance returns
   // an instance in the `"ready"` status, while the one returned by `play` is in the `"playing"` status.
   getReadyInstance: function(options) {
-    var sound = this;
     var instance = getExistingReadyInstance(this.instances);
     if(!instance) {
-      instance = Luv.Audio.SoundInstance(this.el.cloneNode(true), options);
+      instance = createInstance(this);
       this.instances.push(instance);
     }
     instance.reset(this.el, options);
-    resetInstanceExpirationTimeOut(sound, instance);
     return instance;
   },
 
@@ -270,7 +268,6 @@ Luv.Audio.SoundMethods = {
 
 Luv.Audio.Sound.include(Luv.Audio.SoundMethods);
 
-
 // Internal function used by Luv.Sound.getReadyInstance
 var getExistingReadyInstance = function(instances) {
   var instance;
@@ -282,13 +279,24 @@ var getExistingReadyInstance = function(instances) {
   }
 };
 
-// Internal function to reset the expiration time of a sound instance (usually because it's played again)
-var resetInstanceExpirationTimeOut = function(sound, instance) {
-  clearTimeout(instance.expirationTimeOut);
-  instance.expirationTimeOut = setTimeout(function() {
-    var index = sound.instances.indexOf(instance);
-    if(index != -1){ sound.instances.splice(index, 1); }
-  }, sound.expirationTime);
+// Internal function used by Luv.Sound.getReadyInstance
+var createInstance = function(sound) {
+ return Luv.Audio.SoundInstance(
+    sound.el.cloneNode(true),
+    function() { clearTimeout(this.expirationTimeOut); },
+    function() {
+      var instance = this;
+      instance.expirationTimeOut = setTimeout(
+        function() { removeInstance(sound, instance); },
+        sound.getExpirationTime()
+      );
+  });
+};
+
+// Internal function. Removes an instance from the list of instances.
+var removeInstance = function(sound, instance) {
+  var index = sound.instances.indexOf(instance);
+  if(index != -1){ sound.instances.splice(index, 1); }
 };
 
 // Internal function to get the file extension from a path. It takes into account things like removing query

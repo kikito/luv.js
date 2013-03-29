@@ -1144,14 +1144,12 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
   // accepts the same options as `play`. The only difference is that getReadyInstance returns
   // an instance in the `"ready"` status, while the one returned by `play` is in the `"playing"` status.
   getReadyInstance: function(options) {
-    var sound = this;
     var instance = getExistingReadyInstance(this.instances);
     if(!instance) {
-      instance = Luv.Audio.SoundInstance(this.el.cloneNode(true), options);
+      instance = createInstance(this);
       this.instances.push(instance);
     }
     instance.reset(this.el, options);
-    resetInstanceExpirationTimeOut(sound, instance);
     return instance;
   },
 
@@ -1260,7 +1258,6 @@ Luv.Audio.SoundMethods = {
 
 Luv.Audio.Sound.include(Luv.Audio.SoundMethods);
 
-
 // Internal function used by Luv.Sound.getReadyInstance
 var getExistingReadyInstance = function(instances) {
   var instance;
@@ -1272,13 +1269,24 @@ var getExistingReadyInstance = function(instances) {
   }
 };
 
-// Internal function to reset the expiration time of a sound instance (usually because it's played again)
-var resetInstanceExpirationTimeOut = function(sound, instance) {
-  clearTimeout(instance.expirationTimeOut);
-  instance.expirationTimeOut = setTimeout(function() {
-    var index = sound.instances.indexOf(instance);
-    if(index != -1){ sound.instances.splice(index, 1); }
-  }, sound.expirationTime);
+// Internal function used by Luv.Sound.getReadyInstance
+var createInstance = function(sound) {
+ return Luv.Audio.SoundInstance(
+    sound.el.cloneNode(true),
+    function() { clearTimeout(this.expirationTimeOut); },
+    function() {
+      var instance = this;
+      instance.expirationTimeOut = setTimeout(
+        function() { removeInstance(sound, instance); },
+        sound.getExpirationTime()
+      );
+  });
+};
+
+// Internal function. Removes an instance from the list of instances.
+var removeInstance = function(sound, instance) {
+  var index = sound.instances.indexOf(instance);
+  if(index != -1){ sound.instances.splice(index, 1); }
 };
 
 // Internal function to get the file extension from a path. It takes into account things like removing query
@@ -1331,13 +1339,16 @@ var clampNumber = function(x, min, max) {
 Luv.Audio.SoundInstance = Luv.Class('Luv.Audio.SoundInstance', {
 
   // `init` takes an `el` (an audio tag) and an optional `options` array.
-  // `options` is the same as `Luv.Audio.Sound.play`
-  // `el` is usually a clone of a Sound's el instance.
-  init: function(el, options) {
-    var soundInstance = this;
-    soundInstance.el = el;
-    soundInstance.el.addEventListener('ended', function(){ soundInstance.stop(); });
-    soundInstance.reset(el, options);
+  // * `el` is usually a clone of a Sound's el instance.
+  // * `onPlay` and `onStop` are callbacks that the sound instance must call when played/stopped.
+  //   They are usually used by the Sound, to note that the instance is ready to be put in the
+  //   available/expired track.
+  init: function(el, onPlay, onStop) {
+    var instance = this;
+    instance.el = el;
+    instance.onPlay = onPlay;
+    instance.onStop = onStop;
+    instance.el.addEventListener('ended', function(){ instance.stop(); });
   },
 
   // `reset` expects an audio element (usually, the one wrapped by a sound) and an options object
@@ -1364,6 +1375,7 @@ Luv.Audio.SoundInstance = Luv.Class('Luv.Audio.SoundInstance', {
   play: function() {
     this.el.play();
     this.status = "playing";
+    this.onPlay();
   },
 
   // `pause` halts the reproduction of a sound instance. The instance `status` is set to `"paused"`, and
@@ -1381,11 +1393,17 @@ Luv.Audio.SoundInstance = Luv.Class('Luv.Audio.SoundInstance', {
     this.el.pause();
     this.setTime(0);
     this.status = "ready";
+    this.onStop();
   },
 
   isPaused : function() { return this.status == "paused"; },
   isReady  : function() { return this.status == "ready"; },
-  isPlaying: function() { return this.status == "playing"; }
+  isPlaying: function() { return this.status == "playing"; },
+
+  // Empty functions, usually set up by the Sound that creates the sound instance
+  onPlay: function() {},
+  onStop: function() {}
+
 });
 
 // This inserts lots of methods like `get/setVolume`, `get/setTime`, and so on.
