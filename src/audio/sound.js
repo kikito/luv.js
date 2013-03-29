@@ -164,7 +164,7 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
   },
 
   // `getExpirationTime` returns how much time instances are preserved before they
-  // expire. By default it's 3000 miliseconds.
+  // expire. By default it's 3 seconds.
   getExpirationTime: function() {
     return this.expirationTime;
   },
