@@ -499,14 +499,18 @@ Luv.Timer.DEFAULT_DELTA_TIME_LIMIT = 0.25;
 // # keyboard.js
 (function() {
 
-// *Disclaimer*: the code on this module was inspired by [selfcontained.us](http://www.selfcontained.us/2009/09/16/getting-keycode-values-in-javascript/)
-
 // ## Luv.Keyboard
+//
+// This class encapsulates the functionality which has to do with keyboard handling in Luv.
+//
+// *Disclaimer*: the code on this module was inspired by [selfcontained.us](http://www.selfcontained.us/2009/09/16/getting-keycode-values-in-javascript/)
 Luv.Keyboard = Luv.Class('Luv.Keyboard', {
-  // This luv module manages the keyboard. It is usually instantiated by
-  // luv.js itself when it creates a Luv() game. The two most usual ways to
-  // interact with it are via the `onPress` and `onRelease` callbacks, or the
-  // `isPressed` method (see below).
+  // You will almost never need to instantiate this Luv module manually. Instead,
+  // you will create a `Luv` object, which will have a `keyboard` attribute. For
+  // example:
+  //
+  //        var luv = Luv();
+  //        luv.keyboard // You will use this
   init: function(el) {
     var keyboard = this;
 
@@ -553,6 +557,9 @@ Luv.Keyboard = Luv.Class('Luv.Keyboard', {
 
   // `onReleased` works the same way as onPressed, except that it gets triggered
   // when a key stops being pressed.
+  //
+  // Similarly to `onPressed`, the first parameter is a key name, while the second
+  // one is the browser's internal keycode (a number).
   onReleased : function(key, code) {},
 
   // `isDown` will return true if a key is pressed, and false otherwise.
@@ -574,21 +581,34 @@ Luv.Keyboard = Luv.Class('Luv.Keyboard', {
   }
 });
 
-// ## Normal keys
+// ## key names
+//
+// This object contains the names used for each key code. Notice that this is not a
+// comprehensive list; common ASCII characters like 'a', which can be calculated via
+// `String.fromCharCode`, are not included here.
 var keys = {
-  8: "backspace", 9: "tab", 13: "enter", 16: "shift", 17: "ctrl", 18: "alt",
-  19: "pause", 20: "capslock", 27: "escape", 33: "pageup", 34: "pagedown",
-  35: "end", 36: "home", 37: "left", 38: "up", 39: "right", 40: "down", 45: "insert",
-  46: "delete", 91: "lmeta", 92: "rmeta", 93: "mode", 96: "kp0", 97: "kp1",
-  98: "kp2", 99: "kp3", 100: "kp4", 101: "kp5", 102: "kp6", 103: "kp7", 104: "kp8",
-  105: "kp9", 106: "kp*", 107: "kp+", 109: "kp-", 110: "kp.", 111: "kp/", 112: "f1",
-  113: "f2", 114: "f3", 115: "f4", 116: "f5", 117: "f6", 118: "f7", 119: "f8", 120: "f9",
-  121: "f10", 122: "f11", 123: "f12", 144: "numlock", 145: "scrolllock", 186: ",",
-  187: "=", 188: ",", 189: "-", 190: ".", 191: "/", 192: "`", 219: "[", 220: "\\",
-  221: "]", 222: "'"
+  8: "backspace",
+  9: "tab",
+  13: "enter",
+  16: "shift",
+  17: "ctrl",
+  18: "alt",
+  19: "pause", 20: "capslock", 27: "escape",
+  33: "pageup", 34: "pagedown", 35: "end", 36: "home", 45: "insert", 46: "delete",
+  37: "left", 38: "up", 39: "right", 40: "down",
+  91: "lmeta", 92: "rmeta", 93: "mode",
+  96: "kp0", 97: "kp1", 98: "kp2", 99: "kp3", 100: "kp4", 101: "kp5",
+  102: "kp6", 103: "kp7", 104: "kp8", 105: "kp9",
+  106: "kp*", 107: "kp+", 109: "kp-", 110: "kp.", 111: "kp/",
+  112: "f1", 113: "f2", 114: "f3", 115: "f4", 116: "f5", 117: "f6", 118: "f7",
+  119: "f8", 120: "f9", 121: "f10", 122: "f11", 123: "f12",
+  144: "numlock", 145: "scrolllock",
+  186: ",", 187: "=", 188: ",", 189: "-", 190: ".", 191: "/", 192: "`",
+  219: "[", 220: "\\",221: "]", 222: "'"
 };
 
-// ## Shifted keys
+// ## Shifted key names
+//
 // These names will get passed to onPress and onRelease instead of the default ones
 // if one of the two "shift" keys is pressed.
 var shiftedKeys = {
@@ -598,6 +618,7 @@ var shiftedKeys = {
 };
 
 // ## Right keys
+//
 // luv.js will attempt to differentiate rshift from shift, rctrl from ctrl, and
 // ralt from alt. This is browser-dependent though, and not completely supported.
 var rightKeys = {
@@ -618,7 +639,12 @@ var getKeyFromEvent = function(event) {
 
   // If everything else fails, try to return [String.fromCharCode](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String/fromCharCode)
   // That will return "normal letters", such as 'a', 'b', 'c', '1', '2', '3', etc.
-  return key || String.fromCharCode(code);
+  if(typeof key === "undefined") {
+    key = String.fromCharCode(code);
+    if(event.shiftKey) { key = key.toUpperCase(); }
+  }
+
+  return key;
 };
 
 }());
@@ -1280,13 +1306,45 @@ var clampNumber = function(x, min, max) {
 
 // ## Luv.Audio.SoundInstance
 
+// Once a `Luv.Sound` is loaded, you can invoke its `play` method to play it.
+// Every time you invoke `play`, a instance of that sound (a `SoundInstance`)
+// will be created (or recycled) and a reference to that instance will be
+// returned by `play`. If you want, you can preserve that instance to do things
+// with it later on.
+//
+// For example: You might have an `Enemy` class that `shouts` something when it
+// sees the player. If an enemy is killed while he's shouting, you will probably
+// want to hold a reference to that enemy's sound instance, and stop it. The rest
+// of the enemies, who also saw the player, should "keep shouting", since they are
+// still alive.
+//
+// You will almost certainly not instantiate this class directly. Instead, you will
+// use `Luv.Sound.play` to create sound instances, like this:
+
+//       var luv = Luv();
+//       var shout = Luv.audio.Sound('sfx/shout.ogg', 'sfx/shout.mp3');
+//       ...
+//       // You could also do if(luv.media.isLoaded()){ here
+//       if(shout.isLoaded()) {
+//         var instance = shout.play({volume: 0.5});
+//       }
+
 Luv.Audio.SoundInstance = Luv.Class('Luv.Audio.SoundInstance', {
+
+  // `init` takes an `el` (an audio tag) and an optional `options` array.
+  // `options` is the same as `Luv.Audio.Sound.play`
+  // `el` is usually a clone of a Sound's el instance.
   init: function(el, options) {
     var soundInstance = this;
     soundInstance.el = el;
     soundInstance.el.addEventListener('ended', function(){ soundInstance.stop(); });
     soundInstance.reset(options);
   },
+
+  // `reset` expects an options object (the same one as `Luv.Audio.Sound.play`) and
+  // sets the sound instance properties according to what they specify. When an option
+  // is not specified, it resets the instance to a default value (for instance, if volume
+  // is not specified, it's reset to 1.0).
   reset: function(options) {
     options = options || {};
     var el = this.el;
@@ -1302,26 +1360,37 @@ Luv.Audio.SoundInstance = Luv.Class('Luv.Audio.SoundInstance', {
     this.setTime(time);
     this.status = status;
   },
+
+  // If the instance was not playing, it starts playing. If it was not playing, it does nothing
   play: function() {
     this.el.play();
     this.status = "playing";
   },
+
+  // `pause` halts the reproduction of a sound instance. The instance `status` is set to `"paused"`, and
+  // sound is interrupted.
   pause: function() {
     if(this.isPlaying()) {
       this.el.pause();
       this.status = "paused";
     }
   },
+
+  // `stop` halts the reproduction of a sound instance, and also rewinds it.
+  // The instance `status` is set to `"ready"`.
   stop: function() {
     this.el.pause();
     this.setTime(0);
     this.status = "ready";
   },
+
   isPaused : function() { return this.status == "paused"; },
   isReady  : function() { return this.status == "ready"; },
   isPlaying: function() { return this.status == "playing"; }
 });
 
+// This inserts lots of methods like `get/setVolume`, `get/setTime`, and so on.
+// See the definition of `Luv.Audio.SoundMethods` inside `audio/sound.js` for details.
 Luv.Audio.SoundInstance.include(Luv.Audio.SoundMethods);
 
 }());
