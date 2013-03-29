@@ -1713,8 +1713,8 @@ var normalizeAngle = function(angle) {
 var resetCanvas = function(graphics, ctx) {
   ctx.setTransform(1,0,0,1,0,0);
   setImageSmoothing(ctx, graphics.getImageSmoothing());
-  ctx.setLineWidth(graphics.getLineWidth());
-  ctx.setLineCap(graphics.getLineCap());
+  ctx.lineWidth = graphics.getLineWidth();
+  ctx.lineCap = graphics.getLineCap();
 };
 
 var setImageSmoothing = function(ctx, smoothing) {
