@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-29) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-03-31) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -1152,7 +1152,7 @@ Luv.Audio.Sound = Luv.Class('Luv.Audio.Sound', {
   },
 
   // `getExpirationTime` returns how much time instances are preserved before they
-  // expire. By default it's 3000 miliseconds.
+  // expire. By default it's 3 seconds.
   getExpirationTime: function() {
     return this.expirationTime;
   },
@@ -1549,40 +1549,17 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
     drawPath(this, 'line');
   },
 
-  rectangle : function(mode, left, top, width, height) {
-    this.ctx.beginPath();
-    this.ctx.rect(left, top, width, height);
-    drawPath(this, mode);
-    this.ctx.closePath();
-  },
+  strokeRectangle : function(left, top, width, height) { rectangle(this, 'line', left, top, width, height); },
+  fillRectangle   : function(left, top, width, height) { rectangle(this, 'fill', left, top, width, height); },
 
-  polygon : function() {
-    var mode   = arguments[0],
-        coords = arguments[1];
+  strokePolygon   : function(coordinates) { polygon(this, 'line', coordinates); },
+  fillPolygon     : function(coordinates) { polygon(this, 'fill', coordinates); },
 
-    if(!Array.isArray(coords)) {
-      coords = [];
-      for(var i=1;i<arguments.length;i++) { coords[i-1] = arguments[i]; }
-    }
+  strokeCircle    : function(x,y,radius)  { circle(this, 'line', x,y, radius); },
+  fillCircle      : function(x,y,radius)  { circle(this, 'fill', x,y, radius); },
 
-    this.ctx.beginPath();
-
-    drawPolyLine(this, 'luv.graphics.polygon', 6, coords);
-    drawPath(this, mode);
-
-    this.ctx.closePath();
-  },
-
-  circle : function(mode, x,y,radius) {
-    this.arc(mode, x, y, radius, 0, twoPI);
-    this.ctx.closePath();
-  },
-
-  arc : function(mode, x,y,radius, startAngle, endAngle) {
-    this.ctx.beginPath();
-    this.ctx.arc(x,y,radius, startAngle, endAngle, false);
-    drawPath(this, mode);
-  },
+  strokeArc       : function(x,y,radius, startAngle, endAngle)  { arc(this, 'line', x,y, radius, startAngle, endAngle); },
+  fillArc         : function(x,y,radius, startAngle, endAngle)  { arc(this, 'fill', x,y, radius, startAngle, endAngle); },
 
   draw : function(drawable, x, y, angle, sx, sy, ox, oy) {
     var ctx = this.ctx;
@@ -1738,6 +1715,34 @@ var setImageSmoothing = function(ctx, smoothing) {
   ctx.mozImageSmoothingEnabled    = smoothing;
   ctx.imageSmoothingEnabled       = smoothing;
 };
+
+var rectangle = function(graphics, mode, left, top, width, height) {
+  graphics.ctx.beginPath();
+  graphics.ctx.rect(left, top, width, height);
+  drawPath(graphics, mode);
+  graphics.ctx.closePath();
+};
+
+var polygon = function(graphics, mode, coordinates) {
+  graphics.ctx.beginPath();
+
+  drawPolyLine(graphics, 'luv.graphics.polygon', 6, coordinates);
+  drawPath(graphics, mode);
+
+  graphics.ctx.closePath();
+};
+
+var arc = function(graphics, mode, x,y,radius, startAngle, endAngle) {
+  graphics.ctx.beginPath();
+  graphics.ctx.arc(x,y,radius, startAngle, endAngle, false);
+  drawPath(graphics, mode);
+};
+
+var circle = function(graphics, mode, x,y,radius) {
+  arc(graphics, mode, x, y, radius, 0, twoPI);
+  graphics.ctx.closePath();
+};
+
 
 
 }());

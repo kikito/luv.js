@@ -140,10 +140,10 @@ describe("Luv.Graphics", function(){
       });
     });
 
-    describe(".rectangle", function(){
-      it("draws a colored rectangle when the mode is 'fill'", function() {
+    describe(".fillRectangle", function(){
+      it("draws a filled rectangle", function() {
         gr.setColor(255,0,0);
-        gr.rectangle('fill', 10, 10, 20, 20);
+        gr.fillRectangle(10, 10, 20, 20);
 
         expect(beginPath).to.have.been.called;
         expect(rect).to.have.been.calledWith(10, 10, 20, 20);
@@ -151,10 +151,12 @@ describe("Luv.Graphics", function(){
         expect(closePath).to.have.been.called;
         expect(gr.ctx.fillStyle).to.equal('#ff0000');
       });
+    });
 
-      it("draws a colored rectangle outline the mode is 'line'", function() {
+    describe(".strokeRectangle", function(){
+      it("draws a colored rectangle outline", function() {
         gr.setColor(0,255,0);
-        gr.rectangle('line', 10, 10, 20, 20);
+        gr.strokeRectangle(10, 10, 20, 20);
 
         expect(beginPath).to.have.been.called;
         expect(rect).to.have.been.calledWith(10, 10, 20, 20);
@@ -162,16 +164,12 @@ describe("Luv.Graphics", function(){
         expect(closePath).to.have.been.called;
         expect(gr.ctx.strokeStyle).to.equal('#00ff00');
       });
-
-      it("throws en error if given an invalid mode", function() {
-        expect(function(){ gr.rect('foo', 1,2,3,4); }).to.Throw(Error);
-      });
     });
 
-    describe(".polygon", function(){
-      it("draws a colored polygon when the mode is 'fill'", function() {
+    describe(".fillPolygon", function(){
+      it("draws a colored filled polygon", function() {
         gr.setColor(255,0,0);
-        gr.polygon('fill', 10, 10, 20, 20, 0,50);
+        gr.fillPolygon([10, 10, 20, 20, 0,50]);
 
         expect(beginPath).to.have.been.called;
         expect(moveTo).to.have.been.calledWith(10, 10);
@@ -181,51 +179,27 @@ describe("Luv.Graphics", function(){
         expect(fill).to.have.been.called;
         expect(gr.ctx.fillStyle).to.equal('#ff0000');
       });
+    });
 
-      it("draws a colored polygon when the mode is 'fill' and the coords an array", function() {
-        gr.setColor(255,0,0);
-        gr.polygon('fill', [10, 10, 20, 20, 0,50]);
-
-        expect(beginPath).to.have.been.called;
-        expect(moveTo).to.have.been.calledWith(10, 10);
-        expect(lineTo).to.have.been.calledWith(20, 20);
-        expect(lineTo).to.have.been.calledWith(0, 50);
-        expect(closePath).to.have.been.called;
-        expect(fill).to.have.been.called;
-        expect(gr.ctx.fillStyle).to.equal('#ff0000');
-      });
-
-
-      it("draws a colored polygon outline the mode is 'line'", function() {
+    describe(".strokePolygon", function(){
+      it("draws a colored polygon outline", function() {
         gr.setColor(0,255,0);
-        gr.polygon('fill', 10, 10, 20, 20, 0,50);
+        gr.strokePolygon([10, 10, 20, 20, 0,50]);
 
         expect(beginPath).to.have.been.called;
         expect(moveTo).to.have.been.calledWith(10, 10);
         expect(lineTo).to.have.been.calledWith(20, 20);
         expect(lineTo).to.have.been.calledWith(0, 50);
         expect(closePath).to.have.been.called;
-        expect(fill).to.have.been.called;
-        expect(gr.ctx.fillStyle).to.equal('#00ff00');
-      });
-
-      it("throws en error if given an invalid mode", function() {
-        expect(function(){ gr.polygon('foo', 1,2,3,4,5,6); }).to.Throw(Error);
-      });
-
-      it("throws an error if given less than 3 points", function() {
-       expect(function(){ gr.polygon('fill', 1,2,3,4); }).to.Throw(Error);
-      });
-
-      it("throws an error if given an uneven number of coordinates", function() {
-       expect(function(){ gr.polygon('fill', 1,2,3,4,5,6,7); }).to.Throw(Error);
+        expect(stroke).to.have.been.called;
+        expect(gr.ctx.strokeStyle).to.equal('#00ff00');
       });
     });
 
-    describe(".circle", function() {
-      it("draws a filled circle when the mode is 'fill'", function(){
+    describe(".fillCircle", function() {
+      it("draws a filled circle", function(){
         gr.setColor(0,255,0);
-        gr.circle('fill', 10, 10, 20);
+        gr.fillCircle(10, 10, 20);
 
         expect(beginPath).to.have.been.called;
         expect(arc).to.have.been.calledWith(10, 10, 20, 0, 2 * Math.PI, false);
@@ -233,10 +207,12 @@ describe("Luv.Graphics", function(){
         expect(fill).to.have.been.called;
         expect(gr.ctx.fillStyle).to.equal('#00ff00');
       });
+    });
 
-      it("draws a stroked circle when the mode is 'line'", function(){
+    describe(".strokeCircle", function() {
+      it("draws a stroked circle", function(){
         gr.setColor(0,255,0);
-        gr.circle('line', 10, 10, 20);
+        gr.strokeCircle(10, 10, 20);
 
         expect(beginPath).to.have.been.called;
         expect(arc).to.have.been.calledWith(10, 10, 20, 0, 2 * Math.PI, false);
@@ -246,20 +222,23 @@ describe("Luv.Graphics", function(){
       });
     });
 
-    describe(".arc", function() {
-      it("draws a filled arc when the mode is 'fill'", function(){
+    describe(".fillArc", function() {
+      it("draws a filled arc", function(){
         gr.setColor(0,255,0);
-        gr.arc('fill', 10, 10, 20, 0, Math.PI);
+        gr.fillArc(10, 10, 20, 0, Math.PI);
 
         expect(beginPath).to.have.been.called;
         expect(arc).to.have.been.calledWith(10, 10, 20, 0, Math.PI, false);
         expect(fill).to.have.been.called;
         expect(gr.ctx.fillStyle).to.equal('#00ff00');
       });
+    });
 
-      it("draws a stroked circle when the mode is 'line'", function(){
+
+    describe(".strokeArc", function() {
+      it("draws a stroked circle", function(){
         gr.setColor(0,255,0);
-        gr.arc('line', 10, 10, 20, 0, Math.PI);
+        gr.strokeArc(10, 10, 20, 0, Math.PI);
 
         expect(beginPath).to.have.been.called;
         expect(arc).to.have.been.calledWith(10, 10, 20, 0, Math.PI, false);
