@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>The cat follows the mouse</title>
+  <script src="../luv.js"></script>
+</head>
+<body>
+  <script>
+    var luv = Luv({fullWindow: true});
+
+    var cat;
+    var halfPI = Math.PI / 2;
+
+    luv.load = function() {
+      cat = {
+        x: 400, y: 300, angle: 0, sx: 1, sy: 1,
+        img: luv.graphics.Image('img/cat.png')
+      };
+    };
+
+    luv.draw = function() {
+      if(!luv.media.isLoaded()) { return; }
+      luv.graphics.drawCentered(cat.img, cat.x, cat.y, cat.angle, cat.sx, cat.sy);
+      var mo = luv.mouse.getPosition();
+      luv.graphics.setColor(255,0,0,125);
+      luv.graphics.fillCircle(mo.x, mo.y, 10);
+    };
+
+    luv.update = function(dt) {
+      if(!luv.media.isLoaded()) { return; }
+
+      var mouse = luv.mouse.getPosition();
+      var dx = mouse.x - cat.x,
+          dy = mouse.y - cat.y;
+      var distance = Math.sqrt(dx*dx + dy*dy);
+      var scale    = Math.min(1, Math.max(0.25, distance == 0 ? 1 : 100 / distance));
+
+      cat.angle = Math.atan2(dy, dx);
+      cat.sx    = scale;
+      cat.sy    = cat.angle <= halfPI && cat.angle >= -halfPI ? scale : -scale;
+
+      if(distance > 5) {
+        cat.x += dx * dt;
+        cat.y += dy * dt;
+      }
+
+    };
+
+    luv.run();
+  </script>
+</body>
+</html>

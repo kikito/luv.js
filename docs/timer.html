@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>timer.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="CONTRIBUTING.html">
+                CONTRIBUTING.md
+              </a>
+            
+              
+              <a class="source" href="MIT-LICENSE.html">
+                MIT-LICENSE.md
+              </a>
+            
+              
+              <a class="source" href="index.html">
+                README.js.md
+              </a>
+            
+              
+              <a class="source" href="audio.html">
+                audio.js
+              </a>
+            
+              
+              <a class="source" href="null_sound.html">
+                audio/null_sound.js
+              </a>
+            
+              
+              <a class="source" href="sound.html">
+                audio/sound.js
+              </a>
+            
+              
+              <a class="source" href="sound_instance.html">
+                audio/sound_instance.js
+              </a>
+            
+              
+              <a class="source" href="core.html">
+                core.js
+              </a>
+            
+              
+              <a class="source" href="graphics.html">
+                graphics.js
+              </a>
+            
+              
+              <a class="source" href="animation.html">
+                graphics/animation.js
+              </a>
+            
+              
+              <a class="source" href="canvas.html">
+                graphics/canvas.js
+              </a>
+            
+              
+              <a class="source" href="image.html">
+                graphics/image.js
+              </a>
+            
+              
+              <a class="source" href="sprite.html">
+                graphics/sprite.js
+              </a>
+            
+              
+              <a class="source" href="sprite_sheet.html">
+                graphics/sprite_sheet.js
+              </a>
+            
+              
+              <a class="source" href="keyboard.html">
+                keyboard.js
+              </a>
+            
+              
+              <a class="source" href="media.html">
+                media.js
+              </a>
+            
+              
+              <a class="source" href="mouse.html">
+                mouse.js
+              </a>
+            
+              
+              <a class="source" href="shims.html">
+                shims.js
+              </a>
+            
+              
+              <a class="source" href="timer.html">
+                timer.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h1">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1>timer.js</h1>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>(<span class="keyword">function</span>(){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h2>Luv.Timer</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Luv.Timer = Luv.Class(<span class="string">'Luv.Timer'</span>, {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>In luv, time is managed via instances of this constructor, instead of with
+javascript&#39;s setInterval.
+Usually, the timer is something internal that is created by Luv when a game
+is created, and it&#39;s used mostly inside luv.js&#39; <code>run</code> function.
+luv.js users will rarely need to manipulate objects of this
+library, except to obtain the Frames per second or maybe to tweak the
+deltaTimeLimit (see below)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  init: <span class="keyword">function</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>The time that has passed since the timer was created, in milliseconds</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">this</span>.microTime = performance.now();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>The time that has passed between the last two frames, in seconds</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">this</span>.deltaTime = <span class="number">0</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>The upper value that deltaTime can have, in seconds. Defaults to 0.25.
+Can be changed via <code>setDeltaTimeLimit</code>.
+Note that this does <em>not</em> magically make a game go faster. If a game has
+very low FPS, this makes sure that the delta time is not too great (its bad
+for things like physics simulations, etc).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">this</span>.deltaTimeLimit = Luv.Timer.DEFAULT_DELTA_TIME_LIMIT;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>updates the timer with a new timestamp.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  step : <span class="keyword">function</span>() {
+    <span class="keyword">this</span>.update((performance.now() - <span class="keyword">this</span>.microTime) / <span class="number">1000</span>);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>updates the timer with a new deltatime</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  update : <span class="keyword">function</span>(dt) {
+    <span class="keyword">this</span>.deltaTime = Math.max(<span class="number">0</span>, Math.min(<span class="keyword">this</span>.deltaTimeLimit, dt));
+    <span class="keyword">this</span>.microTime += dt * <span class="number">1000</span>;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p><code>deltaTimeLimit</code> means &quot;the maximum delta time that the timer will report&quot;.
+It&#39;s 0.25 by default. That means that if a frame takes 3 seconds to complete,
+the <em>reported</em> delta time will be 0.25s. This setting doesn&#39;t magically make
+games go faster. It&#39;s there to prevent errors when a lot of time passes between
+frames (for example, if the user changes tabs, the timer could spend entire
+minutes locked in one frame).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  setDeltaTimeLimit : <span class="keyword">function</span>(deltaTimeLimit) {
+    <span class="keyword">this</span>.deltaTimeLimit = deltaTimeLimit;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>returns the <code>deltaTimeLimit</code>; the maximum delta time that will be reported.
+see <code>setDeltaTimeLimit</code> for details.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  getDeltaTimeLimit : <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.deltaTimeLimit;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>returns how much time has passed between this frame and the previous one,
+in seconds. Note that it&#39;s capped by <code>deltaTimeLimit</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  getDeltaTime : <span class="keyword">function</span>() {
+    <span class="keyword">return</span> Math.min(<span class="keyword">this</span>.deltaTime, <span class="keyword">this</span>.deltaTimeLimit);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Returns the frames per second</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  getFPS : <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.deltaTime === <span class="number">0</span> ? <span class="number">0</span> : <span class="number">1</span> / <span class="keyword">this</span>.deltaTime;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>This function is used in the main game loop. For now, it just calls <code>window.requestAnimationFrame</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  nextFrame : <span class="keyword">function</span>(f) {
+    window.requestAnimationFrame(f);
+  }
+
+});
+
+Luv.Timer.DEFAULT_DELTA_TIME_LIMIT = <span class="number">0.25</span>;
+
+}());</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

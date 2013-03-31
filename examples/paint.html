@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Paint</title>
+  <script src="../luv.js"></script>
+</head>
+<body>
+  <script>
+    var luv = Luv({fullWindow: true});
+    var canvas = luv.graphics.Canvas();
+
+    var prevPos = null;
+    var radius = 2;
+    var color  = 0;
+
+    luv.load = function() {
+      luv.graphics.setBackgroundColor(255, 255, 255);
+      luv.graphics.setLineCap('round');
+    };
+
+    luv.draw = function() {
+      luv.graphics.setLineWidth(radius * 2);
+      if(color > 255) {
+        luv.graphics.setColor(color-255, color-255, 255);
+      } else {
+        luv.graphics.setColor(0,0,color);
+      }
+      luv.graphics.draw(canvas, 0, 0);
+      var pos = luv.mouse.getPosition();
+      luv.graphics.fillCircle(pos.x, pos.y, radius);
+      prevPos = pos;
+    };
+
+    luv.update = function(dt) {
+      if(luv.mouse.isPressed("l")) {
+        var pos = luv.mouse.getPosition()
+        luv.graphics.setCanvas(canvas);
+        if(prevPos.x === pos.x && prevPos.y === pos.y) {
+          luv.graphics.fillCircle(pos.x, pos.y, radius);
+        } else {
+          luv.graphics.line(prevPos.x, prevPos.y, pos.x, pos.y);
+        }
+      }
+    };
+
+    luv.onResize = function(width, height) {
+      canvas.setDimensions(width, height);
+    };
+
+    luv.mouse.onPressed = function(x,y,button) {
+      switch(button) {
+        case "l":
+          prevPos = {x: x, y: y};
+          break;
+        case "wu":
+          radius = Math.min(64, radius + 1);
+          color  = Math.min(510, color + 8);
+          break;
+        case "wd":
+          radius = Math.max(2, radius - 1);
+          color  = Math.max(0, color - 8);
+          break;
+      }
+    };
+
+    luv.run();
+  </script>
+</body>
+</html>

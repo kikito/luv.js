@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Who lives in a pineapple under the sea?</title>
+  <script src="../luv.js"></script>
+</head>
+<body>
+  <script>
+    var luv = Luv();
+
+    var bob = {x: 400, y: 280, dx: 0, dy: 0, w:50, h:50};
+
+    luv.draw = function() {
+      luv.graphics.setColor(255,255,0);
+      var l = bob.x - bob.w/2,
+          t = bob.y - bob.h/2,
+          w = bob.w,
+          h = bob.h;
+      luv.graphics.fillRectangle(l,t,w,h);
+
+      luv.graphics.setColor(128,128,0);
+      luv.graphics.setLineWidth(3);
+      luv.graphics.strokeRectangle(l,t,w,h);
+
+      luv.graphics.setColor(255,255,255);
+
+      var r  = w/5,
+          r2 = w/13;
+
+      var x1 = l + r + r2,
+          y = t + r + r2,
+          x2 = l + w - r - r2;
+
+      luv.graphics.fillCircle(x1, y, r);
+      luv.graphics.fillCircle(x2, y, r);
+
+      luv.graphics.setColor(0,0,0);
+      luv.graphics.setLineWidth(1);
+      luv.graphics.strokeCircle(x1,y,r);
+      luv.graphics.fillCircle(x1 + bob.dx * r2,y + bob.dy * r2,r2);
+      luv.graphics.strokeCircle(x2,y,r);
+      luv.graphics.fillCircle(x2 + bob.dx * r2,y + bob.dy * r2,r2);
+
+      luv.graphics.strokeCircle(bob.x, bob.y, r2);
+      luv.graphics.strokeArc(bob.x, bob.y, 2*r, 0, Math.PI);
+    };
+
+    luv.update = function(dt) {
+      bob.dy = 0;
+
+      // up/down is managed via luv.keyboard.isDown
+      if(luv.keyboard.isDown('up'))    { bob.dy = -1; }
+      if(luv.keyboard.isDown('down'))  { bob.dy = 1; }
+
+      bob.x += bob.dx * 60 * dt;
+      bob.y += bob.dy * 60 * dt;
+    };
+
+    // left/right is managed via luv.keyboard.onPressed & luv.keyboard.onReleased
+    luv.keyboard.onPressed = function(key, code) {
+      if(key == 'left')       { bob.dx = -1; }
+      else if(key == 'right') { bob.dx = 1;  }
+    };
+
+    luv.keyboard.onReleased = function(key, code) {
+      if((key == 'left' && bob.dx == -1) ||
+         (key == 'right' && bob.dx == 1)) {
+           bob.dx = 0;
+      }
+    };
+
+    luv.run();
+  </script>
+</body>
+</html>

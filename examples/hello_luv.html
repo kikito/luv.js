@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Basic luv.js example</title>
+  <script src="../luv.js"></script>
+</head>
+<body>
+  <script>
+    var luv = Luv();
+
+    luv.draw = function() {
+      luv.graphics.print("Hello, luv <3 <3", 200, 300);
+    };
+
+    luv.run();
+  </script>
+</body>
+</html>

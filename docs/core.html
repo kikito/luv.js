@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>core.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="CONTRIBUTING.html">
+                CONTRIBUTING.md
+              </a>
+            
+              
+              <a class="source" href="MIT-LICENSE.html">
+                MIT-LICENSE.md
+              </a>
+            
+              
+              <a class="source" href="index.html">
+                README.js.md
+              </a>
+            
+              
+              <a class="source" href="audio.html">
+                audio.js
+              </a>
+            
+              
+              <a class="source" href="null_sound.html">
+                audio/null_sound.js
+              </a>
+            
+              
+              <a class="source" href="sound.html">
+                audio/sound.js
+              </a>
+            
+              
+              <a class="source" href="sound_instance.html">
+                audio/sound_instance.js
+              </a>
+            
+              
+              <a class="source" href="core.html">
+                core.js
+              </a>
+            
+              
+              <a class="source" href="graphics.html">
+                graphics.js
+              </a>
+            
+              
+              <a class="source" href="animation.html">
+                graphics/animation.js
+              </a>
+            
+              
+              <a class="source" href="canvas.html">
+                graphics/canvas.js
+              </a>
+            
+              
+              <a class="source" href="image.html">
+                graphics/image.js
+              </a>
+            
+              
+              <a class="source" href="sprite.html">
+                graphics/sprite.js
+              </a>
+            
+              
+              <a class="source" href="sprite_sheet.html">
+                graphics/sprite_sheet.js
+              </a>
+            
+              
+              <a class="source" href="keyboard.html">
+                keyboard.js
+              </a>
+            
+              
+              <a class="source" href="media.html">
+                media.js
+              </a>
+            
+              
+              <a class="source" href="mouse.html">
+                mouse.js
+              </a>
+            
+              
+              <a class="source" href="shims.html">
+                shims.js
+              </a>
+            
+              
+              <a class="source" href="timer.html">
+                timer.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h1">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1>core.js</h1>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>(<span class="keyword">function</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h2>Luv.js Class System</h2>
+<p>Luv.js has a very minimal (and optional) class system, based on functions and, in
+some cases, prototypes.</p>
+<p>By &quot;optional&quot;, I mean that you are not required to &quot;inherit from&quot; Luv objects when
+creating a game with Luv.js. You can build your game entities however you want. You
+can make them hold references to Luv.js objects when needed.
+In other words, the relationship between your objects and Luv.js should
+be composition (<code>has_a</code>) not inheritance (<code>is_a</code>).</p>
+<p>This said, you can certainly use Luv.js class system as a base, if you like it.</p>
+<p>That is, unless you are programming some sort of Luv.js plugin. Then you will probably
+be better off using Luv.js&#39; class system.</p>
+<p><code>extend</code> is similar to <a href="http://underscorejs.org/#extend">underscore&#39;s extend</a>, it
+copies into <code>dest</code> all the methods of the objects passed in as extra arguments.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> extend = <span class="keyword">function</span>(dest) {
+  <span class="keyword">var</span> properties;
+  <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">1</span>; i &lt; arguments.length; i++) {
+    properties = arguments[i];
+    <span class="keyword">for</span>(<span class="keyword">var</span> property <span class="keyword">in</span> properties) {
+      <span class="keyword">if</span>(properties.hasOwnProperty(property)) {
+        dest[property] = properties[property];
+      }
+    }
+  }
+  <span class="keyword">return</span> dest;
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p><code>remove</code> deletes the elements from an object, given an array of names of methods to be deleted</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> remove = <span class="keyword">function</span>(dest, names) {
+  names = Array.isArray(names) ? names : [names];
+  <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>; i &lt; names.length; i++) { <span class="keyword">delete</span> dest[names[i]]; }
+  <span class="keyword">return</span> dest;
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p><code>create</code> expects an object, and creates another one which &quot;points to it&quot; through its <code>__proto__</code>
+For now, it&#39;s just an alias to Object.create</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> create = Object.create;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p><code>baseMethods</code> contains the instance methods of a basic object (by default just two: <code>toString</code> and <code>getClass</code>)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> baseMethods = {
+  toString: <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="string">'instance of '</span> + <span class="keyword">this</span>.getClass().getName(); }
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <h3>Base class definition</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> Base = extend(<span class="keyword">function</span>() {
+  <span class="keyword">return</span> create(baseMethods);
+}, {
+  init    : <span class="keyword">function</span>() {},
+  getName : <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="string">"Base"</span>; },
+  toString: <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="string">"Base"</span>; },
+  getSuper: <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="literal">null</span>; },
+  methods : baseMethods,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p><code>include</code> will extend a class with one or more objects. Acts very similarly to what other languages call
+&quot;mixins&quot;. Example usage:</p>
+<pre><code>  var Flyer = { fly: function(){ console.log(&#39;flap flap&#39;); } };
+  var Bee = Luv.Class(&#39;Bee&#39;, {...});
+  Bee.include(Flyer);</code></pre>
+<p>It returns the class, so a compressed version of the previous example is:</p>
+<pre><code>  var Flyer = { fly: function(){ console.log(&#39;flap flap&#39;); } };
+  var Bee = Luv.Class(&#39;Bee&#39;, {...}).include(Flyer);</code></pre>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  include : <span class="keyword">function</span>() {
+    <span class="keyword">return</span> extend.apply(<span class="keyword">this</span>, [<span class="keyword">this</span>.methods].concat(Array.prototype.slice.call(arguments, <span class="number">0</span>)));
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p><code>subclass</code> is used like this:</p>
+<pre><code>  var Enemy = Luv.Class(&#39;Enemy&#39;, {
+    fight: function() { console.log(&#39;zap!&#39;); }
+    shout: function() { console.log(&#39;hey!&#39;); }
+  });
+
+  var Ninja = Enemy.subclass(&#39;Ninja&#39;, {
+    shout: function() { console.log(&#39;...&#39;); }
+  });
+
+  // Luv.js&#39; class system doesn&#39;t require &quot;new&quot;
+  var peter = Ninja();
+
+  peter.fight(); // zap!
+  peter.shout(); // ...</code></pre>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  subclass: <span class="keyword">function</span>(name, methods) {
+    methods = methods || {};
+    <span class="keyword">var</span> superClass = <span class="keyword">this</span>;
+
+    <span class="keyword">var</span> getName = <span class="keyword">function</span>(){ <span class="keyword">return</span> name; };
+    <span class="keyword">var</span> newMethods = remove(extend(create(superClass.methods), methods), <span class="string">'init'</span>);
+
+    <span class="keyword">var</span> newClass = extend(<span class="keyword">function</span>() {
+      <span class="keyword">var</span> instance = create(newMethods);
+      newClass.init.apply(instance, arguments);
+      <span class="keyword">return</span> instance;
+    },
+    superClass,
+    methods, {
+      getName : getName,
+      toString: getName,
+      getSuper: <span class="keyword">function</span>(){ <span class="keyword">return</span> superClass; },
+      methods : newMethods
+    });
+
+    newMethods.getClass = <span class="keyword">function</span>() { <span class="keyword">return</span> newClass; };
+
+    <span class="keyword">return</span> newClass;
+  }
+});
+
+baseMethods.getClass = <span class="keyword">function</span>() { <span class="keyword">return</span> Base; };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <h2>Luv definition</h2>
+<p>The main Luv class, and the only global variable defined by luv.js</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Luv = Base.subclass(<span class="string">'Luv'</span>, {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Luv expects a single <code>options</code> parameter (see <code>initializeOptions</code> for a list of accepted options).
+and returns a game.
+The recommended name for the variable to store the game is <code>luv</code>, but you are free to choose any other.</p>
+<pre><code>  var luv = Luv({...});
+  // options omitted, see below for details</code></pre>
+<p>The game will not start until you execute <code>luv.run()</code> (assuming that your game variable name is <code>luv</code>).</p>
+<pre><code>  var luv = Luv({...});
+  ... // more code ommited, see LuvProto below for details
+  luv.run();</code></pre>
+<p>If you have initialized your game completely with options, you could just run it straight away,
+without storing it into a variable:</p>
+<pre><code>  Luv({...}).run();</code></pre>
+<p>The <code>options</code> param is optional, so you can start with an empty call to <code>Luv</code>, personalize the game variable
+however you want, and then call run:</p>
+<pre><code>  var luv = Luv();
+  ... // do stuff with luv, i.e. define luv.update and luv.draw
+  luv.run(); // start the game</code></pre>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  init: <span class="keyword">function</span>(options) {
+
+    options = initializeOptions(options);
+
+    <span class="keyword">var</span> luv = <span class="keyword">this</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p><code>luv.el</code> contains a reference to the specified DOM element representing the &quot;Main game canvas&quot;.
+If no element was specified via the <code>options</code> parameter, then a new DOM element will be created
+and inserted into the document&#39;s body.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    luv.el  = options.el;
+
+    <span class="string">"load update draw run onResize onBlur onFocus"</span>.split(<span class="string">" "</span>).forEach(<span class="keyword">function</span>(name) {
+      <span class="keyword">if</span>(options[name]) { luv[name] = options[name]; }
+    });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Initialize all the game submodules (see their docs for more info about each one)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    luv.media     = Luv.Media();
+    luv.timer     = Luv.Timer();
+    luv.keyboard  = Luv.Keyboard(luv.el);
+    luv.mouse     = Luv.Mouse(luv.el);
+    luv.audio     = Luv.Audio(luv.media);
+    luv.graphics  = Luv.Graphics(luv.el, luv.media);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Attach onBlur/onFocus</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    luv.el.addEventListener(<span class="string">'blur'</span>,  <span class="keyword">function</span>() { luv.onBlur(); });
+    luv.el.addEventListener(<span class="string">'focus'</span>, <span class="keyword">function</span>() { luv.onFocus(); });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span>(options.fullWindow) {
+      <span class="keyword">var</span> resize = <span class="keyword">function</span>() {
+        luv.graphics.setDimensions(window.innerWidth, window.innerHeight);
+        luv.onResize(window.innerWidth, window.innerHeight);
+      };
+      window.addEventListener(<span class="string">'resize'</span>, resize, <span class="literal">false</span>);
+      window.addEventListener(<span class="string">'orientationChange'</span>, resize, <span class="literal">false</span>);
+    }
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Use the <code>load</code> function to start loading up resources:</p>
+<pre><code>  var image;
+  var luv = Luv();
+  luv.load = function() {
+    image = luv.media.Image(&#39;cat.png&#39;);
+  };</code></pre>
+<p>As al alternative, you can override it directly on the options parameter. Note that in that case, you must use
+<code>this</code> instead of <code>luv</code> inside the function:</p>
+<pre><code>  var image;
+  var luv = Luv({
+    load: function() {
+      // notice the usage of this.media instead of luv.media
+      image = this.media.Image(&#39;cat.png&#39;);
+    };
+  });</code></pre>
+<p><code>load</code> will be called once at the beginning of the first game cycle, and then never again (see the <code>run</code>
+function below for details). By default, it does nothing (it is an empty function).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  load  : <span class="keyword">function</span>(){},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>Use the draw function to draw everything on the canvas. For example:</p>
+<pre><code>  var luv = Luv();
+  luv.draw = function() {
+    luv.graphics.print(&quot;hello&quot;, 100, 200);
+  };</code></pre>
+<p>Alternative syntax, passed as an option:</p>
+<pre><code>var luv = Luv({
+  draw: function() {
+    // this.graphics instead of luv.graphics
+    this.graphics.print(&quot;hello&quot;, 100, 200);
+  }
+});</code></pre>
+<p><code>draw</code> is called once per frame, after the screen has been erased. See the <code>run</code> function below for details.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  draw  : <span class="keyword">function</span>(){},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>Use the <code>update</code> function to update your game objects/variables between frames.
+Note that <code>update</code> has a parameter <code>dt</code>, which is the time that has passed since the last frame.
+You should use dt to update your entity positions according to their velocity/movement – <em>Don&#39;t assume that
+the time between frames stays constant</em>.</p>
+<pre><code>  var player = { x: 0, y: 0 };
+  var luv = Luv();
+  luv.update = function(dt) {
+    // Player moves to the right 10 pixels per second
+    player.x += dt * 10;
+  };</code></pre>
+<p>Alternative syntax, passed as an option:</p>
+<pre><code>  var player = { x: 0, y: 0 };
+  var luv = Luv({
+    update: function(dt) {
+    // Player moves to the right 10 pixels per second
+      player.x += dt * 10;
+    };
+  });</code></pre>
+<p>As with all other luv methods, if you choose this syntax you must use <code>this</code> instead of <code>luv</code>, since
+<code>luv</code> is still not defined.</p>
+<p><code>update</code> will be invoked once per frame (see <code>run</code> below) and is empty by default (it updates nothing).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  update: <span class="keyword">function</span>(dt){},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>The <code>run</code> function provides a default game loop. It is usually a good default, and you rarely will need to
+change it. But you could, if you so desired, the same way you can change <code>load</code>, <code>update</code> and <code>draw</code> (as a
+field of the <code>luv</code> variable or as an option).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  run   : <span class="keyword">function</span>(){
+    <span class="keyword">var</span> luv = <span class="keyword">this</span>;
+
+    luv.load(); <span class="comment">// luv.run execute luv.load just once, at the beginning</span>
+
+    <span class="keyword">var</span> loop = <span class="keyword">function</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>The first thing we do is updating the timer with the new frame</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      luv.timer.step();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>We obtain dt (the difference between previous and this frame&#39;s timestamp, in seconds) and pass it
+to luv.update</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="keyword">var</span> dt = luv.timer.getDeltaTime();
+      luv.update(dt);           <span class="comment">// Execute luv.update(dt) once per frame</span>
+
+      luv.graphics.setCanvas(); <span class="comment">// And then invoke luv.draw()</span>
+      luv.graphics.reset();     <span class="comment">// But first set the defaults</span>
+      luv.graphics.clear();     <span class="comment">// And clear everything</span>
+      luv.draw();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>This enqueues another call to the loop function in the next available frame</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      luv.timer.nextFrame(loop);
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Once the loop function is defined, we call it once, so the cycle begins</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    luv.timer.nextFrame(loop);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p><code>onResize</code> gets called when <code>fullWindow</code> is active and the window is resized. It can be used to
+control game resizings, i.e. recalculate your camera&#39;s viewports. By default, it does nothing.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  onResize  : <span class="keyword">function</span>(newWidth, newHeight) {},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>overridable callback which is called when the main game element loses focus.
+useful for things like pausing a game when the user clicks outside of it
+Does nothing by default</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  onBlur : <span class="keyword">function</span>() {},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>overridable callback called when the main game element gains focus
+mainly useful for &quot;undoing&quot; the actions done in onBlur, for example unpausing
+the game</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  onFocus : <span class="keyword">function</span>() {}
+});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <h2>Luv.Class</h2>
+<p>Creates classes; takes two parameters: the class name and an object containing instance methods
+For inheritance, do <BaseClass>.subclass(<name>, <methods>) instead</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Luv.Class = <span class="keyword">function</span>(name, methods) {
+  <span class="keyword">return</span> Base.subclass(name, methods);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <h2>Luv.Base</h2>
+<p>The root of Luv.js&#39; (optional) class system</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Luv.Base = Base;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <h2>initializeOptions</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> initializeOptions = <span class="keyword">function</span>(options) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>Accepted options:</p>
+<ul>
+<li><code>el</code>: A canvas DOM element to be used</li>
+<li><code>id</code>: A canvas DOM id to be used (Ignored if <code>el</code> is provided)</li>
+<li><code>width</code>: Sets the width of the canvas, in pixels</li>
+<li><code>height</code>: Sets the height of the canvas, in pixels</li>
+<li><code>fullWindow</code>: If set to true, the game canvas will ocuppy the whole window, and auto-adjust (off by default)</li>
+<li><code>load</code>: A load function (see above for details)</li>
+<li><code>update</code>: A update function (see above for details)</li>
+<li><code>draw</code>: A draw function (see above for details)</li>
+<li><code>run</code>: A run function (see above for details)</li>
+<li><code>onResize</code>: A callback that is called when the window is resized (only works when <code>fullWindow</code> is active)</li>
+<li><code>onBlur</code>: Callback invoked when the user clicks outside the game (useful for pausing the game, for example)</li>
+<li><code>onFocus</code>: Callback invoked when the user set the focus back on the game (useful for unpausing after pausing with onBlur)</li>
+</ul>
+<p>Notes:</p>
+<ul>
+<li>All options are ... well, optional.</li>
+<li>The options parameter itself is optional (you can do <code>var luv = Luv();</code>)</li>
+<li>Any other options passed through the <code>options</code> hash are ignored</li>
+<li>If neither <code>el</code> or <code>id</code> is specified, a new DOM canvas element will be generated and appended to the window.</li>
+<li><code>width</code> and <code>height</code> will attempt to get their values from the DOM element. If they can&#39;t, and they are not
+ provided as options, they will default to 800x600px</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  options = options || {};
+  <span class="keyword">var</span> el      = options.el,
+      id      = options.id,
+      width   = options.width,
+      height  = options.height,
+      body    = document.getElementsByTagName(<span class="string">'body'</span>)[<span class="number">0</span>],
+      html    = document.getElementsByTagName(<span class="string">'html'</span>)[<span class="number">0</span>],
+      fullCss = <span class="string">"width: 100%; height: 100%; margin: 0; overflow: hidden;"</span>;
+
+  <span class="keyword">if</span>(!el &amp;&amp; id) { el = document.getElementById(id); }
+  <span class="keyword">if</span>(el) {
+    <span class="keyword">if</span>(!width  &amp;&amp; el.getAttribute(<span class="string">'width'</span>))  { width = parseInt(el.getAttribute(<span class="string">'width'</span>), <span class="number">10</span>); }
+    <span class="keyword">if</span>(!height &amp;&amp; el.getAttribute(<span class="string">'height'</span>)) { height = parseInt(el.getAttribute(<span class="string">'height'</span>), <span class="number">10</span>); }
+  } <span class="keyword">else</span> {
+    el = document.createElement(<span class="string">'canvas'</span>);
+    body.appendChild(el);
+  }
+  <span class="keyword">if</span>(options.fullWindow) {
+    html.style.cssText = body.style.cssText = fullCss;
+    width  = window.innerWidth;
+    height = window.innerHeight;
+  } <span class="keyword">else</span> {
+    width = width   || <span class="number">800</span>;
+    height = height || <span class="number">600</span>;
+  }
+  el.setAttribute(<span class="string">'width'</span>, width);
+  el.setAttribute(<span class="string">'height'</span>, height);
+
+  options.el      = el;
+  options.width   = width;
+  options.height  = height;
+
+  <span class="keyword">return</span> options;
+};
+
+
+}());</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

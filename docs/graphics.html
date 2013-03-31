@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>graphics.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="CONTRIBUTING.html">
+                CONTRIBUTING.md
+              </a>
+            
+              
+              <a class="source" href="MIT-LICENSE.html">
+                MIT-LICENSE.md
+              </a>
+            
+              
+              <a class="source" href="index.html">
+                README.js.md
+              </a>
+            
+              
+              <a class="source" href="audio.html">
+                audio.js
+              </a>
+            
+              
+              <a class="source" href="null_sound.html">
+                audio/null_sound.js
+              </a>
+            
+              
+              <a class="source" href="sound.html">
+                audio/sound.js
+              </a>
+            
+              
+              <a class="source" href="sound_instance.html">
+                audio/sound_instance.js
+              </a>
+            
+              
+              <a class="source" href="core.html">
+                core.js
+              </a>
+            
+              
+              <a class="source" href="graphics.html">
+                graphics.js
+              </a>
+            
+              
+              <a class="source" href="animation.html">
+                graphics/animation.js
+              </a>
+            
+              
+              <a class="source" href="canvas.html">
+                graphics/canvas.js
+              </a>
+            
+              
+              <a class="source" href="image.html">
+                graphics/image.js
+              </a>
+            
+              
+              <a class="source" href="sprite.html">
+                graphics/sprite.js
+              </a>
+            
+              
+              <a class="source" href="sprite_sheet.html">
+                graphics/sprite_sheet.js
+              </a>
+            
+              
+              <a class="source" href="keyboard.html">
+                keyboard.js
+              </a>
+            
+              
+              <a class="source" href="media.html">
+                media.js
+              </a>
+            
+              
+              <a class="source" href="mouse.html">
+                mouse.js
+              </a>
+            
+              
+              <a class="source" href="shims.html">
+                shims.js
+              </a>
+            
+              
+              <a class="source" href="timer.html">
+                timer.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>graphics.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+(<span class="keyword">function</span>(){
+
+Luv.Graphics = Luv.Class(<span class="string">'Luv.Graphics'</span>, {
+  init: <span class="keyword">function</span>(el, media) {
+    <span class="keyword">this</span>.el               = el;
+    <span class="keyword">this</span>.media            = media;
+    <span class="keyword">this</span>.color            = {};
+    <span class="keyword">this</span>.backgroundColor  = {};
+    <span class="keyword">this</span>.lineCap          = <span class="string">"butt"</span>;
+    <span class="keyword">this</span>.lineWidth        = <span class="number">1</span>;
+    <span class="keyword">this</span>.imageSmoothing   = <span class="literal">true</span>;
+
+    <span class="keyword">var</span> d = <span class="keyword">this</span>.getDimensions();
+    <span class="keyword">this</span>.defaultCanvas    = <span class="keyword">this</span>.Canvas(d.width, d.height);
+    <span class="keyword">this</span>.defaultCanvas.el = el;
+
+    <span class="keyword">this</span>.setCanvas();
+
+    <span class="keyword">this</span>.setBackgroundColor(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>);
+    <span class="keyword">this</span>.setColor(<span class="number">255</span>,<span class="number">255</span>,<span class="number">255</span>);
+  },
+
+  setCanvas : <span class="keyword">function</span>(canvas) {
+    canvas = canvas || <span class="keyword">this</span>.defaultCanvas;
+    <span class="keyword">this</span>.canvas = canvas;
+    <span class="keyword">this</span>.el     = canvas.el;
+    <span class="keyword">this</span>.ctx    = canvas.getContext();
+    resetCanvas(<span class="keyword">this</span>, <span class="keyword">this</span>.ctx);
+  },
+
+  getCanvas : <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.canvas; },
+
+  setColor  : <span class="keyword">function</span>(r,g,b,a) { setColor(<span class="keyword">this</span>, <span class="string">'color'</span>, r,g,b,a); },
+
+  getColor  : <span class="keyword">function</span>() { <span class="keyword">return</span> getColor(<span class="keyword">this</span>.color); },
+
+  setBackgroundColor : <span class="keyword">function</span>(r,g,b,a) { setColor(<span class="keyword">this</span>, <span class="string">'backgroundColor'</span>, r,g,b,a); },
+
+  getBackgroundColor : <span class="keyword">function</span>() { <span class="keyword">return</span> getColor(<span class="keyword">this</span>.backgroundColor); },
+
+  getWidth      : <span class="keyword">function</span>(){ <span class="keyword">return</span> parseInt(<span class="keyword">this</span>.el.getAttribute(<span class="string">'width'</span>), <span class="number">10</span>); },
+
+  getHeight     : <span class="keyword">function</span>(){ <span class="keyword">return</span> parseInt(<span class="keyword">this</span>.el.getAttribute(<span class="string">'height'</span>), <span class="number">10</span>); },
+
+  getDimensions : <span class="keyword">function</span>(){ <span class="keyword">return</span> { width: <span class="keyword">this</span>.getWidth(), height: <span class="keyword">this</span>.getHeight() }; },
+
+  setDimensions : <span class="keyword">function</span>(width, height) {
+    <span class="keyword">this</span>.el.setAttribute(<span class="string">'width'</span>, width);
+    <span class="keyword">this</span>.el.setAttribute(<span class="string">'height'</span>, height);
+  },
+
+  setLineWidth : <span class="keyword">function</span>(width) {
+    <span class="keyword">this</span>.lineWidth = width;
+    <span class="keyword">this</span>.ctx.lineWidth = width;
+  },
+
+  getLineWidth : <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.lineWidth;
+  },
+
+  setLineCap : <span class="keyword">function</span>(cap) {
+    <span class="keyword">if</span>(cap != <span class="string">"butt"</span> &amp;&amp; cap != <span class="string">"round"</span> &amp;&amp; cap != <span class="string">"square"</span>) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Line cap must be either 'butt', 'round' or 'square' (was: "</span> + cap + <span class="string">")"</span>);
+    }
+    <span class="keyword">this</span>.ctx.lineCap = cap;
+    <span class="keyword">this</span>.lineCap     = <span class="keyword">this</span>.ctx.lineCap;
+  },
+
+  getLineCap : <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.lineCap; },
+
+  clear : <span class="keyword">function</span>() {
+    <span class="keyword">this</span>.ctx.save();
+    <span class="keyword">this</span>.ctx.setTransform(<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>);
+    <span class="keyword">this</span>.ctx.fillStyle = <span class="keyword">this</span>.backgroundColorStyle;
+    <span class="keyword">this</span>.ctx.fillRect(<span class="number">0</span>, <span class="number">0</span>, <span class="keyword">this</span>.getWidth(), <span class="keyword">this</span>.getHeight());
+    <span class="keyword">this</span>.ctx.restore();
+  },
+
+  print : <span class="keyword">function</span>(str,x,y) {
+    <span class="keyword">this</span>.ctx.fillStyle = <span class="keyword">this</span>.colorStyle;
+    <span class="keyword">this</span>.ctx.fillText(str, x, y);
+  },
+
+  line : <span class="keyword">function</span>() {
+    <span class="keyword">var</span> coords = Array.isArray(arguments[<span class="number">0</span>]) ? arguments[<span class="number">0</span>] : arguments;
+
+    <span class="keyword">this</span>.ctx.beginPath();
+    drawPolyLine(<span class="keyword">this</span>, <span class="string">'luv.graphics.line'</span>, <span class="number">4</span>, coords);
+    drawPath(<span class="keyword">this</span>, MODE.STROKE);
+  },
+
+  strokeRectangle : <span class="keyword">function</span>(left, top, width, height) { rectangle(<span class="keyword">this</span>, MODE.STROKE, left, top, width, height); },
+  fillRectangle   : <span class="keyword">function</span>(left, top, width, height) { rectangle(<span class="keyword">this</span>, MODE.FILL, left, top, width, height); },
+
+  strokePolygon   : <span class="keyword">function</span>(coordinates) { polygon(<span class="keyword">this</span>, MODE.STROKE, coordinates); },
+  fillPolygon     : <span class="keyword">function</span>(coordinates) { polygon(<span class="keyword">this</span>, MODE.FILL, coordinates); },
+
+  strokeCircle    : <span class="keyword">function</span>(x,y,radius)  { circle(<span class="keyword">this</span>, MODE.STROKE, x,y, radius); },
+  fillCircle      : <span class="keyword">function</span>(x,y,radius)  { circle(<span class="keyword">this</span>, MODE.FILL, x,y, radius); },
+
+  strokeArc       : <span class="keyword">function</span>(x,y,radius, startAngle, endAngle)  { arc(<span class="keyword">this</span>, MODE.STROKE, x,y, radius, startAngle, endAngle); },
+  fillArc         : <span class="keyword">function</span>(x,y,radius, startAngle, endAngle)  { arc(<span class="keyword">this</span>, MODE.FILL, x,y, radius, startAngle, endAngle); },
+
+  draw : <span class="keyword">function</span>(drawable, x, y, angle, sx, sy, ox, oy) {
+    <span class="keyword">var</span> ctx = <span class="keyword">this</span>.ctx;
+
+    angle = <span class="keyword">typeof</span> angle === <span class="string">"undefined"</span> ? <span class="number">0</span> : normalizeAngle(angle);
+    sx    = <span class="keyword">typeof</span> sx    === <span class="string">"undefined"</span> ? <span class="number">1</span> : sx;
+    sy    = <span class="keyword">typeof</span> sy    === <span class="string">"undefined"</span> ? <span class="number">1</span> : sy;
+    ox    = <span class="keyword">typeof</span> ox    === <span class="string">"undefined"</span> ? <span class="number">0</span> : ox;
+    oy    = <span class="keyword">typeof</span> oy    === <span class="string">"undefined"</span> ? <span class="number">0</span> : oy;
+
+    <span class="keyword">if</span>(angle !==<span class="number">0</span> || sx !== <span class="number">1</span> || sy !== <span class="number">1</span> || ox !== <span class="number">0</span> || oy !== <span class="number">0</span>) {
+      ctx.save();
+
+      ctx.translate(x,y);
+
+      ctx.translate(ox, oy);
+      ctx.rotate(angle);
+      ctx.scale(sx,sy);
+      ctx.translate(-ox, -oy);
+      drawable.draw(ctx, <span class="number">0</span>, <span class="number">0</span>);
+
+      ctx.restore();
+    } <span class="keyword">else</span> {
+      drawable.draw(ctx, x, y);
+    }
+  },
+
+  drawCentered : <span class="keyword">function</span>(drawable, x,y, angle, sx, sy) {
+    <span class="keyword">var</span> w = drawable.getWidth();
+        h = drawable.getHeight();
+    <span class="keyword">var</span> ox = w / <span class="number">2</span>,
+        oy = h / <span class="number">2</span>;
+    <span class="keyword">this</span>.draw(drawable, x-ox,y-oy, angle, sx, sy, ox, oy);
+  },
+
+  translate : <span class="keyword">function</span>(x,y) {
+    <span class="keyword">this</span>.ctx.translate(x,y);
+  },
+
+  scale : <span class="keyword">function</span>(sx,sy) {
+    <span class="keyword">this</span>.ctx.scale(sx,sy);
+  },
+
+  rotate : <span class="keyword">function</span>(angle) {
+    <span class="keyword">this</span>.ctx.rotate(angle);
+  },
+
+  reset : <span class="keyword">function</span>() {
+
+  },
+
+  push : <span class="keyword">function</span>() {
+    <span class="keyword">this</span>.ctx.save();
+  },
+
+  pop : <span class="keyword">function</span>() {
+    <span class="keyword">this</span>.ctx.restore();
+  },
+
+  setImageSmoothing: <span class="keyword">function</span>(smoothing) {
+    <span class="keyword">this</span>.imageSmoothing = smoothing = !!smoothing;
+    setImageSmoothing(<span class="keyword">this</span>.ctx, smoothing);
+  },
+
+  getImageSmoothing: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.imageSmoothing;
+  },
+
+  Canvas : <span class="keyword">function</span>(width, height) {
+    <span class="keyword">return</span> Luv.Graphics.Canvas(width || <span class="keyword">this</span>.getWidth(), height || <span class="keyword">this</span>.getHeight());
+  },
+
+  Image : <span class="keyword">function</span>(path) {
+    <span class="keyword">return</span> Luv.Graphics.Image(<span class="keyword">this</span>.media, path);
+  },
+
+  Sprite : <span class="keyword">function</span>(image, l,t,w,h) {
+    <span class="keyword">return</span> Luv.Graphics.Sprite(image, l,t,w,h);
+  },
+
+  SpriteSheet : <span class="keyword">function</span>(image, w,h,l,t,b) {
+    <span class="keyword">return</span> Luv.Graphics.SpriteSheet(image, w,h,l,t,b);
+  }
+
+});
+
+
+<span class="keyword">var</span> twoPI = Math.PI * <span class="number">2</span>;
+
+<span class="keyword">var</span> setColor = <span class="keyword">function</span>(self, name, r,g,b,a) {
+  <span class="keyword">var</span> color = self[name];
+  <span class="keyword">if</span>(Array.isArray(r)) {
+    color.r = r[<span class="number">0</span>];
+    color.g = r[<span class="number">1</span>];
+    color.b = r[<span class="number">2</span>];
+    color.a = r[<span class="number">3</span>] || <span class="number">255</span>;
+  } <span class="keyword">else</span> {
+    color.r = r;
+    color.g = g;
+    color.b = b;
+    color.a = a || <span class="number">255</span>;
+  }
+  self[name + <span class="string">'Style'</span>] = <span class="string">"rgba("</span> + [color.r, color.g, color.b, color.a/<span class="number">255</span>].join() + <span class="string">")"</span>;
+};
+
+<span class="keyword">var</span> getColor = <span class="keyword">function</span>(color) {
+  <span class="keyword">return</span> [color.r, color.g, color.b, color.a ];
+};
+
+<span class="keyword">var</span> drawPath = <span class="keyword">function</span>(graphics, mode) {
+  <span class="keyword">switch</span>(mode){
+  <span class="keyword">case</span> MODE.FILL:
+    graphics.ctx.fillStyle = graphics.colorStyle;
+    graphics.ctx.fill();
+    <span class="keyword">break</span>;
+  <span class="keyword">case</span> MODE.STROKE:
+    graphics.ctx.strokeStyle = graphics.colorStyle;
+    graphics.ctx.stroke();
+    <span class="keyword">break</span>;
+  <span class="keyword">default</span>:
+    <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Invalid mode: ['</span> + mode + <span class="string">']. Should be "fill" or "line"'</span>);
+  }
+};
+
+<span class="keyword">var</span> drawPolyLine = <span class="keyword">function</span>(graphics, methodName, minLength, coords) {
+
+  <span class="keyword">if</span>(coords.length &lt; minLength) { <span class="keyword">throw</span> <span class="keyword">new</span> Error(methodName + <span class="string">" requires at least 4 parameters"</span>); }
+  <span class="keyword">if</span>(coords.length % <span class="number">2</span> == <span class="number">1</span>) { <span class="keyword">throw</span> <span class="keyword">new</span> Error(methodName + <span class="string">" requires an even number of parameters"</span>); }
+
+  graphics.ctx.moveTo(coords[<span class="number">0</span>], coords[<span class="number">1</span>]);
+
+  <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">2</span>; i&lt;coords.length; i=i+<span class="number">2</span>) {
+    graphics.ctx.lineTo(coords[i], coords[i+<span class="number">1</span>]);
+  }
+
+  graphics.ctx.stroke();
+};
+
+<span class="keyword">var</span> normalizeAngle = <span class="keyword">function</span>(angle) {
+  angle = angle % twoPI;
+  <span class="keyword">return</span> angle &gt;= <span class="number">0</span> ? angle : angle + twoPI;
+};
+
+<span class="keyword">var</span> resetCanvas = <span class="keyword">function</span>(graphics, ctx) {
+  ctx.setTransform(<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>);
+  setImageSmoothing(ctx, graphics.getImageSmoothing());
+  ctx.lineWidth = graphics.getLineWidth();
+  ctx.lineCap = graphics.getLineCap();
+};
+
+<span class="keyword">var</span> setImageSmoothing = <span class="keyword">function</span>(ctx, smoothing) {
+  ctx.webkitImageSmoothingEnabled = smoothing;
+  ctx.mozImageSmoothingEnabled    = smoothing;
+  ctx.imageSmoothingEnabled       = smoothing;
+};
+
+<span class="keyword">var</span> rectangle = <span class="keyword">function</span>(graphics, mode, left, top, width, height) {
+  graphics.ctx.beginPath();
+  graphics.ctx.rect(left, top, width, height);
+  drawPath(graphics, mode);
+  graphics.ctx.closePath();
+};
+
+<span class="keyword">var</span> polygon = <span class="keyword">function</span>(graphics, mode, coordinates) {
+  graphics.ctx.beginPath();
+
+  drawPolyLine(graphics, <span class="string">'luv.graphics.polygon'</span>, <span class="number">6</span>, coordinates);
+  drawPath(graphics, mode);
+
+  graphics.ctx.closePath();
+};
+
+<span class="keyword">var</span> arc = <span class="keyword">function</span>(graphics, mode, x,y,radius, startAngle, endAngle) {
+  graphics.ctx.beginPath();
+  graphics.ctx.arc(x,y,radius, startAngle, endAngle, <span class="literal">false</span>);
+  drawPath(graphics, mode);
+};
+
+<span class="keyword">var</span> circle = <span class="keyword">function</span>(graphics, mode, x,y,radius) {
+  arc(graphics, mode, x, y, radius, <span class="number">0</span>, twoPI);
+  graphics.ctx.closePath();
+};
+
+<span class="keyword">var</span> MODE = {
+  STROKE: <span class="number">1</span>,
+  FILL  : <span class="number">2</span>
+};
+
+
+}());</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

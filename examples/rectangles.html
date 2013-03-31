@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Colored rectangles with luv</title>
+  <script src="../luv.js"></script>
+</head>
+<body>
+  <script>
+    var rand = function(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    var rectangles = [];
+
+    var luv = Luv({fullWindow: true});
+
+    luv.load = function() {
+      var d = luv.graphics.getDimensions();
+      for(var i=0; i<200; i++) {
+        rectangles.push({
+          l: rand(0,d.width - 50), t: rand(0, d.height - 50), w: rand(50,100), h: rand(50,100),
+          vx: rand(-100,100), vy: rand(-100, 100),
+          r: rand(50,255), g: rand(50,255), b: rand(50,255),
+          type: rand(0,1) ? 'fill' : 'stroke'
+        });
+      }
+    };
+
+    luv.update = function(dt) {
+      var d = luv.graphics.getDimensions();
+      for(var i=0; i<rectangles.length; i++) {
+        var r = rectangles[i];
+        r.l += r.vx * dt;
+        r.t += r.vy * dt;
+        if(r.l < 0)              { r.vx =  Math.abs(r.vx); }
+        if(r.l > d.width - r.w)  { r.vx = -Math.abs(r.vx); }
+        if(r.t < 0)              { r.vy =  Math.abs(r.vy); }
+        if(r.t > d.height - r.h) { r.vy = -Math.abs(r.vy); }
+      }
+    };
+
+    luv.draw = function() {
+      var rect = null;
+      for(var i=0; i<rectangles.length; i++) {
+        rect = rectangles[i];
+        luv.graphics.setColor(rect.r, rect.g, rect.b);
+
+        if(rect.type == 'fill') {
+          luv.graphics.fillRectangle(rect.l, rect.t, rect.w, rect.h);
+        } else {
+          luv.graphics.strokeRectangle(rect.l, rect.t, rect.w, rect.h);
+        }
+      }
+    };
+
+    luv.run();
+  </script>
+</body>
+</html>

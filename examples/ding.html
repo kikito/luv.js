@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Anything you do is just Ding</title>
+  <script src="../luv.js"></script>
+</head>
+<body>
+  <script>
+    var luv = Luv();
+
+    var dingSound = luv.audio.Sound('sfx/ding.ogg', 'sfx/ding.mp3');
+
+    var doDing = function() {
+      if(!luv.media.isLoaded()) { return; }
+      dingSound.play();
+    }
+
+    luv.keyboard.onPressed = luv.mouse.onPressed = doDing;
+
+    luv.draw = function() {
+      luv.graphics.print("Total Instances: " + dingSound.countInstances(), 100, 100);
+      luv.graphics.print("Playing Instances: " + dingSound.countPlayingInstances(), 100, 150);
+    };
+
+    luv.run();
+  </script>
+</body>
+</html>

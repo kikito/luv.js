@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>audio/sound.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="CONTRIBUTING.html">
+                CONTRIBUTING.md
+              </a>
+            
+              
+              <a class="source" href="MIT-LICENSE.html">
+                MIT-LICENSE.md
+              </a>
+            
+              
+              <a class="source" href="index.html">
+                README.js.md
+              </a>
+            
+              
+              <a class="source" href="audio.html">
+                audio.js
+              </a>
+            
+              
+              <a class="source" href="null_sound.html">
+                audio/null_sound.js
+              </a>
+            
+              
+              <a class="source" href="sound.html">
+                audio/sound.js
+              </a>
+            
+              
+              <a class="source" href="sound_instance.html">
+                audio/sound_instance.js
+              </a>
+            
+              
+              <a class="source" href="core.html">
+                core.js
+              </a>
+            
+              
+              <a class="source" href="graphics.html">
+                graphics.js
+              </a>
+            
+              
+              <a class="source" href="animation.html">
+                graphics/animation.js
+              </a>
+            
+              
+              <a class="source" href="canvas.html">
+                graphics/canvas.js
+              </a>
+            
+              
+              <a class="source" href="image.html">
+                graphics/image.js
+              </a>
+            
+              
+              <a class="source" href="sprite.html">
+                graphics/sprite.js
+              </a>
+            
+              
+              <a class="source" href="sprite_sheet.html">
+                graphics/sprite_sheet.js
+              </a>
+            
+              
+              <a class="source" href="keyboard.html">
+                keyboard.js
+              </a>
+            
+              
+              <a class="source" href="media.html">
+                media.js
+              </a>
+            
+              
+              <a class="source" href="mouse.html">
+                mouse.js
+              </a>
+            
+              
+              <a class="source" href="shims.html">
+                shims.js
+              </a>
+            
+              
+              <a class="source" href="timer.html">
+                timer.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h1">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1>audio/sound.js</h1>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>(<span class="keyword">function</span>(){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h2>Luv.Audio.Sound</h2>
+<p>This class wraps an <code>&lt;audio&gt;</code> tag. You will likely not instantiate this
+class directly; instead you will create a <code>Luv</code> instance, which has an
+<code>audio</code> module. And that module will have a <code>Sound</code> method, which will
+internally call <code>Luv.Audio.Sound</code> with the appropiate parameters. In other
+words, you will probably do this:</p>
+<pre><code>  var luv = Luv();
+  var cry = luv.audio.Sound(&#39;sfx/cry.ogg&#39;, &#39;sfx/cry.mp3&#39;);</code></pre>
+<p><code>Luv.Audio.Sound</code> accepts a variable number of paths (strings). This is due to the fact
+that different browsers have different sound codecs. Luv will detect which
+codecs the browser supports, and load the first one on the given list that is
+available.</p>
+<p>If the browser is not capable of playing sounds reliably (for example in some
+old iphone browsers) then creating sounds will not produce any errors; no files
+will be downloaded, but calling <code>cry.play()</code> will not produce any sound.
+For more information about sound calls in non-sound-capable browsers, see
+<code>audio/null_sound.js</code></p>
+<p>However, if the browser is capable of playing sounds, but it could not load
+them (for a network reason, or because the list of file paths doesn&#39;t include
+a file format that the browser can handle) then an error will be produced.</p>
+<p>Notice that Sounds can&#39;t be played right after they are created; they must
+finish loading first. See the <code>play</code> method below for details.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Luv.Audio.Sound = Luv.Class(<span class="string">'Luv.Audio.Sound'</span>, {
+
+  init: <span class="keyword">function</span>(media) {
+    <span class="keyword">var</span> paths = Array.prototype.slice.call(arguments, <span class="number">1</span>);
+    <span class="keyword">if</span>(paths.length === <span class="number">0</span>) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Must provide at least one path for the Sound"</span>);
+    }
+    paths = paths.filter(isPathExtensionSupported);
+    <span class="keyword">if</span>(paths.length === <span class="number">0</span>) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"None of the provided sound types ("</span> +
+                      paths.join(<span class="string">", "</span>) +
+                      <span class="string">") is supported by the browser: ("</span> +
+                      Luv.Audio.getSupportedTypes().join(<span class="string">", "</span>) +
+                      <span class="string">")"</span>);
+    }
+
+    <span class="keyword">var</span> sound = <span class="keyword">this</span>;
+
+    sound.path = paths[<span class="number">0</span>];
+
+    media.newAsset(sound);
+    <span class="keyword">var</span> el = sound.el= document.createElement(<span class="string">'audio'</span>);
+    el.preload = <span class="string">"auto"</span>;
+
+    el.addEventListener(<span class="string">'canplaythrough'</span>, <span class="keyword">function</span>() {
+      <span class="keyword">if</span>(sound.isLoaded()){ <span class="keyword">return</span>; }
+      media.registerLoad(sound);
+    });
+    el.addEventListener(<span class="string">'error'</span>, <span class="keyword">function</span>() { media.registerError(sound); });
+
+    el.src     = sound.path;
+    el.load();
+
+    sound.instances = [];
+    sound.expirationTime = Luv.Audio.Sound.DEFAULT_EXPIRATION_TIME;
+  },
+
+  toString: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="string">'Luv.Audio.Sound("'</span> + <span class="keyword">this</span>.path + <span class="string">'")'</span>;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p><code>play</code> is the main way one has for playing sounds in Luv. Usually you call it
+inside the <code>update</code> function.</p>
+<p>There is a catch, though. If you attempt to play a sound that has not been
+completely loaded, you might get an error:</p>
+<pre><code>  var luv = Luv();
+  var cry;
+
+  luv.load = function() {
+    cry = luv.audio.Sound(&#39;sfx/cry.ogg&#39;, &#39;sfx/cry.mp3&#39;);
+  };
+
+  luv.update = function() {
+    // This will throw an error;
+    // cry might need some time to load.
+    // Continue reading for a working version.
+    if(something) { cry.play(); }
+  };</code></pre>
+<p>A simple way to fix this is to check that all media has been loaded before
+attempting to play any sounds. The <code>luv.media</code> object has a <code>isLoaded</code> method
+that we can use for that. A simple way is to just end the <code>luv.update</code> call
+if media is still being loaded. Like this:</p>
+<pre><code>  luv.update = function() {
+    if(!luv.media.isLoaded()) { return; }
+    // All sounds (and images) are loaded now, we can play them
+    if(something) { cry.play(); }
+  };</code></pre>
+<p>Note: play returns a <em>sound instance</em>. The same sound can have several sound
+instances playing simultaneously; each of those is one instance. See <code>audio/sound_instance.js</code> for
+details.</p>
+<p>Possible options:</p>
+<ul>
+<li><code>volume</code>: float number, from 0 (muted) to 1 (max volume). Default: 1.</li>
+<li><code>loop</code>: boolean, true if the instance must loop, false otherwise. Default: false.</li>
+<li><code>speed</code>: float number, 1 is regular velocity, 2 is 2x, 0.5 is half, etc. Default: 1.</li>
+<li><code>time</code>: float number, in seconds. The time offset to be used. Default: 0</li>
+<li><code>status</code>: string, it can be either &quot;paused&quot; or &quot;ready&quot;. Defaults to &quot;ready&quot;.</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  play: <span class="keyword">function</span>(options) {
+    <span class="keyword">if</span>(!<span class="keyword">this</span>.isLoaded()) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Attepted to play a non loaded sound: "</span> + <span class="keyword">this</span>);
+    }
+    <span class="keyword">var</span> instance = <span class="keyword">this</span>.getReadyInstance(options);
+    instance.play();
+    <span class="keyword">return</span> instance;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Pauses all the instances of the sound. If you want to pause an individual instance,
+call <code>instance.pause()</code> instead of <code>sound.pause()</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  pause: <span class="keyword">function</span>() {
+    <span class="keyword">this</span>.instances.forEach(<span class="keyword">function</span>(instance){ instance.pause(); });
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Stops all the instances of the sound. The difference between <code>pause</code> and <code>stop</code> is that
+stop &quot;rewinds&quot; each instance, and marks it as &quot;ready to be reused&quot;;</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  stop: <span class="keyword">function</span>() {
+    <span class="keyword">this</span>.instances.forEach(<span class="keyword">function</span>(instance){ instance.stop(); });
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p><code>countInstances</code> returns how many instances the sound has.
+Includes both playing and finished instances.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  countInstances: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.instances.length;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p><code>countPlayingInstances</code> counts how many instances of the sound are currently playing.
+Non-playing instances are destroyed after 3 seconds of inactivity by default.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  countPlayingInstances: <span class="keyword">function</span>() {
+    <span class="keyword">var</span> count = <span class="number">0</span>;
+    <span class="keyword">this</span>.instances.forEach(<span class="keyword">function</span>(inst){ count += inst.isPlaying() ? <span class="number">1</span> : <span class="number">0</span>; });
+    <span class="keyword">return</span> count;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p><code>getReadyInstance</code> returns the first instance which is available for playing.
+The method tries to find one available instance in the list of instances; if no
+available instances are found, it creates a new one.</p>
+<p>accepts the same options as <code>play</code>. The only difference is that getReadyInstance returns
+an instance in the <code>&quot;ready&quot;</code> status, while the one returned by <code>play</code> is in the <code>&quot;playing&quot;</code> status.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  getReadyInstance: <span class="keyword">function</span>(options) {
+    <span class="keyword">var</span> instance = getExistingReadyInstance(<span class="keyword">this</span>.instances);
+    <span class="keyword">if</span>(!instance) {
+      instance = createInstance(<span class="keyword">this</span>);
+      <span class="keyword">this</span>.instances.push(instance);
+    }
+    instance.reset(<span class="keyword">this</span>.el, options);
+    <span class="keyword">return</span> instance;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p><code>getExpirationTime</code> returns how much time instances are preserved before they
+expire. By default it&#39;s 3 seconds.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  getExpirationTime: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.expirationTime;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p><code>setExpirationTime</code> sets the time it takes to expire an instance after it has stopped playing.
+In some browers, it takes time to create each sound instance, so increasing this value can
+By default it is 3 seconds.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  setExpirationTime: <span class="keyword">function</span>(seconds) {
+    <span class="keyword">this</span>.expirationTime = seconds;
+  }
+});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>This class variable controls the default expiration time of sound instances</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Luv.Audio.Sound.DEFAULT_EXPIRATION_TIME = <span class="number">3</span>; <span class="comment">// 3 seconds</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Sound is an asset. The <code>Luv.Media.Asset</code> mixin adds methods like <code>isLoaded</code> and <code>isPending</code> to the class.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Luv.Audio.Sound.include(Luv.Media.Asset);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p><code>Luv.Audio.SoundMethods</code> is a mixin shared by both <code>Luv.Audio.Sound</code> and <code>Luv.Audio.SoundInstance</code>.
+In <code>Sound</code>, they modify the &quot;defaults&quot; used for creating new instances. In <code>SoundInstance</code> they modify
+the instances themselves.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Luv.Audio.SoundMethods = {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p><code>setVolume</code> expects a float between 0.0 (no sound) and 1.0 (full sound). Defaults to 1.</p>
+<ul>
+<li>When invoked in a <code>Sound</code>, it alters how any subsequent calls to sound.play() sound. Alternatively, you can invoke
+<code>sound.play({sound: 0.5})</code> to alter the volume of only one sound instance.</li>
+<li>When invoked in a <code>SoundInstance</code>, it alters the volume of that particular instance.</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  setVolume: <span class="keyword">function</span>(volume) {
+    volume = clampNumber(volume, <span class="number">0</span>, <span class="number">1</span>);
+    <span class="keyword">this</span>.el.volume = volume;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p><code>getVolume</code> returns the volume of a particular sound/sound instance. See <code>setVolume</code> for more details.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  getVolume: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.el.volume;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p><code>setLoop</code> expects a <code>true</code> or <code>false</code> value.</p>
+<ul>
+<li>When invoked in a <code>Sound</code>, it will make the sound &quot;play in loop&quot; in all sucessive calls to <code>sound.play()</code>. It is
+usually a better idea to call <code>sound.play({loop: true})</code> instead. That way, only one instance of the sound will loop.</li>
+<li>When invoked in a <code>SoundInstance</code>, it will make the instance loop (or deactivate the looping).</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  setLoop: <span class="keyword">function</span>(loop) {
+    <span class="keyword">this</span>.loop = !!loop;
+    <span class="keyword">if</span>(loop) {
+      <span class="keyword">this</span>.el.loop = <span class="string">"loop"</span>;
+    } <span class="keyword">else</span> {
+      <span class="keyword">this</span>.el.removeAttribute(<span class="string">"loop"</span>);
+    }
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p><code>getLoop</code> returns the state of the internal <code>loop</code> variable (true if the sound/sound instance starts over after finishing, false
+if the sound/sound instance just halts after the first play).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  getLoop: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.loop;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p><code>setSpeed</code> expects a numeric float with the speed at which the sound/sound instance will play. 1.0 is regular. 2.0 is 2x. 0.5 is half
+speed. And so on.
+If nothing is specified, the default speed of any sound is 1.0.</p>
+<ul>
+<li>When invoked in a <code>Sound</code>, it alters the speed of all the sound instances produced by calls to <code>sound.play()</code>. You can also invoke
+<code>sound.play({speed: 2.0})</code> to alter the speed of a particular sound instance without modifying the others.</li>
+<li>When invoked in a <code>SoundInstance</code>, it alters the speed of that instance only.</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  setSpeed: <span class="keyword">function</span>(speed) {
+    <span class="keyword">this</span>.el.playbackRate = speed;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p><code>getSpeed</code> returns the sound/sound instance speed. See <code>setSpeed</code> for details.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  getSpeed: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.el.playbackRate;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p><code>setTime</code> expects a float number specifying the &quot;time offset&quot; of a particular sound/sound instance. Defaults to 0.</p>
+<ul>
+<li>When invoked in a <code>Sound</code>, it will make all the sound instances created by <code>sound.play()</code> have a default time when they start playing.
+You can alternatively do <code>sound.play({time: 4})</code> to only modify one particular instance.</li>
+<li>When invoked in a <code>SoundInstance</code>:<ul>
+<li>If the instance is playing, it will &quot;jump&quot; to that time.</li>
+<li>If the instance is not playing, it will &quot;start&quot; on that time when it is played.</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  setTime: <span class="keyword">function</span>(time) {
+    <span class="keyword">try</span> {
+      <span class="keyword">this</span>.el.currentTime = time;
+    } <span class="keyword">catch</span>(err) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>some browsers throw an error when setting currentTime right after loading
+a node. See <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=465498">https://bugzilla.mozilla.org/show_bug.cgi?id=465498</a></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    }
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p><code>getTime</code> returns the internal <code>time</code> attribute of a sound/sound instance. See <code>setTime</code> for details.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  getTime: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.el.currentTime;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p><code>getDuration</code> returns the total duration of a sound instance.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  getDuration: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.el.duration;
+  }
+};
+
+Luv.Audio.Sound.include(Luv.Audio.SoundMethods);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>Internal function used by Luv.Sound.getReadyInstance</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> getExistingReadyInstance = <span class="keyword">function</span>(instances) {
+  <span class="keyword">var</span> instance;
+  <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>; i&lt; instances.length; i++) {
+    instance = instances[i];
+    <span class="keyword">if</span>(instance.isReady()) {
+      <span class="keyword">return</span> instance;
+    }
+  }
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>Internal function used by Luv.Sound.getReadyInstance</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> createInstance = <span class="keyword">function</span>(sound) {
+ <span class="keyword">return</span> Luv.Audio.SoundInstance(
+    sound.el.cloneNode(<span class="literal">true</span>),
+    <span class="keyword">function</span>() { clearTimeout(<span class="keyword">this</span>.expirationTimeOut); },
+    <span class="keyword">function</span>() {
+      <span class="keyword">var</span> instance = <span class="keyword">this</span>;
+      instance.expirationTimeOut = setTimeout(
+        <span class="keyword">function</span>() { removeInstance(sound, instance); },
+        sound.getExpirationTime() * <span class="number">1000</span>
+      );
+  });
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>Internal function. Removes an instance from the list of instances.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> removeInstance = <span class="keyword">function</span>(sound, instance) {
+  <span class="keyword">var</span> index = sound.instances.indexOf(instance);
+  <span class="keyword">if</span>(index != -<span class="number">1</span>){ sound.instances.splice(index, <span class="number">1</span>); }
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>Internal function to get the file extension from a path. It takes into account things like removing query
+parameters (it takes something like <code>&quot;http://example.com/foo.mp3?x=1&amp;y=2&quot;</code> and returns <code>&quot;mp3&quot;</code>).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> getExtension = <span class="keyword">function</span>(path) {
+  <span class="keyword">var</span> match = path.match(<span class="regexp">/.+\.([^?]+)(\?|$)/</span>);
+  <span class="keyword">return</span> match ? match[<span class="number">1</span>].toLowerCase() : <span class="string">""</span>;
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>Internal function. Given a path, return whether its file extension is playable by the current browser.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> isPathExtensionSupported = <span class="keyword">function</span>(path) {
+  <span class="keyword">return</span> Luv.Audio.canPlayType(getExtension(path));
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>Internal function. If x &lt; min, return min. If x &gt; max, return max. Otherwise, return x.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> clampNumber = <span class="keyword">function</span>(x, min, max) {
+  <span class="keyword">return</span> Math.max(min, Math.min(max, Number(x)));
+};
+
+})();</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

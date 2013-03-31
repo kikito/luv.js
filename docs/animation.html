@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>animation.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="CONTRIBUTING.html">
+                CONTRIBUTING.md
+              </a>
+            
+              
+              <a class="source" href="MIT-LICENSE.html">
+                MIT-LICENSE.md
+              </a>
+            
+              
+              <a class="source" href="index.html">
+                README.js.md
+              </a>
+            
+              
+              <a class="source" href="audio.html">
+                audio.js
+              </a>
+            
+              
+              <a class="source" href="null_sound.html">
+                audio/null_sound.js
+              </a>
+            
+              
+              <a class="source" href="sound.html">
+                audio/sound.js
+              </a>
+            
+              
+              <a class="source" href="sound_instance.html">
+                audio/sound_instance.js
+              </a>
+            
+              
+              <a class="source" href="core.html">
+                core.js
+              </a>
+            
+              
+              <a class="source" href="graphics.html">
+                graphics.js
+              </a>
+            
+              
+              <a class="source" href="animation.html">
+                graphics/animation.js
+              </a>
+            
+              
+              <a class="source" href="canvas.html">
+                graphics/canvas.js
+              </a>
+            
+              
+              <a class="source" href="image.html">
+                graphics/image.js
+              </a>
+            
+              
+              <a class="source" href="sprite.html">
+                graphics/sprite.js
+              </a>
+            
+              
+              <a class="source" href="sprite_sheet.html">
+                graphics/sprite_sheet.js
+              </a>
+            
+              
+              <a class="source" href="keyboard.html">
+                keyboard.js
+              </a>
+            
+              
+              <a class="source" href="media.html">
+                media.js
+              </a>
+            
+              
+              <a class="source" href="mouse.html">
+                mouse.js
+              </a>
+            
+              
+              <a class="source" href="shims.html">
+                shims.js
+              </a>
+            
+              
+              <a class="source" href="timer.html">
+                timer.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h1">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1>animation.js</h1>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>(<span class="keyword">function</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h2>Luv.Graphics.Animation</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Luv.Graphics.Animation = Luv.Class(<span class="string">'Luv.Graphics.Animation'</span>, {
+  init: <span class="keyword">function</span>(sprites, delays) {
+    <span class="keyword">if</span>(!Array.isArray(sprites)) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Array of sprites needed. Got '</span> + sprites);
+    }
+    <span class="keyword">if</span>(sprites.length === <span class="number">0</span>) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'No sprites where provided. Must provide at least one'</span>);
+    }
+    <span class="keyword">this</span>.sprites      = sprites.slice(<span class="number">0</span>);
+    <span class="keyword">this</span>.timer        = <span class="number">0</span>;
+    <span class="keyword">this</span>.spriteIndex  = <span class="number">0</span>;
+    <span class="keyword">this</span>.status       = <span class="string">"playing"</span>;
+    <span class="keyword">this</span>.delays       = parseDelays(sprites.length, delays);
+    <span class="keyword">this</span>.timeFrames   = calculateTimeFrames(<span class="keyword">this</span>.delays);
+    <span class="keyword">this</span>.loopDuration = <span class="keyword">this</span>.timeFrames[<span class="keyword">this</span>.timeFrames.length - <span class="number">1</span>];
+  },
+
+  update: <span class="keyword">function</span>(dt) {
+    <span class="keyword">var</span> loops, i;
+
+    <span class="keyword">this</span>.timer += dt;
+    loops = Math.floor(<span class="keyword">this</span>.timer / <span class="keyword">this</span>.loopDuration);
+    <span class="keyword">this</span>.timer -= <span class="keyword">this</span>.loopDuration * loops;
+
+    <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;loops; i++) { <span class="keyword">this</span>.loopEnded(); }
+
+    <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;<span class="keyword">this</span>.timeFrames.length-<span class="number">1</span>; i++) {
+      <span class="keyword">if</span>(<span class="keyword">this</span>.timer &gt;= <span class="keyword">this</span>.timeFrames[i] &amp;&amp;
+         <span class="keyword">this</span>.timer &lt; <span class="keyword">this</span>.timeFrames[i+<span class="number">1</span>]) {
+        <span class="keyword">this</span>.spriteIndex = i;
+        <span class="keyword">return</span>;
+      }
+    }
+    <span class="keyword">this</span>.spriteIndex = <span class="keyword">this</span>.timeFrames.length;
+  },
+
+  gotoSprite: <span class="keyword">function</span>(newSpriteIndex) {
+    <span class="keyword">this</span>.spriteIndex = newSpriteIndex;
+    <span class="keyword">this</span>.time = <span class="keyword">this</span>.timeFrames[newSpriteIndex];
+  },
+
+  loopEnded: <span class="keyword">function</span>() {},
+
+  getWidth: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.sprites[<span class="keyword">this</span>.spriteIndex].getWidth();
+  },
+
+  getHeight: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.sprites[<span class="keyword">this</span>.spriteIndex].getHeight();
+  },
+
+  getDimensions: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.sprites[<span class="keyword">this</span>.spriteIndex].getDimensions();
+  },
+
+  draw: <span class="function"><span class="keyword">function</span> <span class="params">(context, x, y)</span> {</span>
+    <span class="keyword">return</span> <span class="keyword">this</span>.sprites[<span class="keyword">this</span>.spriteIndex].draw(context, x, y);
+  }
+
+});
+
+
+<span class="keyword">var</span> calculateTimeFrames = <span class="keyword">function</span>(delays) {
+  <span class="keyword">var</span> result = [<span class="number">0</span>],
+      time   = <span class="number">0</span>;
+  <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>; i&lt;delays.length; i++) {
+    time += delays[i];
+    result.push(time);
+  }
+  <span class="keyword">return</span> result;
+};
+
+<span class="keyword">var</span> parseDelays = <span class="keyword">function</span>(length, delays) {
+  <span class="keyword">var</span> result=[], r, i, range, value;
+
+  <span class="keyword">if</span>(Array.isArray(delays)) {
+    result = delays.slice(<span class="number">0</span>);
+
+  } <span class="keyword">else</span> <span class="keyword">if</span>(<span class="keyword">typeof</span> delays == <span class="string">"object"</span>) {
+    result.length = length;
+    <span class="keyword">for</span>(r <span class="keyword">in</span> delays) {
+      <span class="keyword">if</span>(delays.hasOwnProperty(r)) {
+        range = parseRange(r);
+        value = Number(delays[r]);
+        <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;range.length; i++) {
+          result[range[i]] = value;
+        }
+      }
+    }
+  } <span class="keyword">else</span> {
+    delays = Number(delays);
+    <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;length; i++) {
+      result.push(delays);
+    }
+  }
+
+  <span class="keyword">if</span>(result.length != length) {
+    <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'The delays table length should be '</span> + length +
+                    <span class="string">', but it is '</span> + result.length);
+  }
+
+  <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;result.length; i++) {
+    <span class="keyword">if</span>(<span class="keyword">typeof</span> result[i] === <span class="string">"undefined"</span>) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Missing delay for sprite '</span> + i);
+    }
+    <span class="keyword">if</span>(isNaN(result[i])) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Could not parse the delay for sprite '</span> + i);
+    }
+  }
+  <span class="keyword">return</span> result;
+};
+
+<span class="keyword">var</span> parseRange = <span class="keyword">function</span>(r) {
+  <span class="keyword">var</span> match, result, start, end, i;
+  <span class="keyword">if</span>(<span class="keyword">typeof</span> r != <span class="string">"string"</span>) {
+    <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Unknown range type (must be integer or string in the form 'start-end'): "</span> + r);
+  }
+  match = r.match(<span class="regexp">/^(\d+)-(\d+)$/</span>);
+  <span class="keyword">if</span>(match) {
+    result = [];
+    start  = Number(match[<span class="number">1</span>]);
+    end    = Number(match[<span class="number">2</span>]);
+    <span class="keyword">if</span>(start &lt; end) {
+      <span class="keyword">for</span>(i=start; i&lt;=end; i++) { result.push(i); }
+    } <span class="keyword">else</span> {
+      <span class="keyword">for</span>(i=start; i&gt;=end; i--) { result.push(i); }
+    }
+  } <span class="keyword">else</span> {
+    result = [Number(r)];
+  }
+
+  <span class="keyword">return</span> result;
+};
+
+
+}());</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
