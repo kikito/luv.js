@@ -35,9 +35,9 @@ Luv.Graphics.Canvas = Luv.Class('Luv.Graphics.Canvas', {
 
   getContext    : function(){ return this.el.getContext('2d'); },
 
-  getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
+  getWidth      : function(){ return Number(this.el.getAttribute('width')); },
 
-  getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },
+  getHeight     : function(){ return Number(this.el.getAttribute('height')); },
 
   getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
 

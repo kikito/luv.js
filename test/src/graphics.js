@@ -45,7 +45,7 @@ describe("Luv.Graphics", function(){
     var el, media, gr, stroke, fill, moveTo, lineTo, rect, arc, beginPath, closePath;
 
     beforeEach(function() {
-      el        = document.createElement('canvas');
+      el        = newDOMCanvas(100,200);
       media     = Luv.Media();
       gr        = Luv.Graphics(el, media);
       stroke    = sinon.spy(gr.ctx, 'stroke');

@@ -390,8 +390,8 @@ var initializeOptions = function(options) {
 
   if(!el && id) { el = document.getElementById(id); }
   if(el) {
-    if(!width  && el.getAttribute('width'))  { width = parseInt(el.getAttribute('width'), 10); }
-    if(!height && el.getAttribute('height')) { height = parseInt(el.getAttribute('height'), 10); }
+    if(!width  && el.getAttribute('width'))  { width = Number(el.getAttribute('width')); }
+    if(!height && el.getAttribute('height')) { height = Number(el.getAttribute('height')); }
   } else {
     el = document.createElement('canvas');
     body.appendChild(el);
@@ -1550,10 +1550,10 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   getBackgroundColor : function() { return getColor(this.backgroundColor); },
 
   // `getWidth` returns the width of the canvas, in pixels.
-  getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
+  getWidth      : function(){ return Number(this.el.getAttribute('width')); },
 
   // `getHeight` returns the height of the canvas, in pixels.
-  getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },
+  getHeight     : function(){ return Number(this.el.getAttribute('height')); },
 
   // `getDimensions` returns a JS object containing two components: `width` and `height`,
   // with the width and height of the canvas in pixels.
@@ -1901,7 +1901,7 @@ var normalizeAngle = function(angle) {
 // the same properties as graphics. This makes sure that the graphics instance is the main
 // "authority". It's called after each canvas is used with `setCanvas`.
 var resetCanvas = function(graphics, ctx) {
-  ctx.setTransform(1,0,0,1,0,0); // FIXME: if we ever have a getTransform, we could use it here instead of the identity matrix
+  ctx.setTransform(1,0,0,1,0,0);
   setImageSmoothing(ctx, graphics.getImageSmoothing());
   ctx.lineWidth = graphics.getLineWidth();
   ctx.lineCap = graphics.getLineCap();
@@ -2149,9 +2149,9 @@ Luv.Graphics.Canvas = Luv.Class('Luv.Graphics.Canvas', {
 
   getContext    : function(){ return this.el.getContext('2d'); },
 
-  getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
+  getWidth      : function(){ return Number(this.el.getAttribute('width')); },
 
-  getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },
+  getHeight     : function(){ return Number(this.el.getAttribute('height')); },
 
   getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
 

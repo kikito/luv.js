@@ -346,8 +346,8 @@ var initializeOptions = function(options) {
 
   if(!el && id) { el = document.getElementById(id); }
   if(el) {
-    if(!width  && el.getAttribute('width'))  { width = parseInt(el.getAttribute('width'), 10); }
-    if(!height && el.getAttribute('height')) { height = parseInt(el.getAttribute('height'), 10); }
+    if(!width  && el.getAttribute('width'))  { width = Number(el.getAttribute('width')); }
+    if(!height && el.getAttribute('height')) { height = Number(el.getAttribute('height')); }
   } else {
     el = document.createElement('canvas');
     body.appendChild(el);

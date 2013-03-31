@@ -92,10 +92,10 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   getBackgroundColor : function() { return getColor(this.backgroundColor); },
 
   // `getWidth` returns the width of the canvas, in pixels.
-  getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
+  getWidth      : function(){ return Number(this.el.getAttribute('width')); },
 
   // `getHeight` returns the height of the canvas, in pixels.
-  getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },
+  getHeight     : function(){ return Number(this.el.getAttribute('height')); },
 
   // `getDimensions` returns a JS object containing two components: `width` and `height`,
   // with the width and height of the canvas in pixels.
