@@ -179,6 +179,19 @@ describe("Luv.Graphics", function(){
         expect(fill).to.have.been.called;
         expect(gr.ctx.fillStyle).to.equal('#ff0000');
       });
+
+      it("works with a varargs instead of an array", function() {
+        gr.setColor(255,0,0);
+        gr.fillPolygon(10, 10, 20, 20, 0,50);
+
+        expect(beginPath).to.have.been.called;
+        expect(moveTo).to.have.been.calledWith(10, 10);
+        expect(lineTo).to.have.been.calledWith(20, 20);
+        expect(lineTo).to.have.been.calledWith(0, 50);
+        expect(closePath).to.have.been.called;
+        expect(fill).to.have.been.called;
+        expect(gr.ctx.fillStyle).to.equal('#ff0000');
+      });
     });
 
     describe(".strokePolygon", function(){

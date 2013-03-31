@@ -1668,12 +1668,11 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   //
   // You must specify at least three points (6 coordinates) or else the function
   // will fail.
-  // FIXME: polygon functions should admit arrays and also varargs
-  strokePolygon   : function(coordinates) { polygon(this, MODE.STROKE, coordinates); },
+  strokePolygon   : function() { polygon(this, MODE.STROKE, arguments); },
 
   // `fillPolygon` takes the same parameters as `strokePolygon`, but it fills the
   // polygon with the current color instead of drawing its perimeter.
-  fillPolygon     : function(coordinates) { polygon(this, MODE.FILL, coordinates); },
+  fillPolygon     : function() { polygon(this, MODE.FILL, arguments); },
 
   // `strokeCircle` draws the perimeter of a circle using the current line width and color.
   // It expects the coordinates of the circle's center in pixels, and its radius.
@@ -1924,7 +1923,8 @@ var rectangle = function(graphics, mode, left, top, width, height) {
 };
 
 // Polygon drawing implementation
-var polygon = function(graphics, mode, coordinates) {
+var polygon = function(graphics, mode, args) {
+  var coordinates = Array.isArray(args[0]) ? args[0] : Array.prototype.slice.call(args, 0);
   graphics.ctx.beginPath();
 
   drawPolyLine(graphics, 'luv.graphics.polygon', 6, coordinates);
