@@ -17,11 +17,11 @@
           t = bob.y - bob.h/2,
           w = bob.w,
           h = bob.h;
-      luv.graphics.rectangle("fill", l,t,w,h);
+      luv.graphics.fillRectangle(l,t,w,h);
 
       luv.graphics.setColor(128,128,0);
       luv.graphics.setLineWidth(3);
-      luv.graphics.rectangle("line", l,t,w,h);
+      luv.graphics.strokeRectangle(l,t,w,h);
 
       luv.graphics.setColor(255,255,255);
 
@@ -32,18 +32,18 @@
           y = t + r + r2,
           x2 = l + w - r - r2;
 
-      luv.graphics.circle("fill", x1, y, r);
-      luv.graphics.circle("fill", x2, y, r);
+      luv.graphics.fillCircle(x1, y, r);
+      luv.graphics.fillCircle(x2, y, r);
 
       luv.graphics.setColor(0,0,0);
       luv.graphics.setLineWidth(1);
-      luv.graphics.circle("line", x1,y,r);
-      luv.graphics.circle("fill", x1 + bob.dx * r2,y + bob.dy * r2,r2);
-      luv.graphics.circle("line", x2,y,r);
-      luv.graphics.circle("fill", x2 + bob.dx * r2,y + bob.dy * r2,r2);
+      luv.graphics.strokeCircle(x1,y,r);
+      luv.graphics.fillCircle(x1 + bob.dx * r2,y + bob.dy * r2,r2);
+      luv.graphics.strokeCircle(x2,y,r);
+      luv.graphics.fillCircle(x2 + bob.dx * r2,y + bob.dy * r2,r2);
 
-      luv.graphics.circle('line', bob.x, bob.y, r2);
-      luv.graphics.arc('line', bob.x, bob.y, 2*r, 0, Math.PI);
+      luv.graphics.strokeCircle(bob.x, bob.y, r2);
+      luv.graphics.strokeArc(bob.x, bob.y, 2*r, 0, Math.PI);
     };
 
     luv.update = function(dt) {

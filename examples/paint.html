@@ -28,7 +28,7 @@
       }
       luv.graphics.draw(canvas, 0, 0);
       var pos = luv.mouse.getPosition();
-      luv.graphics.circle('fill', pos.x, pos.y, radius);
+      luv.graphics.fillCircle(pos.x, pos.y, radius);
       prevPos = pos;
     };
 
@@ -37,7 +37,7 @@
         var pos = luv.mouse.getPosition()
         luv.graphics.setCanvas(canvas);
         if(prevPos.x === pos.x && prevPos.y === pos.y) {
-          luv.graphics.circle('fill', pos.x, pos.y, radius);
+          luv.graphics.fillCircle(pos.x, pos.y, radius);
         } else {
           luv.graphics.line(prevPos.x, prevPos.y, pos.x, pos.y);
         }

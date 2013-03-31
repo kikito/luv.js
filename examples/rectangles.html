@@ -22,7 +22,7 @@
           l: rand(0,d.width - 50), t: rand(0, d.height - 50), w: rand(50,100), h: rand(50,100),
           vx: rand(-100,100), vy: rand(-100, 100),
           r: rand(50,255), g: rand(50,255), b: rand(50,255),
-          mode: rand(0,1) ? 'fill' : 'line'
+          type: rand(0,1) ? 'fill' : 'stroke'
         });
       }
     };
@@ -45,7 +45,12 @@
       for(var i=0; i<rectangles.length; i++) {
         rect = rectangles[i];
         luv.graphics.setColor(rect.r, rect.g, rect.b);
-        luv.graphics.rectangle(rect.mode, rect.l, rect.t, rect.w, rect.h);
+
+        if(rect.type == 'fill') {
+          luv.graphics.fillRectangle(rect.l, rect.t, rect.w, rect.h);
+        } else {
+          luv.graphics.strokeRectangle(rect.l, rect.t, rect.w, rect.h);
+        }
       }
     };
 

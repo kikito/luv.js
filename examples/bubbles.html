@@ -52,13 +52,13 @@
       for(var i=0; i < bubbles.length; i++) {
         bubble = bubbles[i];
         luv.graphics.setColor(255,98,0);
-        luv.graphics.circle('fill', bubble.x, bubble.y, bubble.r);
+        luv.graphics.fillCircle(bubble.x, bubble.y, bubble.r);
 
         luv.graphics.setLineWidth(bubble.r/7.0);
         luv.graphics.setColor(255,225,200);
-        luv.graphics.circle('line', bubble.x, bubble.y, bubble.r);
+        luv.graphics.strokeCircle(bubble.x, bubble.y, bubble.r);
 
-        luv.graphics.circle('fill',
+        luv.graphics.fillCircle(
           bubble.x - bubble.r/2,
           bubble.y - bubble.r/2.5,
           bubble.r / 3);
