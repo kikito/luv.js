@@ -36,6 +36,10 @@ to help with this issue").
 
 If you want to send code to Luv.js, please see the CONTRIBUTING.md for more instructions.
 
+## Documentation
+
+* [Annotated source code](http://kikito.github.com/luv.js/docs/)
+
 
 
 
