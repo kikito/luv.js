@@ -17,7 +17,7 @@ module.exports = function(grunt) {
     "src/graphics/*"
   ];
   var testFiles = "test/**/*.js";
-  var docFiles = ['README.js.md', 'MIT-LICENSE.md'].concat(srcFiles);
+  var docFiles = ['README.js.md', 'MIT-LICENSE.md', 'CONTRIBUTING.md'].concat(srcFiles);
 
   var exec = function(arr) {
     arr = Array.isArray(arr) ? arr : [arr];
