@@ -443,7 +443,7 @@ var normalizeAngle = function(angle) {
 // the same properties as graphics. This makes sure that the graphics instance is the main
 // "authority". It's called after each canvas is used with `setCanvas`.
 var resetCanvas = function(graphics, ctx) {
-  ctx.setTransform(1,0,0,1,0,0); // FIXME: if we ever have a getTransform, we could use it here instead of the identity matrix
+  ctx.setTransform(1,0,0,1,0,0);
   setImageSmoothing(ctx, graphics.getImageSmoothing());
   ctx.lineWidth = graphics.getLineWidth();
   ctx.lineCap = graphics.getLineCap();
