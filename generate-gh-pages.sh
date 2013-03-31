@@ -45,26 +45,7 @@ fi
 CURRENT_BRANCH=`git branch 2>/dev/null| sed -n '/^\*/s/^\* //p'`
 CURRENT_COMMIT=`git rev-parse HEAD`
 
-if [[ `git branch --no-color | grep " $TARGET_BRANCH"` == "" ]]; then
-  # Do a fetch from the target remote to see if it was created remotely
-  exec_git fetch $TARGET_REMOTE
-
-  # Does it exist remotely?
-  if [[ `git branch -a --no-color | grep " remotes/$TARGET_REMOTE/$TARGET_BRANCH"` == "" ]]; then
-    echo "No '$TARGET_BRANCH' branch exists.  Creating one"
-    exec_git symbolic-ref HEAD refs/heads/$TARGET_BRANCH
-    rm .git/index
-
-    exec_git clean -fdq
-  else
-    TARGET_REMOTE=origin
-    echo "No local branch '$TARGET_BRANCH', checking out '$TARGET_REMOTE/$TARGET_BRANCH' and tracking that"
-    exec_git checkout -b $TARGET_BRANCH $TARGET_REMOTE/$TARGET_BRANCH
-  fi
-
-else
-  exec_git checkout $TARGET_BRANCH
-fi
+exec_git checkout $TARGET_BRANCH
 
 # We want to keep in complete sync (deleting old docs, or cruft from previous documentation output)
 git ls-files docs     | xargs rm
