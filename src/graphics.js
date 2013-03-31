@@ -87,20 +87,20 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 
     this.ctx.beginPath();
     drawPolyLine(this, 'luv.graphics.line', 4, coords);
-    drawPath(this, 'line');
+    drawPath(this, MODE.STROKE);
   },
 
-  strokeRectangle : function(left, top, width, height) { rectangle(this, 'line', left, top, width, height); },
-  fillRectangle   : function(left, top, width, height) { rectangle(this, 'fill', left, top, width, height); },
+  strokeRectangle : function(left, top, width, height) { rectangle(this, MODE.STROKE, left, top, width, height); },
+  fillRectangle   : function(left, top, width, height) { rectangle(this, MODE.FILL, left, top, width, height); },
 
-  strokePolygon   : function(coordinates) { polygon(this, 'line', coordinates); },
-  fillPolygon     : function(coordinates) { polygon(this, 'fill', coordinates); },
+  strokePolygon   : function(coordinates) { polygon(this, MODE.STROKE, coordinates); },
+  fillPolygon     : function(coordinates) { polygon(this, MODE.FILL, coordinates); },
 
-  strokeCircle    : function(x,y,radius)  { circle(this, 'line', x,y, radius); },
-  fillCircle      : function(x,y,radius)  { circle(this, 'fill', x,y, radius); },
+  strokeCircle    : function(x,y,radius)  { circle(this, MODE.STROKE, x,y, radius); },
+  fillCircle      : function(x,y,radius)  { circle(this, MODE.FILL, x,y, radius); },
 
-  strokeArc       : function(x,y,radius, startAngle, endAngle)  { arc(this, 'line', x,y, radius, startAngle, endAngle); },
-  fillArc         : function(x,y,radius, startAngle, endAngle)  { arc(this, 'fill', x,y, radius, startAngle, endAngle); },
+  strokeArc       : function(x,y,radius, startAngle, endAngle)  { arc(this, MODE.STROKE, x,y, radius, startAngle, endAngle); },
+  fillArc         : function(x,y,radius, startAngle, endAngle)  { arc(this, MODE.FILL, x,y, radius, startAngle, endAngle); },
 
   draw : function(drawable, x, y, angle, sx, sy, ox, oy) {
     var ctx = this.ctx;
@@ -212,11 +212,11 @@ var getColor = function(color) {
 
 var drawPath = function(graphics, mode) {
   switch(mode){
-  case 'fill':
+  case MODE.FILL:
     graphics.ctx.fillStyle = graphics.colorStyle;
     graphics.ctx.fill();
     break;
-  case 'line':
+  case MODE.STROKE:
     graphics.ctx.strokeStyle = graphics.colorStyle;
     graphics.ctx.stroke();
     break;
@@ -284,6 +284,10 @@ var circle = function(graphics, mode, x,y,radius) {
   graphics.ctx.closePath();
 };
 
+var MODE = {
+  STROKE: 1,
+  FILL  : 2
+};
 
 
 }());
