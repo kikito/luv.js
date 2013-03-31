@@ -269,6 +269,9 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   // Where context is a js canvas 2d context, and x and y are the coordinates of the
   // object's top left corner.
   //
+  // It is also recommended that your drawable objects implement a `getCenter` function, so they can be used by `drawCentered` (see
+  // details below)
+  //
   // Note that javascript canvases try to "minimize the amount of pixellation" when doing transformations in images, so they
   // apply an "image smoothing" algorithm to rotated/translated images. See
   // `setImageSmoothing` for more details.
@@ -303,13 +306,21 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   // `drawCentered` draws a drawable object (images, sprites, animations, canvases ...
   // see the `draw` method for more info) but centering it on its center instead of
   // using the top-left coordinates.
-  // FIXME: fix this method (use some kind of getCenter function)
+  //
+  // The drawables must implement a method called `getCenter()` that should return
+  // a JS object with two properties called `x` and `y`, representing the geometrical
+  // center of the object.
+  //
+  //       var c = obj.getCenter();
+  //       console.log(c.x, c.y);
+  //
+  // Note that the center must be expressed relatively to the top-left corner of the object,
+  // not the origin of coordinates.
+  //
+  // All drawable objects in Luv also implement a getCenter function.
   drawCentered : function(drawable, x,y, angle, sx, sy) {
-    var w = drawable.getWidth();
-        h = drawable.getHeight();
-    var ox = w / 2,
-        oy = h / 2;
-    this.draw(drawable, x-ox,y-oy, angle, sx, sy, ox, oy);
+    var c = drawable.getCenter();
+    this.draw(drawable, x-c.x,y-c.y, angle, sx, sy, c.x, c.y);
   },
 
 

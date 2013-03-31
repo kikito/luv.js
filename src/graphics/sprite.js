@@ -4,6 +4,7 @@
 // ## Luv.Graphics.Sprite
 // Represents a rectangular region of an image
 // Useful for spritesheets and animations
+// FIXME: replace ltwh by left top width height
 Luv.Graphics.Sprite = Luv.Class('Luv.Graphics.Sprite', {
   init: function(image, l,t,w,h) {
     this.image = image;
@@ -30,6 +31,10 @@ Luv.Graphics.Sprite = Luv.Class('Luv.Graphics.Sprite', {
 
   getDimensions : function() {
     return { width: this.w, height: this.h };
+  },
+
+  getCenter     : function() {
+    return { x: this.w / 2, y: this.h / 2 };
   },
 
   getBoundingBox : function() {

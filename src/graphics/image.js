@@ -31,6 +31,10 @@ Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
     return { width: this.source.width, height: this.source.height };
   },
 
+  getCenter: function() {
+    return { x: this.source.width / 2, y: this.source.height / 2 };
+  },
+
   draw: function(context, x, y) {
     if(!this.isLoaded()) {
       throw new Error("Attepted to draw a non loaded image: " + this);

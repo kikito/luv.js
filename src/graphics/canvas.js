@@ -41,6 +41,8 @@ Luv.Graphics.Canvas = Luv.Class('Luv.Graphics.Canvas', {
 
   getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
 
+  getCenter     : function(){ return { x: this.getWidth()/2, y: this.getHeight() / 2}; },
+
   setDimensions : function(width, height) {
     this.el.setAttribute('width', width);
     this.el.setAttribute('height', height);

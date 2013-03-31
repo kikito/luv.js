@@ -1668,6 +1668,12 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   //
   // You must specify at least three points (6 coordinates) or else the function
   // will fail.
+  //
+  // The point coordinates can be specified as plain arguments (as above) or
+  // inside an array. This would print the same as in the previous example:
+  //
+  //        var luv = Luv();
+  //        luv.strokePolygon([0,0, 10,20, 20,0]);
   strokePolygon   : function() { polygon(this, MODE.STROKE, arguments); },
 
   // `fillPolygon` takes the same parameters as `strokePolygon`, but it fills the
@@ -1721,6 +1727,9 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   // Where context is a js canvas 2d context, and x and y are the coordinates of the
   // object's top left corner.
   //
+  // It is also recommended that your drawable objects implement a `getCenter` function, so they can be used by `drawCentered` (see
+  // details below)
+  //
   // Note that javascript canvases try to "minimize the amount of pixellation" when doing transformations in images, so they
   // apply an "image smoothing" algorithm to rotated/translated images. See
   // `setImageSmoothing` for more details.
@@ -1755,13 +1764,21 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   // `drawCentered` draws a drawable object (images, sprites, animations, canvases ...
   // see the `draw` method for more info) but centering it on its center instead of
   // using the top-left coordinates.
-  // FIXME: fix this method (use some kind of getCenter function)
+  //
+  // The drawables must implement a method called `getCenter()` that should return
+  // a JS object with two properties called `x` and `y`, representing the geometrical
+  // center of the object.
+  //
+  //       var c = obj.getCenter();
+  //       console.log(c.x, c.y);
+  //
+  // Note that the center must be expressed relatively to the top-left corner of the object,
+  // not the origin of coordinates.
+  //
+  // All drawable objects in Luv also implement a getCenter function.
   drawCentered : function(drawable, x,y, angle, sx, sy) {
-    var w = drawable.getWidth();
-        h = drawable.getHeight();
-    var ox = w / 2,
-        oy = h / 2;
-    this.draw(drawable, x-ox,y-oy, angle, sx, sy, ox, oy);
+    var c = drawable.getCenter();
+    this.draw(drawable, x-c.x,y-c.y, angle, sx, sy, c.x, c.y);
   },
 
 
@@ -1988,7 +2005,7 @@ Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
     loops = Math.floor(this.timer / this.loopDuration);
     this.timer -= this.loopDuration * loops;
 
-    for(i=0; i<loops; i++) { this.loopEnded(); }
+    for(i=0; i<loops; i++) { this.onLoopEnded(); }
 
     for(i=0; i<this.timeFrames.length-1; i++) {
       if(this.timer >= this.timeFrames[i] &&
@@ -2005,24 +2022,18 @@ Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
     this.time = this.timeFrames[newSpriteIndex];
   },
 
-  loopEnded: function() {},
-
-  getWidth: function() {
-    return this.sprites[this.spriteIndex].getWidth();
+  getCurrentSprite: function() {
+    return this.sprites[this.spriteIndex];
   },
 
-  getHeight: function() {
-    return this.sprites[this.spriteIndex].getHeight();
-  },
+  onLoopEnded: function() {}
+});
 
-  getDimensions: function() {
-    return this.sprites[this.spriteIndex].getDimensions();
-  },
-
-  draw: function (context, x, y) {
-    return this.sprites[this.spriteIndex].draw(context, x, y);
-  }
-
+"getWidth getHeight getDimensions getCenter draw".split(" ").forEach(function(method) {
+  Luv.Graphics.Animation.methods[method] = function() {
+    var sprite = this.getCurrentSprite();
+    return sprite[method].apply(sprite, arguments);
+  };
 });
 
 
@@ -2144,6 +2155,8 @@ Luv.Graphics.Canvas = Luv.Class('Luv.Graphics.Canvas', {
 
   getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
 
+  getCenter     : function(){ return { x: this.getWidth()/2, y: this.getHeight() / 2}; },
+
   setDimensions : function(width, height) {
     this.el.setAttribute('width', width);
     this.el.setAttribute('height', height);
@@ -2189,6 +2202,10 @@ Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
     return { width: this.source.width, height: this.source.height };
   },
 
+  getCenter: function() {
+    return { x: this.source.width / 2, y: this.source.height / 2 };
+  },
+
   draw: function(context, x, y) {
     if(!this.isLoaded()) {
       throw new Error("Attepted to draw a non loaded image: " + this);
@@ -2208,6 +2225,7 @@ Luv.Graphics.Image.include(Luv.Media.Asset);
 // ## Luv.Graphics.Sprite
 // Represents a rectangular region of an image
 // Useful for spritesheets and animations
+// FIXME: replace ltwh by left top width height
 Luv.Graphics.Sprite = Luv.Class('Luv.Graphics.Sprite', {
   init: function(image, l,t,w,h) {
     this.image = image;
@@ -2234,6 +2252,10 @@ Luv.Graphics.Sprite = Luv.Class('Luv.Graphics.Sprite', {
 
   getDimensions : function() {
     return { width: this.w, height: this.h };
+  },
+
+  getCenter     : function() {
+    return { x: this.w / 2, y: this.h / 2 };
   },
 
   getBoundingBox : function() {

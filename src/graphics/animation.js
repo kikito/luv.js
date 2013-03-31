@@ -26,7 +26,7 @@ Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
     loops = Math.floor(this.timer / this.loopDuration);
     this.timer -= this.loopDuration * loops;
 
-    for(i=0; i<loops; i++) { this.loopEnded(); }
+    for(i=0; i<loops; i++) { this.onLoopEnded(); }
 
     for(i=0; i<this.timeFrames.length-1; i++) {
       if(this.timer >= this.timeFrames[i] &&
@@ -43,24 +43,18 @@ Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
     this.time = this.timeFrames[newSpriteIndex];
   },
 
-  loopEnded: function() {},
-
-  getWidth: function() {
-    return this.sprites[this.spriteIndex].getWidth();
+  getCurrentSprite: function() {
+    return this.sprites[this.spriteIndex];
   },
 
-  getHeight: function() {
-    return this.sprites[this.spriteIndex].getHeight();
-  },
+  onLoopEnded: function() {}
+});
 
-  getDimensions: function() {
-    return this.sprites[this.spriteIndex].getDimensions();
-  },
-
-  draw: function (context, x, y) {
-    return this.sprites[this.spriteIndex].draw(context, x, y);
-  }
-
+"getWidth getHeight getDimensions getCenter draw".split(" ").forEach(function(method) {
+  Luv.Graphics.Animation.methods[method] = function() {
+    var sprite = this.getCurrentSprite();
+    return sprite[method].apply(sprite, arguments);
+  };
 });
 
 

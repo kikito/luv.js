@@ -100,7 +100,7 @@ describe('Luv.Graphics.Animation', function() {
 
       it('invokes the endLoop callback as many times as needed', function() {
         var count = 0;
-        a.loopEnded = function(){ count ++; };
+        a.onLoopEnded = function(){ count ++; };
         a.update(10);
         expect(count).to.equal(2);
       });
