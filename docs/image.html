@@ -175,6 +175,10 @@
     <span class="keyword">return</span> { width: <span class="keyword">this</span>.source.width, height: <span class="keyword">this</span>.source.height };
   },
 
+  getCenter: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> { x: <span class="keyword">this</span>.source.width / <span class="number">2</span>, y: <span class="keyword">this</span>.source.height / <span class="number">2</span> };
+  },
+
   draw: <span class="keyword">function</span>(context, x, y) {
     <span class="keyword">if</span>(!<span class="keyword">this</span>.isLoaded()) {
       <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Attepted to draw a non loaded image: "</span> + <span class="keyword">this</span>);

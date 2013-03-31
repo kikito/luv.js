@@ -144,7 +144,8 @@
               </div>
               <h2>Luv.Graphics.Sprite</h2>
 <p>Represents a rectangular region of an image
-Useful for spritesheets and animations</p>
+Useful for spritesheets and animations
+FIXME: replace ltwh by left top width height</p>
 
             </div>
             
@@ -174,6 +175,10 @@ Useful for spritesheets and animations</p>
 
   getDimensions : <span class="keyword">function</span>() {
     <span class="keyword">return</span> { width: <span class="keyword">this</span>.w, height: <span class="keyword">this</span>.h };
+  },
+
+  getCenter     : <span class="keyword">function</span>() {
+    <span class="keyword">return</span> { x: <span class="keyword">this</span>.w / <span class="number">2</span>, y: <span class="keyword">this</span>.h / <span class="number">2</span> };
   },
 
   getBoundingBox : <span class="keyword">function</span>() {

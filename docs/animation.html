@@ -170,7 +170,7 @@
     loops = Math.floor(<span class="keyword">this</span>.timer / <span class="keyword">this</span>.loopDuration);
     <span class="keyword">this</span>.timer -= <span class="keyword">this</span>.loopDuration * loops;
 
-    <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;loops; i++) { <span class="keyword">this</span>.loopEnded(); }
+    <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;loops; i++) { <span class="keyword">this</span>.onLoopEnded(); }
 
     <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;<span class="keyword">this</span>.timeFrames.length-<span class="number">1</span>; i++) {
       <span class="keyword">if</span>(<span class="keyword">this</span>.timer &gt;= <span class="keyword">this</span>.timeFrames[i] &amp;&amp;
@@ -187,24 +187,18 @@
     <span class="keyword">this</span>.time = <span class="keyword">this</span>.timeFrames[newSpriteIndex];
   },
 
-  loopEnded: <span class="keyword">function</span>() {},
-
-  getWidth: <span class="keyword">function</span>() {
-    <span class="keyword">return</span> <span class="keyword">this</span>.sprites[<span class="keyword">this</span>.spriteIndex].getWidth();
+  getCurrentSprite: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.sprites[<span class="keyword">this</span>.spriteIndex];
   },
 
-  getHeight: <span class="keyword">function</span>() {
-    <span class="keyword">return</span> <span class="keyword">this</span>.sprites[<span class="keyword">this</span>.spriteIndex].getHeight();
-  },
+  onLoopEnded: <span class="keyword">function</span>() {}
+});
 
-  getDimensions: <span class="keyword">function</span>() {
-    <span class="keyword">return</span> <span class="keyword">this</span>.sprites[<span class="keyword">this</span>.spriteIndex].getDimensions();
-  },
-
-  draw: <span class="function"><span class="keyword">function</span> <span class="params">(context, x, y)</span> {</span>
-    <span class="keyword">return</span> <span class="keyword">this</span>.sprites[<span class="keyword">this</span>.spriteIndex].draw(context, x, y);
-  }
-
+<span class="string">"getWidth getHeight getDimensions getCenter draw"</span>.split(<span class="string">" "</span>).forEach(<span class="keyword">function</span>(method) {
+  Luv.Graphics.Animation.methods[method] = <span class="keyword">function</span>() {
+    <span class="keyword">var</span> sprite = <span class="keyword">this</span>.getCurrentSprite();
+    <span class="keyword">return</span> sprite[method].apply(sprite, arguments);
+  };
 });
 
 

@@ -587,12 +587,15 @@ The polygon coordinates must be an even number of numbers, in the form
 <pre><code>   var luv = Luv();
    luv.strokePolygon(0,0, 10,20, 20,0);</code></pre>
 <p>You must specify at least three points (6 coordinates) or else the function
-will fail.
-FIXME: polygon functions should admit arrays and also varargs</p>
+will fail.</p>
+<p>The point coordinates can be specified as plain arguments (as above) or
+inside an array. This would print the same as in the previous example:</p>
+<pre><code>   var luv = Luv();
+   luv.strokePolygon([0,0, 10,20, 20,0]);</code></pre>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  strokePolygon   : <span class="keyword">function</span>(coordinates) { polygon(<span class="keyword">this</span>, MODE.STROKE, coordinates); },</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  strokePolygon   : <span class="keyword">function</span>() { polygon(<span class="keyword">this</span>, MODE.STROKE, arguments); },</pre></div></div>
             
         </li>
         
@@ -608,7 +611,7 @@ polygon with the current color instead of drawing its perimeter.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  fillPolygon     : <span class="keyword">function</span>(coordinates) { polygon(<span class="keyword">this</span>, MODE.FILL, coordinates); },</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  fillPolygon     : <span class="keyword">function</span>() { polygon(<span class="keyword">this</span>, MODE.FILL, arguments); },</pre></div></div>
             
         </li>
         
@@ -709,6 +712,8 @@ and <code>ox,oy</code> = <code>5,5</code>, then the rotation will occur around t
 <pre><code>  obj.draw(context, x, y)</code></pre>
 <p>Where context is a js canvas 2d context, and x and y are the coordinates of the
 object&#39;s top left corner.</p>
+<p>It is also recommended that your drawable objects implement a <code>getCenter</code> function, so they can be used by <code>drawCentered</code> (see
+details below)</p>
 <p>Note that javascript canvases try to &quot;minimize the amount of pixellation&quot; when doing transformations in images, so they
 apply an &quot;image smoothing&quot; algorithm to rotated/translated images. See
 <code>setImageSmoothing</code> for more details.</p>
@@ -754,17 +759,21 @@ apply an &quot;image smoothing&quot; algorithm to rotated/translated images. See
               </div>
               <p><code>drawCentered</code> draws a drawable object (images, sprites, animations, canvases ...
 see the <code>draw</code> method for more info) but centering it on its center instead of
-using the top-left coordinates.
-FIXME: fix this method (use some kind of getCenter function)</p>
+using the top-left coordinates.</p>
+<p>The drawables must implement a method called <code>getCenter()</code> that should return
+a JS object with two properties called <code>x</code> and <code>y</code>, representing the geometrical
+center of the object.</p>
+<pre><code>  var c = obj.getCenter();
+  console.log(c.x, c.y);</code></pre>
+<p>Note that the center must be expressed relatively to the top-left corner of the object,
+not the origin of coordinates.</p>
+<p>All drawable objects in Luv also implement a getCenter function.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>  drawCentered : <span class="keyword">function</span>(drawable, x,y, angle, sx, sy) {
-    <span class="keyword">var</span> w = drawable.getWidth();
-        h = drawable.getHeight();
-    <span class="keyword">var</span> ox = w / <span class="number">2</span>,
-        oy = h / <span class="number">2</span>;
-    <span class="keyword">this</span>.draw(drawable, x-ox,y-oy, angle, sx, sy, ox, oy);
+    <span class="keyword">var</span> c = drawable.getCenter();
+    <span class="keyword">this</span>.draw(drawable, x-c.x,y-c.y, angle, sx, sy, c.x, c.y);
   },</pre></div></div>
             
         </li>
@@ -1048,7 +1057,7 @@ the same properties as graphics. This makes sure that the graphics instance is t
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="keyword">var</span> resetCanvas = <span class="keyword">function</span>(graphics, ctx) {
-  ctx.setTransform(<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>); <span class="comment">// FIXME: if we ever have a getTransform, we could use it here instead of the identity matrix</span>
+  ctx.setTransform(<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>);
   setImageSmoothing(ctx, graphics.getImageSmoothing());
   ctx.lineWidth = graphics.getLineWidth();
   ctx.lineCap = graphics.getLineCap();
@@ -1135,7 +1144,8 @@ in the current canvas 2d context.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> polygon = <span class="keyword">function</span>(graphics, mode, coordinates) {
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> polygon = <span class="keyword">function</span>(graphics, mode, args) {
+  <span class="keyword">var</span> coordinates = Array.isArray(args[<span class="number">0</span>]) ? args[<span class="number">0</span>] : Array.prototype.slice.call(args, <span class="number">0</span>);
   graphics.ctx.beginPath();
 
   drawPolyLine(graphics, <span class="string">'luv.graphics.polygon'</span>, <span class="number">6</span>, coordinates);

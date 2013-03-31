@@ -193,6 +193,8 @@ applying effects. Usage:</p>
 
   getDimensions : <span class="keyword">function</span>(){ <span class="keyword">return</span> { width: <span class="keyword">this</span>.getWidth(), height: <span class="keyword">this</span>.getHeight() }; },
 
+  getCenter     : <span class="keyword">function</span>(){ <span class="keyword">return</span> { x: <span class="keyword">this</span>.getWidth()/<span class="number">2</span>, y: <span class="keyword">this</span>.getHeight() / <span class="number">2</span>}; },
+
   setDimensions : <span class="keyword">function</span>(width, height) {
     <span class="keyword">this</span>.el.setAttribute(<span class="string">'width'</span>, width);
     <span class="keyword">this</span>.el.setAttribute(<span class="string">'height'</span>, height);
