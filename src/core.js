@@ -273,7 +273,6 @@ Luv = Base.subclass('Luv', {
       luv.update(dt);           // Execute luv.update(dt) once per frame
 
       luv.graphics.setCanvas(); // And then invoke luv.draw()
-      luv.graphics.reset();     // But first set the defaults
       luv.graphics.clear();     // And clear everything
       luv.draw();
 
