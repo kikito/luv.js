@@ -12,7 +12,6 @@
     <div class="row">
       <div class="sidebar column">
         <ul id="example-selectors">
-
         </ul>
       </div>
       <div class="main column">
@@ -36,40 +35,76 @@
     (function() {
 
       var $textArea = document.getElementById('textarea'),
-          $iframe   = document.getElementById('iframe'),
-          $ul       = document.getElementById('example-selectors');
+          $iframe   = document.getElementById('iframe');
 
       var refreshIframe = function() {
-        var $doc = $iframe.contentWindow.document;
-        $doc.open();
-        $doc.write($textArea.value);
-        $doc.close();
+        var $parent   = $iframe.parentNode,
+            $newframe = document.createElement('iframe');
+
+        $parent.removeChild($iframe);
+        $parent.appendChild($newframe);
+
+        // settimeout gives the new frame time to "settle in" in the dom
+        // without it, sometimes it doesn't refresh correctly
+        setTimeout(function() {
+          var doc  = $newframe.contentWindow.document;
+          doc.open();
+          doc.write($textArea.value);
+          doc.close();
+
+          $iframe = $newframe;
+        }, 1);
       };
 
+      var addExampleToList = function(example) {
+        var $ul = document.getElementById('example-selectors'),
+            $li = document.createElement('li'),
+            $a  = document.createElement('a');
+
+        $a.href = "#" + example.id;
+        $a.innerHTML = example.name;
+        $a.addEventListener('click', function(evt) {
+          evt.preventDefault();
+          evt.stopPropagation();
+
+          $textArea.value = example.html;
+          refreshIframe();
+
+          return false;
+        });
+
+        $li.appendChild($a);
+        $ul.appendChild($li);
+      };
+
+      var getAnchor = function() {
+        var split = location.href.split("#");
+        return split.length > 1 ? split[split.length - 1] : "";
+      }
+
       document.addEventListener('DOMContentLoaded', function() {
+        var anchor   = getAnchor(),
+            isFilled = false;
+
         $textArea.focus();
         $textArea.addEventListener('input', refreshIframe);
 
         examples.forEach(function(example) {
-          var $li = document.createElement('li'),
-              $a  = document.createElement('a');
+          addExampleToList(example);
 
-          $a.href = "#" + example.id;
-          $a.innerHTML = example.name;
-          $a.addEventListener('click', function(evt) {
-            evt.preventDefault();
-            evt.stopPropagation();
-
+          // if we have an anchor, use it to fill the example
+          if(example.id == anchor) {
+            isFilled = true;
             $textArea.value = example.html;
             refreshIframe();
-
-            return false;
-          });
-
-          $li.appendChild($a);
-          $ul.appendChild($li);
+          }
         });
 
+        // if we have no anchor, just fill it with the first example
+        if(!isFilled) {
+          $textArea.value = examples[0].html;
+          refreshIframe();
+        }
       });
     }());
 
