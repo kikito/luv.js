@@ -213,10 +213,6 @@ Luv = Base.subclass('Luv', {
     luv.audio     = Luv.Audio(luv.media);
     luv.graphics  = Luv.Graphics(luv.el, luv.media);
 
-    // Attach onBlur/onFocus
-    luv.el.addEventListener('blur',  function() { luv.onBlur(); });
-    luv.el.addEventListener('focus', function() { luv.onFocus(); });
-
     // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
     if(options.fullWindow) {
       var resize = function() {
@@ -225,7 +221,12 @@ Luv = Base.subclass('Luv', {
       };
       window.addEventListener('resize', resize, false);
       window.addEventListener('orientationChange', resize, false);
+      luv.el.focus();
     }
+
+    // Attach onBlur/onFocus
+    luv.el.addEventListener('blur',  function() { luv.onBlur(); });
+    luv.el.addEventListener('focus', function() { luv.onFocus(); });
   },
 
   // Use the `load` function to start loading up resources:
