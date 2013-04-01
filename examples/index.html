@@ -56,6 +56,12 @@
         }, 1);
       };
 
+      var refreshInputTimeout;
+      var delayedRefreshIframe = function() {
+        clearTimeout(refreshInputTimeout);
+        refreshInputTimeout = setTimeout(refreshIframe, 1000);
+      };
+
       var addExampleToList = function(example) {
         var $ul = document.getElementById('example-selectors'),
             $li = document.createElement('li'),
@@ -77,6 +83,8 @@
         $ul.appendChild($li);
       };
 
+
+
       var getAnchor = function() {
         var split = location.href.split("#");
         return split.length > 1 ? split[split.length - 1] : "";
@@ -87,7 +95,7 @@
             isFilled = false;
 
         $textArea.focus();
-        $textArea.addEventListener('input', refreshIframe);
+        $textArea.addEventListener('input', delayedRefreshIframe);
 
         examples.forEach(function(example) {
           addExampleToList(example);
