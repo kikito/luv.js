@@ -3,22 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <title>Luv.js example viewer and tester</title>
-  <link rel="stylesheet"  href="normalize.css" />
-  <link rel="stylesheet"  href="style.css" />
+  <link rel="stylesheet"  href="css/normalize.css" />
+  <link rel="stylesheet"  href="css/style.css" />
 </head>
 <body>
 
   <div class="page">
     <div class="row">
       <div class="sidebar column">
-        <ul>
-          <li><a class="example-selector" href="#hello_luv">Hello Luv</a></li>
-          <li><a class="example-selector" href="#rectangles">Rectangles</a></li>
-          <li><a class="example-selector" href="#bubbles">Bubbles</a></li>
-          <li><a class="example-selector" href="#bob_the_square">Bob the Square</a></li>
-          <li><a class="example-selector" href="#cat_and_mouse">Cat and mouse</a></li>
-          <li><a class="example-selector" href="#paint">Paint</a></li>
-          <li><a class="example-selector" href="#ding">Ding</a></li>
+        <ul id="example-selectors">
+
         </ul>
       </div>
       <div class="main column">
@@ -37,14 +31,13 @@
     </div>
   </div>
 
+  <script src="examples.js"></script>
   <script>
     (function() {
-      var $textArea = document.getElementById('textarea');
-      var $iframe   = document.getElementById('iframe');
 
-      var toArray = function(obj) {
-        return Array.prototype.slice.call(obj, 0);
-      }
+      var $textArea = document.getElementById('textarea'),
+          $iframe   = document.getElementById('iframe'),
+          $ul       = document.getElementById('example-selectors');
 
       var refreshIframe = function() {
         var $doc = $iframe.contentWindow.document;
@@ -53,42 +46,36 @@
         $doc.close();
       };
 
-      var initializeExampleSelector = function($link) {
-        $link.addEventListener('click', function(evt) {
-          evt.preventDefault();
-          evt.stopPropagation();
-
-          var id      = $link.hash.replace("#", "");
-          var $script = document.getElementById(id);
-
-          $textArea.value = $script.innerHTML.trim();
-          refreshIframe();
-
-          $textArea.focus();
-
-          return false;
-        });
-      };
-
       document.addEventListener('DOMContentLoaded', function() {
-        $textArea.addEventListener('input', refreshIframe);
-        toArray(document.getElementsByClassName('example-selector')).forEach(initializeExampleSelector);
-
         $textArea.focus();
+        $textArea.addEventListener('input', refreshIframe);
+
+        examples.forEach(function(example) {
+          var $li = document.createElement('li'),
+              $a  = document.createElement('a');
+
+          $a.href = "#" + example.id;
+          $a.innerHTML = example.name;
+          $a.addEventListener('click', function(evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+
+            $textArea.value = example.html;
+            refreshIframe();
+
+            return false;
+          });
+
+          $li.appendChild($a);
+          $ul.appendChild($li);
+        });
+
       });
     }());
+
+
   </script>
 
-<script type="text/html" id="hello_luv">
-<html>
-  <head>
-    <title>Hello luv</title>
-  </head>
-  <body>
-    <p>Hello Luv</p>
-  </body>
-</html>
-</script>
 </body>
 </html>
 
