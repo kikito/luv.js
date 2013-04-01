@@ -20,7 +20,6 @@ Luv.Keyboard = Luv.Class('Luv.Keyboard', {
     keyboard.el        = el;
 
     el.tabIndex = 1;
-    el.focus();
 
     el.addEventListener('keydown', function(evt) {
       var key  = getKeyFromEvent(evt);
