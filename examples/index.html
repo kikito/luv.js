@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Luv.js example viewer and tester</title>
+  <link rel="stylesheet"  href="normalize.css" />
+  <link rel="stylesheet"  href="style.css" />
+</head>
+<body>
+
+  <div class="page">
+    <div class="row">
+      <div class="sidebar column">
+        <ul>
+          <li><a class="example-selector" href="#hello_luv">Hello Luv</a></li>
+          <li><a class="example-selector" href="#rectangles">Rectangles</a></li>
+          <li><a class="example-selector" href="#bubbles">Bubbles</a></li>
+          <li><a class="example-selector" href="#bob_the_square">Bob the Square</a></li>
+          <li><a class="example-selector" href="#cat_and_mouse">Cat and mouse</a></li>
+          <li><a class="example-selector" href="#paint">Paint</a></li>
+          <li><a class="example-selector" href="#ding">Ding</a></li>
+        </ul>
+      </div>
+      <div class="main column">
+        <div class="row">
+          <div class="code column">
+            <form action="#">
+              <textarea id="textarea"></textarea>
+            </form>
+          </div>
+          <div class="iframe column">
+            <iframe id="iframe">
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var $textArea = document.getElementById('textarea');
+      var $iframe   = document.getElementById('iframe');
+
+      var toArray = function(obj) {
+        return Array.prototype.slice.call(obj, 0);
+      }
+
+      var refreshIframe = function() {
+        var $doc = $iframe.contentWindow.document;
+        $doc.open();
+        $doc.write($textArea.value);
+        $doc.close();
+      };
+
+      var initializeExampleSelector = function($link) {
+        $link.addEventListener('click', function(evt) {
+          evt.preventDefault();
+          evt.stopPropagation();
+
+          var id      = $link.hash.replace("#", "");
+          var $script = document.getElementById(id);
+
+          $textArea.value = $script.innerHTML.trim();
+          refreshIframe();
+
+          $textArea.focus();
+
+          return false;
+        });
+      };
+
+      document.addEventListener('DOMContentLoaded', function() {
+        $textArea.addEventListener('input', refreshIframe);
+        toArray(document.getElementsByClassName('example-selector')).forEach(initializeExampleSelector);
+
+        $textArea.focus();
+      });
+    }());
+  </script>
+
+<script type="text/html" id="hello_luv">
+<html>
+  <head>
+    <title>Hello luv</title>
+  </head>
+  <body>
+    <p>Hello Luv</p>
+  </body>
+</html>
+</script>
+</body>
+</html>
+
