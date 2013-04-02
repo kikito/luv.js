@@ -38,26 +38,6 @@ module.exports = function(grunt) {
     ]);
   };
 
-
-  var generateExamples = function(output) {
-    var isExample  = function(path) { return (/\.html$/).test(path) && path != "index.html"; },
-        removeHtml = function(path) { return path.slice(0, -5); },
-        humanize   = function(str)  { return str.replace(/_/g, " "); },
-        makeUpper  = function(str)  { return str.toUpperCase(); },
-        capitalize = function(str)  { return str.replace(/(^| )(\w)/g, makeUpper); },
-        examples   = [];
-
-    fs.readdirSync('examples').filter(isExample).sort().forEach(function(filename) {
-      var id   = removeHtml(filename),
-          name = capitalize(humanize(id)),
-          html = fs.readFileSync('examples/' + filename, 'utf8');
-
-      examples.push({id: id, name: name, html: html});
-    });
-
-    fs.writeFileSync(output + "/examples.js", 'var examples = ' + JSON.stringify(examples) + ';');
-  };
-
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     banner: "/*! <%= pkg.name %> <%= pkg.version %> (<%= grunt.template.today('yyyy-mm-dd') %>) - <%= pkg.homepage %> */\n" +
@@ -110,7 +90,22 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('examples', 'generates examples/index.html', function() {
-    generateExamples('examples');
+    var isExample  = function(path) { return (/\.html$/).test(path) && path != "index.html"; },
+        removeHtml = function(path) { return path.slice(0, -5); },
+        humanize   = function(str)  { return str.replace(/_/g, " "); },
+        makeUpper  = function(str)  { return str.toUpperCase(); },
+        capitalize = function(str)  { return str.replace(/(^| )(\w)/g, makeUpper); },
+        examples   = [];
+
+    fs.readdirSync('examples').filter(isExample).sort().forEach(function(filename) {
+      var id   = removeHtml(filename),
+          name = capitalize(humanize(id)),
+          html = fs.readFileSync('examples/' + filename, 'utf8');
+
+      examples.push({id: id, name: name, html: html});
+    });
+
+    fs.writeFileSync("examples/js/example-data.js", 'var examples = ' + JSON.stringify(examples) + ';');
   });
 
   grunt.registerTask('gh-pages', 'generates the docs with docco and publishes to github pages', function() {
