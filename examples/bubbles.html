@@ -1,76 +1,83 @@
 <!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Refreshing Bubbles!</title>
-  <script src="../luv.js"></script>
-</head>
+<html><head><meta charset="utf-8" /><title>Drawing and updating</title></head>
 <body>
-  <script>
-    var luv = Luv({fullWindow: true});
+<script src="../luv.js"></script>
+<script>
 
-    var rand = function(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
+// This Luv.js example shows how to draw circles and move them around.
+var luv = Luv({fullWindow: true});
 
-    var newBubble = function() {
-      var sd = luv.graphics.getDimensions();
-      return {
-        x : rand(25, sd.width - 25),
-        y : sd.height + rand(50, 100),
-        r : rand(10, 40),
-        vy: rand(30, 80)
-      };
-    };
+// This array will hold all the bubbles in the game
+var bubbles = [];
 
-    var bubbles = [];
+// Rand is a simplified function that returns a random name between min and max
+var rand = function(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
 
-    luv.load = function() {
-      for(var i=1; i<100; i++) {
-        bubbles.push(newBubble());
-      }
-      luv.graphics.setBackgroundColor(255,0,30);
-    };
+// newBubble returns a js object representing a bubble
+var newBubble = function() {
+  var sd = luv.graphics.getDimensions();
+  return {
+    x : rand(25, sd.width - 25),
+    y : sd.height + rand(50, 100),
+    r : rand(10, 40),
+    vy: rand(30, 80)
+  };
+};
 
-    luv.update = function(dt) {
-      var bubble;
+// we use luv.load to initialize our game. In this case, create 100 bubbles,
+// store them inside the bubbles array, and set the background color
+luv.load = function() {
+  for(var i=1; i<100; i++) {
+    bubbles.push(newBubble());
+  }
+  luv.graphics.setBackgroundColor(255,0,30);
+};
 
-      for(var i=0; i < bubbles.length; i++) {
-        bubble = bubbles[i];
-        bubble.y -= bubble.vy * dt;
+// luv.update just moves bubbles up until they exit the screen. Then, it replaces
+// them by new bubbles, which raise from the bottom.
+luv.update = function(dt) {
+  var bubble;
 
-        if(bubble.y < -50) {
-          bubbles[i] = newBubble();
-        }
-      }
-    };
+  for(var i=0; i < bubbles.length; i++) {
+    bubble = bubbles[i];
+    bubble.y -= bubble.vy * dt;
 
-    luv.draw = function() {
-      var sd = luv.graphics.getDimensions();
-      var bubble;
+    if(bubble.y < -50) {
+      bubbles[i] = newBubble();
+    }
+  }
+};
 
-      for(var i=0; i < bubbles.length; i++) {
-        bubble = bubbles[i];
-        luv.graphics.setColor(255,98,0);
-        luv.graphics.fillCircle(bubble.x, bubble.y, bubble.r);
+// luv.draw draws the bubbles, as a series of circles. Try changing the colors
+luv.draw = function() {
+  var sd = luv.graphics.getDimensions();
+  var bubble;
 
-        luv.graphics.setLineWidth(bubble.r/7.0);
-        luv.graphics.setColor(255,225,200);
-        luv.graphics.strokeCircle(bubble.x, bubble.y, bubble.r);
+  for(var i=0; i < bubbles.length; i++) {
+    bubble = bubbles[i];
+    luv.graphics.setColor(255,98,0);
+    luv.graphics.fillCircle(bubble.x, bubble.y, bubble.r);
 
-        luv.graphics.fillCircle(
-          bubble.x - bubble.r/2,
-          bubble.y - bubble.r/2.5,
-          bubble.r / 3);
-      }
+    luv.graphics.setLineWidth(bubble.r/7.0);
+    luv.graphics.setColor(255,225,200);
+    luv.graphics.strokeCircle(bubble.x, bubble.y, bubble.r);
 
-      luv.graphics.setColor(255,225,255);
-      var fps = Math.round(luv.timer.getFPS());
-      luv.graphics.print("FPS: " + fps, sd.width - 40, 10);
-    };
+    luv.graphics.fillCircle(
+      bubble.x - bubble.r/2,
+      bubble.y - bubble.r/2.5,
+      bubble.r / 3);
+  }
 
-    luv.run();
+  luv.graphics.setColor(255,225,255);
+  var fps = Math.round(luv.timer.getFPS());
+  luv.graphics.print("FPS: " + fps, sd.width - 40, 10);
+};
 
-  </script>
+// Don't forget to execute luv.run, or the game will not start.
+luv.run();
+
+</script>
 </body>
 </html>

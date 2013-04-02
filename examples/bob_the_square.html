@@ -1,76 +1,86 @@
 <!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Who lives in a pineapple under the sea?</title>
-  <script src="../luv.js"></script>
-</head>
+<html><head><meta charset="utf-8" /><title>Keyboard and primitive drawing</title></head>
 <body>
-  <script>
-    var luv = Luv();
+<script src="../luv.js"></script>
+<script>
+// This Luv.js example shows the two different ways to use the keyboard in Luv.js
+// You can move Bob with the arrow keys (make sure to click on the game to focus
+// it first)
 
-    var bob = {x: 400, y: 280, dx: 0, dy: 0, w:50, h:50};
+var luv = Luv();
 
-    luv.draw = function() {
-      luv.graphics.setColor(255,255,0);
-      var l = bob.x - bob.w/2,
-          t = bob.y - bob.h/2,
-          w = bob.w,
-          h = bob.h;
-      luv.graphics.fillRectangle(l,t,w,h);
+// This is bob. It's a Javascript object with some values inside
+var bob = {x: 400, y: 280, dx: 0, dy: 0, w:50, h:50};
 
-      luv.graphics.setColor(128,128,0);
-      luv.graphics.setLineWidth(3);
-      luv.graphics.strokeRectangle(l,t,w,h);
+// luv.update is where the game intelligence goes. In this case
+// we use it to change Bob's internal dy variable by calling
+// luv.keyboard.isDown
+luv.update = function(dt) {
+  bob.dy = 0;
 
-      luv.graphics.setColor(255,255,255);
+  if(luv.keyboard.isDown('up'))    { bob.dy = -1; }
+  if(luv.keyboard.isDown('down'))  { bob.dy = 1; }
 
-      var r  = w/5,
-          r2 = w/13;
+  bob.x += bob.dx * 60 * dt;
+  bob.y += bob.dy * 60 * dt;
+};
 
-      var x1 = l + r + r2,
-          y = t + r + r2,
-          x2 = l + w - r - r2;
+// luv.keyboard.onPressed gets called every time a key is pressed. On this
+// case we use it to change bobs' dx variable
+luv.keyboard.onPressed = function(key, code) {
+  if(key == 'left')       { bob.dx = -1; }
+  else if(key == 'right') { bob.dx = 1;  }
+};
 
-      luv.graphics.fillCircle(x1, y, r);
-      luv.graphics.fillCircle(x2, y, r);
+// luv.keyboard.onPressed gets called every time a key is pressed. On this
+// case we use it to change bobs' dx variable
+luv.keyboard.onReleased = function(key, code) {
+  if((key == 'left' && bob.dx == -1) ||
+     (key == 'right' && bob.dx == 1)) {
+       bob.dx = 0;
+  }
+};
 
-      luv.graphics.setColor(0,0,0);
-      luv.graphics.setLineWidth(1);
-      luv.graphics.strokeCircle(x1,y,r);
-      luv.graphics.fillCircle(x1 + bob.dx * r2,y + bob.dy * r2,r2);
-      luv.graphics.strokeCircle(x2,y,r);
-      luv.graphics.fillCircle(x2 + bob.dx * r2,y + bob.dy * r2,r2);
+// This big function draws bob as a series of circles, squares and arcs
+// Try changing some of the colors
+luv.draw = function() {
+  luv.graphics.setColor(255,255,0);
+  var l = bob.x - bob.w/2,
+      t = bob.y - bob.h/2,
+      w = bob.w,
+      h = bob.h;
+  luv.graphics.fillRectangle(l,t,w,h);
 
-      luv.graphics.strokeCircle(bob.x, bob.y, r2);
-      luv.graphics.strokeArc(bob.x, bob.y, 2*r, 0, Math.PI);
-    };
+  luv.graphics.setColor(128,128,0);
+  luv.graphics.setLineWidth(3);
+  luv.graphics.strokeRectangle(l,t,w,h);
 
-    luv.update = function(dt) {
-      bob.dy = 0;
+  luv.graphics.setColor(255,255,255);
 
-      // up/down is managed via luv.keyboard.isDown
-      if(luv.keyboard.isDown('up'))    { bob.dy = -1; }
-      if(luv.keyboard.isDown('down'))  { bob.dy = 1; }
+  var r  = w/5,
+      r2 = w/13;
 
-      bob.x += bob.dx * 60 * dt;
-      bob.y += bob.dy * 60 * dt;
-    };
+  var x1 = l + r + r2,
+      y = t + r + r2,
+      x2 = l + w - r - r2;
 
-    // left/right is managed via luv.keyboard.onPressed & luv.keyboard.onReleased
-    luv.keyboard.onPressed = function(key, code) {
-      if(key == 'left')       { bob.dx = -1; }
-      else if(key == 'right') { bob.dx = 1;  }
-    };
+  luv.graphics.fillCircle(x1, y, r);
+  luv.graphics.fillCircle(x2, y, r);
 
-    luv.keyboard.onReleased = function(key, code) {
-      if((key == 'left' && bob.dx == -1) ||
-         (key == 'right' && bob.dx == 1)) {
-           bob.dx = 0;
-      }
-    };
+  luv.graphics.setColor(0,0,0);
+  luv.graphics.setLineWidth(1);
+  luv.graphics.strokeCircle(x1,y,r);
+  luv.graphics.fillCircle(x1 + bob.dx * r2,y + bob.dy * r2,r2);
+  luv.graphics.strokeCircle(x2,y,r);
+  luv.graphics.fillCircle(x2 + bob.dx * r2,y + bob.dy * r2,r2);
 
-    luv.run();
-  </script>
+  luv.graphics.strokeCircle(bob.x, bob.y, r2);
+  luv.graphics.strokeArc(bob.x, bob.y, 2*r, 0, Math.PI);
+};
+
+// luv.run starts the game. If this line is removed, the game doesn't start
+luv.run();
+
+</script>
 </body>
 </html>
