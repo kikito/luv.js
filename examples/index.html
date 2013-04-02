@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <title>Luv.js example viewer and tester</title>
   <link rel="stylesheet"  href="css/normalize.css" />
+  <link rel="stylesheet"  href="css/codemirror.css" />
   <link rel="stylesheet"  href="css/style.css" />
 </head>
 <body>
@@ -18,28 +19,29 @@
         <div class="row">
           <div class="code column">
             <form action="#">
-              <textarea id="textarea"></textarea>
+              <textarea></textarea>
             </form>
           </div>
           <div class="iframe column">
-            <iframe id="iframe">
-            </iframe>
+            <iframe></iframe>
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <script src="js/codemirror.js"></script>
   <script src="examples.js"></script>
   <script>
     (function() {
 
-      var $textArea = document.getElementById('textarea'),
-          $iframe   = document.getElementById('iframe');
+      var $code, $iframe, refreshInputTimeout;
 
       var refreshIframe = function() {
         var $parent   = $iframe.parentNode,
             $newframe = document.createElement('iframe');
+
+        clearTimeout(refreshInputTimeout);
 
         $parent.removeChild($iframe);
         $parent.appendChild($newframe);
@@ -49,14 +51,13 @@
         setTimeout(function() {
           var doc  = $newframe.contentWindow.document;
           doc.open();
-          doc.write($textArea.value);
+          doc.write($code.getValue());
           doc.close();
 
           $iframe = $newframe;
         }, 1);
       };
 
-      var refreshInputTimeout;
       var delayedRefreshIframe = function() {
         clearTimeout(refreshInputTimeout);
         refreshInputTimeout = setTimeout(refreshIframe, 1000);
@@ -73,7 +74,7 @@
           evt.preventDefault();
           evt.stopPropagation();
 
-          $textArea.value = example.html;
+          $code.setValue(example.html);
           refreshIframe();
 
           return false;
@@ -84,18 +85,21 @@
       };
 
 
-
       var getAnchor = function() {
         var split = location.href.split("#");
         return split.length > 1 ? split[split.length - 1] : "";
       }
 
       document.addEventListener('DOMContentLoaded', function() {
-        var anchor   = getAnchor(),
-            isFilled = false;
+        var anchor    = getAnchor(),
+            isFilled  = false,
+            $textArea = document.getElementsByTagName('textarea')[0];
 
-        $textArea.focus();
-        $textArea.addEventListener('input', delayedRefreshIframe);
+        $iframe = document.getElementsByTagName('iframe')[0];
+
+        $code = CodeMirror.fromTextArea($textArea, {mode: "htmlmixed"});
+
+        $code.on('change', delayedRefreshIframe);
 
         examples.forEach(function(example) {
           addExampleToList(example);
@@ -103,14 +107,14 @@
           // if we have an anchor, use it to fill the example
           if(example.id == anchor) {
             isFilled = true;
-            $textArea.value = example.html;
+            $code.setValue(example.html);
             refreshIframe();
           }
         });
 
         // if we have no anchor, just fill it with the first example
         if(!isFilled) {
-          $textArea.value = examples[0].html;
+          $code.setValue(examples[0].html);
           refreshIframe();
         }
       });
