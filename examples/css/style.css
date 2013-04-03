@@ -1,0 +1,59 @@
+
+*{ box-sizing:border-box; }
+
+body, html, form, textarea, iframe, .row, .column {
+  height: 100%;
+}
+
+body, html, form, textarea, iframe {
+  width: 100%;
+}
+
+.page {
+  margin: 1%;
+  height: 96%;
+}
+
+.row {
+  margin: 0;
+  padding: 0;
+  letter-spacing:-0.31em;
+  margin-left: -15px;
+}
+
+.column {
+  display: inline-block;
+  vertical-align: top;
+  letter-spacing:normal;
+  word-spacing:normal;
+  padding-left: 15px;
+}
+
+.code      { width: 40%; }
+.iframe    { width: 58%; }
+.sidebar   { width: 10%; }
+.main      { width: 88%; }
+
+iframe, textarea {
+  border: 1px solid black;
+}
+
+.plain-list {
+  padding: 0;
+  margin: 0;
+}
+
+.plain-list li{
+  list-style: none;
+}
+
+/* codemirror customization */
+
+.CodeMirror {
+  width: 100%;
+  height: 100%;
+  border: 1px solid black;
+}
+
+
+

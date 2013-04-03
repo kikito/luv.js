@@ -19,16 +19,19 @@ Luv.Keyboard = Luv.Class('Luv.Keyboard', {
     keyboard.keysDown  = {};
     keyboard.el        = el;
 
-    el.tabIndex = 1;
-    el.focus();
-
     el.addEventListener('keydown', function(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       var key  = getKeyFromEvent(evt);
       keyboard.keysDown[key] = true;
       keyboard.onPressed(key, evt.which);
     });
 
     el.addEventListener('keyup', function(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       var key  = getKeyFromEvent(evt);
       keyboard.keysDown[key] = false;
       keyboard.onReleased(key, evt.which);

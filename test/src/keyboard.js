@@ -8,16 +8,7 @@ describe("Luv.Keyboard", function() {
 
     beforeEach(function(){
       el = document.createElement('canvas');
-      var focus = sinon.spy(el, 'focus');
       keyboard = Luv.Keyboard(el);
-      expect(el.tabIndex).to.equal(1);
-      expect(focus).to.have.been.called;
-    });
-
-    describe("constructor", function(){
-      it("assigns a tab index to the down element it receives", function() {
-        expect(el.tabIndex).to.equal(1);
-      });
     });
 
     describe(".onPressed", function(){

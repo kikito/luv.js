@@ -1,91 +1,90 @@
 <!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Situation is FUBAR</title>
-  <script src="../luv.js"></script>
-</head>
+<html><head><meta charset="utf-8" /><title>Animations example</title></head>
 <body>
-  <script>
+<script src="../luv.js"></script>
+<script>
 
-    var luv = Luv();
+// This Luv.js example shows off how to work with Animations
 
-    var fighters, lockHeed, hydro, lockHeedAngle, hydroAngle, submarine;
+var luv = Luv();
 
-    luv.load = function() {
-      var img = luv.graphics.Image('img/1945.png');
-                                            // sprite size, offset, border
-      var s32 = luv.graphics.SpriteSheet(img,     32,32,     3,3,    1);
+var mustangs, lockHeed, hydro, lockHeedAngle, hydroAngle, submarine;
 
-      fighters = [ //   x     y     frame delay
-        s32.Animation(['0-7', 0],   0.1),
-        s32.Animation(['0-7', 1],   0.2),
-        s32.Animation(['0-7', 2],   0.3),
-        s32.Animation(['0-7', 3],   0.4),
-        s32.Animation(['0-7', 4],   0.5),
+// luv.load is normally where the game gets initialized, and where resources are loaded
+luv.load = function() {
+  // Uncomment to deactivate image aliasing on the two big planes
+  // luv.graphics.setImageSmoothing(false);
 
-                  //   x1    y1    x2   y2     frame delay
-        s32.Animation([17, '6-10', 17, '9-7'], 0.6),
-        s32.Animation([18, '6-10', 18, '9-7'], 0.7),
-        s32.Animation([19, '6-10', 19, '9-7'], 0.8),
-        s32.Animation([20, '6-10', 20, '9-7'], 0.9)
-      ];
+  var img = luv.graphics.Image('img/1945.png');
 
-                                            // sprite size, offset, border
-      var s65 = luv.graphics.SpriteSheet(img,     65,65,     300,102, 1);
+  // create 3 spritesheets: 1 for the small planes, 1 for the big ones, and
+  // one for the submarine.       Params:   sprite size,  top,left, border size
+  var s32  = luv.graphics.SpriteSheet(img,     32,32,       3,3,        1);
+  var s65  = luv.graphics.SpriteSheet(img,     65,65,     300,102,      1);
+  var sSub = luv.graphics.SpriteSheet(img,     32,98,     366,102,      1);
 
-      lockHeed = s65.Animation([0, '0-2'], 0.1);
-      hydro    = s65.Animation(['1-3', 2], 0.1);
+  mustangs = [
+              //   x1    y1   frame duration
+    s32.Animation(['0-7', 1],   0.2),
+    s32.Animation(['0-7', 2],   0.3),
+    s32.Animation(['0-7', 3],   0.4),
+    s32.Animation(['0-7', 4],   0.5),
 
-      lockHeedAngle = 0;
-      hydroAngle    = 0;
+              //   x1    y1    x2    y2  frame duration
+    s32.Animation([17, '6-10', 17, '9-7'], 0.6),
+    s32.Animation([18, '6-10', 18, '9-7'], 0.7),
+    s32.Animation([19, '6-10', 19, '9-7'], 0.8),
+    s32.Animation([20, '6-10', 20, '9-7'], 0.9)
+  ];
 
-      var sSub = luv.graphics.SpriteSheet(img,     32,98,     366,102, 1);
+  lockHeed      = s65.Animation([0, '0-2'], 0.1);
+  lockHeedAngle = 0;
 
-                                 // x1   y1   x2   y2  durations in object format
-      submarine = sSub.Animation(['0-6', 0, '5-1', 0], { 0: 1,
-                                                        '1-5': 0.1,
-                                                         6: 1,
-                                                        '7-11': 0.1
-                                                       });
+  hydro         = s65.Animation(['1-3', 2], 0.1);
+  hydroAngle    = 0;
 
-      // equivalent to this:       (Notice the 1s        here                      and here)
-      //submarine = sSub.Animation(['0-6', 0, '5-1', 0], [1, 0.1, 0.1, 0.1, 0.1, 0.1, 1, 0.1, 0.1, 0.1, 0.1, 0.1]);
-    };
+  submarine = sSub.Animation(
+    ['0-6', 0, '5-1', 0], // x1, y1, x2, y2
+    { 0: 1, '1-5': 0.1, 6: 1, '7-11': 0.1} // frame durations (in object format)
+  );
+};
 
-    luv.update = function(dt) {
-      if(!luv.media.isLoaded()) { return; }
+// luv.update for updating variables: the game "thinks" and "moves" here
+luv.update = function(dt) {
+  // If the image is not loaded, just return
+  if(!luv.media.isLoaded()) { return; }
 
-      for(var i=0; i < fighters.length; i++) {
-        fighters[i].update(dt);
-      }
+  // update all animations
+  for(var i=0; i < mustangs.length; i++) { mustangs[i].update(dt); }
+  lockHeed.update(dt);
+  hydro.update(dt);
+  submarine.update(dt);
 
-      lockHeed.update(dt);
-      hydro.update(dt);
-      submarine.update(dt);
+  // The angles of the two big planes. Try switching the signs below
+  lockHeedAngle += dt;
+  hydroAngle    -= dt;
+};
 
-      lockHeedAngle += dt;
-      hydroAngle    -= dt;
+// luv.draw is where the drawing actions go
+luv.draw = function() {
+  // Do nothing until the image is loaded
+  if(!luv.media.isLoaded()) { return; }
 
-      // Not recommended when displaying rotated or centered images
-      // luv.graphics.setImageSmoothing(false);
-    };
+  // Draw the small planes
+  for(var i=0; i < mustangs.length; i++) {
+    luv.graphics.draw(mustangs[i], (i+1)*75, (i+1)*50);
+  }
 
-    luv.draw = function() {
+  // Draw the big planes, spinning
+  luv.graphics.drawCentered(lockHeed, 100, 432, lockHeedAngle);
+  luv.graphics.drawCentered(hydro,    250, 432, hydroAngle);
 
-      if(!luv.media.isLoaded()) { return; }
+  // Draw the submarine. Try changing these coordinates
+  luv.graphics.draw(submarine, 500, 100);
+};
 
-      for(var i=0; i < fighters.length; i++) {
-        luv.graphics.draw(fighters[i], (i+1)*75, (i+1)*50);
-      }
+luv.run();
 
-      luv.graphics.drawCentered(lockHeed, 100, 432, lockHeedAngle);
-      luv.graphics.drawCentered(hydro,    250, 432, hydroAngle);
-
-      luv.graphics.draw(submarine, 500, 100);
-    };
-
-    luv.run();
-  </script>
+</script>
 </body>
 </html>

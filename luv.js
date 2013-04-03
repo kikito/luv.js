@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-31) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-03) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -201,6 +201,9 @@ Luv = Base.subclass('Luv', {
     // and inserted into the document's body.
     luv.el  = options.el;
 
+    // make el focus-able
+    luv.el.tabIndex = 1;
+
     "load update draw run onResize onBlur onFocus".split(" ").forEach(function(name) {
       if(options[name]) { luv[name] = options[name]; }
     });
@@ -213,9 +216,6 @@ Luv = Base.subclass('Luv', {
     luv.audio     = Luv.Audio(luv.media);
     luv.graphics  = Luv.Graphics(luv.el, luv.media);
 
-    // Attach onBlur/onFocus
-    luv.el.addEventListener('blur',  function() { luv.onBlur(); });
-    luv.el.addEventListener('focus', function() { luv.onFocus(); });
 
     // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
     if(options.fullWindow) {
@@ -225,7 +225,12 @@ Luv = Base.subclass('Luv', {
       };
       window.addEventListener('resize', resize, false);
       window.addEventListener('orientationChange', resize, false);
+      luv.el.focus();
     }
+
+    // Attach onBlur/onFocus
+    luv.el.addEventListener('blur',  function() { luv.onBlur(); });
+    luv.el.addEventListener('focus', function() { luv.onFocus(); });
   },
 
   // Use the `load` function to start loading up resources:
@@ -516,16 +521,19 @@ Luv.Keyboard = Luv.Class('Luv.Keyboard', {
     keyboard.keysDown  = {};
     keyboard.el        = el;
 
-    el.tabIndex = 1;
-    el.focus();
-
     el.addEventListener('keydown', function(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       var key  = getKeyFromEvent(evt);
       keyboard.keysDown[key] = true;
       keyboard.onPressed(key, evt.which);
     });
 
     el.addEventListener('keyup', function(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       var key  = getKeyFromEvent(evt);
       keyboard.keysDown[key] = false;
       keyboard.onReleased(key, evt.which);
