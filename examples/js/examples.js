@@ -2,6 +2,20 @@
 
   var $code, $iframe, refreshInputTimeout;
 
+  var ordered_example_ids =
+    "hello_luv rectangles bubbles bob_the_square cat_and_mouse airplanes ding paint"
+      .split(" "),
+    humanize   = function(str)  { return str.replace(/_/g, " "); },
+    makeUpper  = function(str)  { return str.toUpperCase(); },
+    capitalize = function(str)  { return str.replace(/(^| )(\w)/g, makeUpper); },
+    examples = ordered_example_ids.map(function(id) {
+      return {
+        id: id,
+        title: capitalize(humanize(id)),
+        html: example_data[id]
+      };
+    });
+
   var refreshIframe = function() {
     var $parent   = $iframe.parentNode,
         $newframe = document.createElement('iframe');
@@ -34,7 +48,7 @@
         $a  = document.createElement('a');
 
     $a.href = "#" + example.id;
-    $a.innerHTML = example.name;
+    $a.innerHTML = example.title;
     $a.addEventListener('click', function(evt) {
       evt.preventDefault();
       evt.stopPropagation();
