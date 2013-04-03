@@ -39,6 +39,8 @@
       evt.preventDefault();
       evt.stopPropagation();
 
+      window.location.hash = example.id;
+
       $code.setValue(example.html);
       refreshIframe();
 
