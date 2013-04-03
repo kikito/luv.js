@@ -173,16 +173,19 @@ example:</p>
     keyboard.keysDown  = {};
     keyboard.el        = el;
 
-    el.tabIndex = <span class="number">1</span>;
-    el.focus();
-
     el.addEventListener(<span class="string">'keydown'</span>, <span class="keyword">function</span>(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       <span class="keyword">var</span> key  = getKeyFromEvent(evt);
       keyboard.keysDown[key] = <span class="literal">true</span>;
       keyboard.onPressed(key, evt.which);
     });
 
     el.addEventListener(<span class="string">'keyup'</span>, <span class="keyword">function</span>(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       <span class="keyword">var</span> key  = getKeyFromEvent(evt);
       keyboard.keysDown[key] = <span class="literal">false</span>;
       keyboard.onReleased(key, evt.which);

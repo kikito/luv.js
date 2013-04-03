@@ -187,9 +187,9 @@ applying effects. Usage:</p>
 
   getContext    : <span class="keyword">function</span>(){ <span class="keyword">return</span> <span class="keyword">this</span>.el.getContext(<span class="string">'2d'</span>); },
 
-  getWidth      : <span class="keyword">function</span>(){ <span class="keyword">return</span> parseInt(<span class="keyword">this</span>.el.getAttribute(<span class="string">'width'</span>), <span class="number">10</span>); },
+  getWidth      : <span class="keyword">function</span>(){ <span class="keyword">return</span> Number(<span class="keyword">this</span>.el.getAttribute(<span class="string">'width'</span>)); },
 
-  getHeight     : <span class="keyword">function</span>(){ <span class="keyword">return</span> parseInt(<span class="keyword">this</span>.el.getAttribute(<span class="string">'height'</span>), <span class="number">10</span>); },
+  getHeight     : <span class="keyword">function</span>(){ <span class="keyword">return</span> Number(<span class="keyword">this</span>.el.getAttribute(<span class="string">'height'</span>)); },
 
   getDimensions : <span class="keyword">function</span>(){ <span class="keyword">return</span> { width: <span class="keyword">this</span>.getWidth(), height: <span class="keyword">this</span>.getHeight() }; },
 

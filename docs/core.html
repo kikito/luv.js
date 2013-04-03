@@ -390,11 +390,7 @@ and inserted into the document&#39;s body.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    luv.el  = options.el;
-
-    <span class="string">"load update draw run onResize onBlur onFocus"</span>.split(<span class="string">" "</span>).forEach(<span class="keyword">function</span>(name) {
-      <span class="keyword">if</span>(options[name]) { luv[name] = options[name]; }
-    });</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    luv.el  = options.el;</pre></div></div>
             
         </li>
         
@@ -404,6 +400,25 @@ and inserted into the document&#39;s body.</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>make el focus-able</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    luv.el.tabIndex = <span class="number">1</span>;
+
+    <span class="string">"load update draw run onResize onBlur onFocus"</span>.split(<span class="string">" "</span>).forEach(<span class="keyword">function</span>(name) {
+      <span class="keyword">if</span>(options[name]) { luv[name] = options[name]; }
+    });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
               <p>Initialize all the game submodules (see their docs for more info about each one)</p>
 
@@ -415,22 +430,6 @@ and inserted into the document&#39;s body.</p>
     luv.mouse     = Luv.Mouse(luv.el);
     luv.audio     = Luv.Audio(luv.media);
     luv.graphics  = Luv.Graphics(luv.el, luv.media);</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-13">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
-              </div>
-              <p>Attach onBlur/onFocus</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    luv.el.addEventListener(<span class="string">'blur'</span>,  <span class="keyword">function</span>() { luv.onBlur(); });
-    luv.el.addEventListener(<span class="string">'focus'</span>, <span class="keyword">function</span>() { luv.onFocus(); });</pre></div></div>
             
         </li>
         
@@ -452,8 +451,8 @@ and inserted into the document&#39;s body.</p>
       };
       window.addEventListener(<span class="string">'resize'</span>, resize, <span class="literal">false</span>);
       window.addEventListener(<span class="string">'orientationChange'</span>, resize, <span class="literal">false</span>);
-    }
-  },</pre></div></div>
+      luv.el.focus();
+    }</pre></div></div>
             
         </li>
         
@@ -463,6 +462,23 @@ and inserted into the document&#39;s body.</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Attach onBlur/onFocus</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    luv.el.addEventListener(<span class="string">'blur'</span>,  <span class="keyword">function</span>() { luv.onBlur(); });
+    luv.el.addEventListener(<span class="string">'focus'</span>, <span class="keyword">function</span>() { luv.onFocus(); });
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>Use the <code>load</code> function to start loading up resources:</p>
 <pre><code>  var image;
@@ -489,11 +505,11 @@ function below for details). By default, it does nothing (it is an empty functio
         </li>
         
         
-        <li id="section-16">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
               <p>Use the draw function to draw everything on the canvas. For example:</p>
 <pre><code>  var luv = Luv();
@@ -516,11 +532,11 @@ function below for details). By default, it does nothing (it is an empty functio
         </li>
         
         
-        <li id="section-17">
+        <li id="section-18">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
+                <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
               <p>Use the <code>update</code> function to update your game objects/variables between frames.
 Note that <code>update</code> has a parameter <code>dt</code>, which is the time that has passed since the last frame.
@@ -551,11 +567,11 @@ the time between frames stays constant</em>.</p>
         </li>
         
         
-        <li id="section-18">
+        <li id="section-19">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-18">&#182;</a>
+                <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
               <p>The <code>run</code> function provides a default game loop. It is usually a good default, and you rarely will need to
 change it. But you could, if you so desired, the same way you can change <code>load</code>, <code>update</code> and <code>draw</code> (as a
@@ -573,11 +589,11 @@ field of the <code>luv</code> variable or as an option).</p>
         </li>
         
         
-        <li id="section-19">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-19">&#182;</a>
+                <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
               <p>The first thing we do is updating the timer with the new frame</p>
 
@@ -588,11 +604,11 @@ field of the <code>luv</code> variable or as an option).</p>
         </li>
         
         
-        <li id="section-20">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
+                <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
               <p>We obtain dt (the difference between previous and this frame&#39;s timestamp, in seconds) and pass it
 to luv.update</p>
@@ -609,11 +625,11 @@ to luv.update</p>
         </li>
         
         
-        <li id="section-21">
+        <li id="section-22">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
+                <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
               <p>This enqueues another call to the loop function in the next available frame</p>
 
@@ -625,11 +641,11 @@ to luv.update</p>
         </li>
         
         
-        <li id="section-22">
+        <li id="section-23">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-22">&#182;</a>
+                <a class="pilcrow" href="#section-23">&#182;</a>
               </div>
               <p>Once the loop function is defined, we call it once, so the cycle begins</p>
 
@@ -641,11 +657,11 @@ to luv.update</p>
         </li>
         
         
-        <li id="section-23">
+        <li id="section-24">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-23">&#182;</a>
+                <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
               <p><code>onResize</code> gets called when <code>fullWindow</code> is active and the window is resized. It can be used to
 control game resizings, i.e. recalculate your camera&#39;s viewports. By default, it does nothing.</p>
@@ -657,11 +673,11 @@ control game resizings, i.e. recalculate your camera&#39;s viewports. By default
         </li>
         
         
-        <li id="section-24">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <p>overridable callback which is called when the main game element loses focus.
 useful for things like pausing a game when the user clicks outside of it
@@ -674,11 +690,11 @@ Does nothing by default</p>
         </li>
         
         
-        <li id="section-25">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <p>overridable callback called when the main game element gains focus
 mainly useful for &quot;undoing&quot; the actions done in onBlur, for example unpausing
@@ -692,11 +708,11 @@ the game</p>
         </li>
         
         
-        <li id="section-26">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
               <h2>Luv.Class</h2>
 <p>Creates classes; takes two parameters: the class name and an object containing instance methods
@@ -711,11 +727,11 @@ For inheritance, do <BaseClass>.subclass(<name>, <methods>) instead</p>
         </li>
         
         
-        <li id="section-27">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-27">&#182;</a>
+                <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <h2>Luv.Base</h2>
 <p>The root of Luv.js&#39; (optional) class system</p>
@@ -727,11 +743,11 @@ For inheritance, do <BaseClass>.subclass(<name>, <methods>) instead</p>
         </li>
         
         
-        <li id="section-28">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <h2>initializeOptions</h2>
 
@@ -742,11 +758,11 @@ For inheritance, do <BaseClass>.subclass(<name>, <methods>) instead</p>
         </li>
         
         
-        <li id="section-29">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
               <p>Accepted options:</p>
 <ul>
@@ -786,8 +802,8 @@ For inheritance, do <BaseClass>.subclass(<name>, <methods>) instead</p>
 
   <span class="keyword">if</span>(!el &amp;&amp; id) { el = document.getElementById(id); }
   <span class="keyword">if</span>(el) {
-    <span class="keyword">if</span>(!width  &amp;&amp; el.getAttribute(<span class="string">'width'</span>))  { width = parseInt(el.getAttribute(<span class="string">'width'</span>), <span class="number">10</span>); }
-    <span class="keyword">if</span>(!height &amp;&amp; el.getAttribute(<span class="string">'height'</span>)) { height = parseInt(el.getAttribute(<span class="string">'height'</span>), <span class="number">10</span>); }
+    <span class="keyword">if</span>(!width  &amp;&amp; el.getAttribute(<span class="string">'width'</span>))  { width = Number(el.getAttribute(<span class="string">'width'</span>)); }
+    <span class="keyword">if</span>(!height &amp;&amp; el.getAttribute(<span class="string">'height'</span>)) { height = Number(el.getAttribute(<span class="string">'height'</span>)); }
   } <span class="keyword">else</span> {
     el = document.createElement(<span class="string">'canvas'</span>);
     body.appendChild(el);

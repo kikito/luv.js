@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-03-31) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-03) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -201,6 +201,9 @@ Luv = Base.subclass('Luv', {
     // and inserted into the document's body.
     luv.el  = options.el;
 
+    // make el focus-able
+    luv.el.tabIndex = 1;
+
     "load update draw run onResize onBlur onFocus".split(" ").forEach(function(name) {
       if(options[name]) { luv[name] = options[name]; }
     });
@@ -213,9 +216,6 @@ Luv = Base.subclass('Luv', {
     luv.audio     = Luv.Audio(luv.media);
     luv.graphics  = Luv.Graphics(luv.el, luv.media);
 
-    // Attach onBlur/onFocus
-    luv.el.addEventListener('blur',  function() { luv.onBlur(); });
-    luv.el.addEventListener('focus', function() { luv.onFocus(); });
 
     // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
     if(options.fullWindow) {
@@ -225,7 +225,12 @@ Luv = Base.subclass('Luv', {
       };
       window.addEventListener('resize', resize, false);
       window.addEventListener('orientationChange', resize, false);
+      luv.el.focus();
     }
+
+    // Attach onBlur/onFocus
+    luv.el.addEventListener('blur',  function() { luv.onBlur(); });
+    luv.el.addEventListener('focus', function() { luv.onFocus(); });
   },
 
   // Use the `load` function to start loading up resources:
@@ -390,8 +395,8 @@ var initializeOptions = function(options) {
 
   if(!el && id) { el = document.getElementById(id); }
   if(el) {
-    if(!width  && el.getAttribute('width'))  { width = parseInt(el.getAttribute('width'), 10); }
-    if(!height && el.getAttribute('height')) { height = parseInt(el.getAttribute('height'), 10); }
+    if(!width  && el.getAttribute('width'))  { width = Number(el.getAttribute('width')); }
+    if(!height && el.getAttribute('height')) { height = Number(el.getAttribute('height')); }
   } else {
     el = document.createElement('canvas');
     body.appendChild(el);
@@ -516,16 +521,19 @@ Luv.Keyboard = Luv.Class('Luv.Keyboard', {
     keyboard.keysDown  = {};
     keyboard.el        = el;
 
-    el.tabIndex = 1;
-    el.focus();
-
     el.addEventListener('keydown', function(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       var key  = getKeyFromEvent(evt);
       keyboard.keysDown[key] = true;
       keyboard.onPressed(key, evt.which);
     });
 
     el.addEventListener('keyup', function(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       var key  = getKeyFromEvent(evt);
       keyboard.keysDown[key] = false;
       keyboard.onReleased(key, evt.which);
@@ -1550,10 +1558,10 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   getBackgroundColor : function() { return getColor(this.backgroundColor); },
 
   // `getWidth` returns the width of the canvas, in pixels.
-  getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
+  getWidth      : function(){ return Number(this.el.getAttribute('width')); },
 
   // `getHeight` returns the height of the canvas, in pixels.
-  getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },
+  getHeight     : function(){ return Number(this.el.getAttribute('height')); },
 
   // `getDimensions` returns a JS object containing two components: `width` and `height`,
   // with the width and height of the canvas in pixels.
@@ -1901,7 +1909,7 @@ var normalizeAngle = function(angle) {
 // the same properties as graphics. This makes sure that the graphics instance is the main
 // "authority". It's called after each canvas is used with `setCanvas`.
 var resetCanvas = function(graphics, ctx) {
-  ctx.setTransform(1,0,0,1,0,0); // FIXME: if we ever have a getTransform, we could use it here instead of the identity matrix
+  ctx.setTransform(1,0,0,1,0,0);
   setImageSmoothing(ctx, graphics.getImageSmoothing());
   ctx.lineWidth = graphics.getLineWidth();
   ctx.lineCap = graphics.getLineCap();
@@ -2149,9 +2157,9 @@ Luv.Graphics.Canvas = Luv.Class('Luv.Graphics.Canvas', {
 
   getContext    : function(){ return this.el.getContext('2d'); },
 
-  getWidth      : function(){ return parseInt(this.el.getAttribute('width'), 10); },
+  getWidth      : function(){ return Number(this.el.getAttribute('width')); },
 
-  getHeight     : function(){ return parseInt(this.el.getAttribute('height'), 10); },
+  getHeight     : function(){ return Number(this.el.getAttribute('height')); },
 
   getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
 
