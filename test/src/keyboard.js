@@ -9,13 +9,6 @@ describe("Luv.Keyboard", function() {
     beforeEach(function(){
       el = document.createElement('canvas');
       keyboard = Luv.Keyboard(el);
-      expect(el.tabIndex).to.equal(1);
-    });
-
-    describe("constructor", function(){
-      it("assigns a tab index to the down element it receives", function() {
-        expect(el.tabIndex).to.equal(1);
-      });
     });
 
     describe(".onPressed", function(){

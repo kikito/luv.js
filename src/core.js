@@ -157,6 +157,9 @@ Luv = Base.subclass('Luv', {
     // and inserted into the document's body.
     luv.el  = options.el;
 
+    // make el focus-able
+    luv.el.tabIndex = 1;
+
     "load update draw run onResize onBlur onFocus".split(" ").forEach(function(name) {
       if(options[name]) { luv[name] = options[name]; }
     });
@@ -168,6 +171,7 @@ Luv = Base.subclass('Luv', {
     luv.mouse     = Luv.Mouse(luv.el);
     luv.audio     = Luv.Audio(luv.media);
     luv.graphics  = Luv.Graphics(luv.el, luv.media);
+
 
     // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
     if(options.fullWindow) {

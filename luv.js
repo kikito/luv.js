@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-01) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-03) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -201,6 +201,9 @@ Luv = Base.subclass('Luv', {
     // and inserted into the document's body.
     luv.el  = options.el;
 
+    // make el focus-able
+    luv.el.tabIndex = 1;
+
     "load update draw run onResize onBlur onFocus".split(" ").forEach(function(name) {
       if(options[name]) { luv[name] = options[name]; }
     });
@@ -212,6 +215,7 @@ Luv = Base.subclass('Luv', {
     luv.mouse     = Luv.Mouse(luv.el);
     luv.audio     = Luv.Audio(luv.media);
     luv.graphics  = Luv.Graphics(luv.el, luv.media);
+
 
     // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
     if(options.fullWindow) {
@@ -517,15 +521,19 @@ Luv.Keyboard = Luv.Class('Luv.Keyboard', {
     keyboard.keysDown  = {};
     keyboard.el        = el;
 
-    el.tabIndex = 1;
-
     el.addEventListener('keydown', function(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       var key  = getKeyFromEvent(evt);
       keyboard.keysDown[key] = true;
       keyboard.onPressed(key, evt.which);
     });
 
     el.addEventListener('keyup', function(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       var key  = getKeyFromEvent(evt);
       keyboard.keysDown[key] = false;
       keyboard.onReleased(key, evt.which);
