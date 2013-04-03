@@ -1,5 +1,4 @@
 
-*{ box-sizing:border-box; }
 
 body, html, form, textarea, iframe, .row, .column {
   height: 100%;
@@ -12,6 +11,7 @@ body, html, form, textarea, iframe {
 .page {
   margin: 1%;
   height: 96%;
+  min-width: 1400px;
 }
 
 .row {
@@ -27,12 +27,14 @@ body, html, form, textarea, iframe {
   letter-spacing:normal;
   word-spacing:normal;
   padding-left: 15px;
+  -webkit-box-sizing:border-box;
+     -moz-box-sizing:border-box;
+          box-sizing:border-box;
 }
 
-.code      { width: 40%; }
-.iframe    { width: 58%; }
 .sidebar   { width: 10%; }
-.main      { width: 88%; }
+.code      { width: 30%; }
+.iframe    { width: 60%; }
 
 iframe, textarea {
   border: 1px solid black;
