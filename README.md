@@ -2,29 +2,13 @@ luv.js
 ======
 A javascript/coffeescript html5 game library heavily inspired by [LÖVE](http://love2d.org).
 
-## Minimal example
+## Examples
 
-The minimal example requires one two files: `luv.js` and `index.html`. You can download luv.js directly from this repository. Here's a sample html:
+* Please visit the [Luv.js testing page](http://kikito.github.com/luv.js/examples/) for examples.
 
-    <!doctype html>
-    <html>
-    <head>
-      <meta charset="utf-8" />
-      <title>Basic luv.js example</title>
-      <script src="luv.js"></script>
-    </head>
-    <body>
-      <script>
-        var luv = Luv();
+## Documentation
 
-        luv.draw = function() {
-          luv.graphics.print("Hello, my luv", 200, 300);
-        };
-
-        luv.run();
-      </script>
-    </body>
-    </html>
+* [Annotated source code](http://kikito.github.com/luv.js/docs/)
 
 
 ## Found a bug? / Want to help?
@@ -36,9 +20,6 @@ to help with this issue").
 
 If you want to send code to Luv.js, please see the CONTRIBUTING.md for more instructions.
 
-## Documentation
-
-* [Annotated source code](http://kikito.github.com/luv.js/docs/)
 
 
 
