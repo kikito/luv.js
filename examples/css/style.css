@@ -30,9 +30,9 @@ body, html, form, textarea, iframe {
 }
 
 .code      { width: 40%; }
-.iframe    { width: 60%; }
+.iframe    { width: 58%; }
 .sidebar   { width: 10%; }
-.main      { width: 90%; }
+.main      { width: 88%; }
 
 iframe, textarea {
   border: 1px solid black;
