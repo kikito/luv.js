@@ -1,4 +1,6 @@
-
+body {
+  overflow: hidden;
+}
 
 body, html, form, textarea, iframe, .row, .column {
   height: 100%;
