@@ -1,0 +1,51 @@
+<!doctype html>
+<html><head><meta charset="utf-8" /><title>Basic luv.js example</title></head>
+<body>
+  <h1>❧ Welcome to the Luv.js testing page!</h1>
+
+  <p>You can try Luv.js here without having to install Luv.js or even open a text editor.</p>
+
+  <p>Feel free to type anything you want on the text field to the left. This frame will
+     automatically update as you keep adding stuff.</p>
+
+  <p>You can also click any of the links on the far left. They are pre-built examples that
+     show some of the aspects of this library.</p>
+
+  <p>If you wish to conserve a piece of code you wrote here, copy it and paste it somewhere
+     else (maybe in a proper text editor capable of saving stuff). This page doesn't save
+     have any saving capabilies.
+  </p>
+
+  <pre style="line-height: 1em;">
+╱╱╱╱╭╮╱╭╮╱╱╱╱╱╱╱╱╱╱╭━╮╱╱╱╱╱╱╭╮
+╱╱╱╱┃┃╱┃┃╱╱╱╱╱╱╱╱╱╱┃╭╯╱╱╱╱╱╱┃┃
+╱╭╮╱┃╰━╯┣━━┳╮╭┳━━╮╭╯╰┳╮╭┳━╮╱┃┃
+╭╯╰╮┃╭━╮┃╭╮┃╰╯┃┃━┫╰╮╭┫┃┃┃╭╮╮╰╯
+╰╮╭╯┃┃╱┃┃╭╮┣╮╭┫┃━┫╱┃┃┃╰╯┃┃┃┃╭╮
+╱╰╯╱╰╯╱╰┻╯╰╯╰╯╰━━╯╱╰╯╰━━┻╯╰╯╰╯
+  </pre>
+
+  <script src="../luv.js"></script>
+  <canvas id="canvas" width="500" height="200" style="display: block; margin: 20px auto;"></canvas>
+  <script>
+    var x = 100, y = 100, r=15, vx = 200, vy = 200;
+    Luv({
+      id: "canvas",
+      load: function() {
+        this.graphics.setColor(247, 0, 119);
+        this.graphics.setBackgroundColor(255,192,203);
+      },
+      draw: function() {
+        this.graphics.fillCircle(x,y,r);
+      },
+      update: function(dt) {
+        var d = this.graphics.getDimensions();
+        x += vx * dt;
+        y += vy * dt;
+        if((vx < 0 && x < r) || (vx > 0 && x > d.width - r)){ vx *= -1; }
+        if((vy < 0 && y < r) || (vy > 0 && y > d.height - r)){ vy *= -1; }
+      }
+    }).run();
+  </script>
+</body>
+</html>
