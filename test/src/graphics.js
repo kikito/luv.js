@@ -15,8 +15,8 @@ describe("Luv.Graphics", function(){
       var gr = Luv.Graphics(newDOMCanvas(100, 200), Luv.Media());
 
       expect(gr.getDimensions()).to.deep.equal({width: 100, height: 200});
-      expect(gr.getColor()).to.deep.equal({r: 255, g: 255, b: 255, a: 255});
-      expect(gr.getBackgroundColor()).to.deep.equal({r: 0, g: 0, b: 0, a: 255});
+      expect(gr.getColor()).to.deep.equal({r: 255, g: 255, b: 255});
+      expect(gr.getBackgroundColor()).to.deep.equal({r: 0, g: 0, b: 0});
       expect(gr.el).to.be.ok;
       expect(gr.media).to.be.ok;
     });
@@ -96,36 +96,23 @@ describe("Luv.Graphics", function(){
     });
 
     describe(".setColor", function() {
-      it("accepts 3 or 4 numbers, defaults alpha to 255", function() {
+      it("accepts 3 numbers", function() {
         gr.setColor(255,120,10);
-        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:255});
-        gr.setColor(255,120,10,5);
-        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:5});
+        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10});
       });
 
-      it("accepts an array of 3 or 4 numbers, defaulting alpha to 255", function() {
+      it("accepts an array of 3 numbers", function() {
         gr.setColor([255,120,10]);
-        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:255});
-        gr.setColor([255,120,10,5]);
-        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:5});
+        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10});
       });
 
-      it("accepts a string, defaulting alpha to 255", function() {
+      it("accepts a string", function() {
         gr.setColor("ff780A");
-        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:255});
-        gr.setColor("ff780A05");
-        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:5});
+        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10});
 
         gr.setColor("#ff780A");
-        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:255});
-        gr.setColor("#ff780A05");
-        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:5});
+        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10});
       });
-
-
-
-
-
     });
 
     describe(".line", function(){

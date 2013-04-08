@@ -1484,6 +1484,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
     this.media            = media;
     this.color            = {};
     this.backgroundColor  = {};
+    this.alpha            = 1;
     this.lineCap          = "butt";
     this.lineWidth        = 1;
     this.imageSmoothing   = true;
@@ -1496,6 +1497,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 
     this.setBackgroundColor(0,0,0);
     this.setColor(255,255,255);
+    this.setAlpha(1);
   },
 
   setCanvas : function(canvas) {
@@ -1529,14 +1531,16 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   // * r: Red component. A number between 0 and 255
   // * g: Green component. A number between 0 and 255
   // * b: Blue component. A number between 0 and 255
-  // * a: Alpha / transparency. A number between 0 and 255. Defaults to 255.
   //
-  // The default color is white, no transparency (`255, 255, 255, 0`)
+  // The default color is white (`255, 255, 255`)
   //
-  // If the first parameter is an array, then the values inside the array are
-  // considered to be the colors (`setColor(255,0,0)` is the same as
-  // `setColor([255,0,0])`).
-  setColor  : function(r,g,b,a) { setColor(this, 'color', r,g,b,a); },
+  // In addition to being specified as 3 numbers, colors can also be specified:
+  //
+  // * As an array: `luv.graphics.setColor([255,0,120])`
+  // * As an object: `luv.graphics.setColor({r:255, g:0, b:120})`
+  // * As a string: `luv.graphics.setColor("ff0078")` (Also accepts it prefixed by a hash: `"#ff0078"`)
+  //
+  setColor  : function(r,g,b) { setColor(this, 'color', r,g,b); },
 
   // `getColor` returns the currently selected color. See `setColor` for details.
   // The current color is returned like a JS object whith the properties
@@ -1547,10 +1551,27 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   //        console.log(c.red, c.green, c.blue, c.alpha);
   getColor  : function() { return getColor(this.color); },
 
+  // `setAlpha` acceps a number from 0 (full transparency) to 1 (full opaqueness).
+  // Call setAlpha before drawing things to alter how transparent they are.
+  //
+  //       var luv = Luv();
+  //       luv.graphics.setAlpha(0.5);
+  //       // draw a semi-transparent line
+  //       luv.graphics.line(0,0,20,20);
+  //
+  // Alpha defaults to 1 (no transparency).
+  setAlpha: function(alpha) {
+    this.alpha = clampNumber(alpha, 0, 1);
+    this.ctx.globalAlpha = this.alpha;
+  },
+
+  // `getAlpha` returns the current alpha. See `setAlpha` for details
+  getAlpha: function() { return this.alpha; },
+
   // `setBackgroundColor` changes the color used to clear the screen at the beginning
   // of each frame. It takes the same parameters as `setColor`.
   // The default background color is black (`0,0,0`)
-  setBackgroundColor : function(r,g,b,a) { setColor(this, 'backgroundColor', r,g,b,a); },
+  setBackgroundColor : function(r,g,b) { setColor(this, 'backgroundColor', r,g,b); },
 
   // `getBackgroundColor` returns the background color the same way as
   // `getColor` returns the foreground color. See `setBackgroundColor` and `getColor`
@@ -1862,36 +1883,31 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 var twoPI = Math.PI * 2;
 
 // Internal function used for setting the foreground and background color
-var setColor = function(self, name, r,g,b,a) {
+var setColor = function(self, name, r,g,b) {
   var color = self[name];
   if(Array.isArray(r)) {
     color.r = r[0];
     color.g = r[1];
     color.b = r[2];
-    color.a = r[3];
   } else if(typeof r === "object") {
     color.r = r.r;
     color.g = r.g;
     color.b = r.b;
-    color.a = r.a;
   } else if(typeof r === "string") {
     r = r.replace("#", "");
     color.r = parseInt(r.slice(0,2), 16);
     color.g = parseInt(r.slice(2,4), 16);
     color.b = parseInt(r.slice(4,6), 16);
-    color.a = parseInt(r.slice(6,8), 16);
   } else {
     color.r = r;
     color.g = g;
     color.b = b;
-    color.a = a;
   }
-  if(typeof color.a === "undefined" || isNaN(color.a)) { color.a = 255; }
-  self[name + 'Style'] = "rgba(" + [color.r, color.g, color.b, color.a/255].join() + ")";
+  self[name + 'Style'] = "rgb(" + [color.r, color.g, color.b].join() + ")";
 };
 
 var getColor = function(color) {
-  return {r: color.r, g: color.g, b: color.b, a: color.a};
+  return {r: color.r, g: color.g, b: color.b};
 };
 
 
@@ -1923,8 +1939,9 @@ var normalizeAngle = function(angle) {
 var resetCanvas = function(graphics, ctx) {
   ctx.setTransform(1,0,0,1,0,0);
   setImageSmoothing(ctx, graphics.getImageSmoothing());
-  ctx.lineWidth = graphics.getLineWidth();
-  ctx.lineCap = graphics.getLineCap();
+  ctx.lineWidth    = graphics.getLineWidth();
+  ctx.lineCap      = graphics.getLineCap();
+  ctx.globalAlpha  = graphics.getAlpha();
 };
 
 // Image smoothing helper function
@@ -1992,6 +2009,11 @@ var MODE = {
 // Helper function used to initialize undefined variables.
 var getDefaultValue = function(variable, defaultValue) {
   return typeof variable === "undefined" ? defaultValue : variable;
+};
+
+// Internal function. If x < min, return min. If x > max, return max. Otherwise, return x.
+var clampNumber = function(x, min, max) {
+  return Math.max(min, Math.min(max, Number(x)));
 };
 
 
