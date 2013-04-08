@@ -3,7 +3,7 @@
 
 // ## Luv.Graphics.Animation
 Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
-  init: function(sprites, delays) {
+  init: function(sprites, durations) {
     if(!Array.isArray(sprites)) {
       throw new Error('Array of sprites needed. Got ' + sprites);
     }
@@ -11,43 +11,35 @@ Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
       throw new Error('No sprites where provided. Must provide at least one');
     }
     this.sprites      = sprites.slice(0);
-    this.timer        = 0;
-    this.spriteIndex  = 0;
-    this.status       = "playing";
-    this.delays       = parseDelays(sprites.length, delays);
-    this.timeFrames   = calculateTimeFrames(this.delays);
-    this.loopDuration = this.timeFrames[this.timeFrames.length - 1];
+    this.time         = 0;
+    this.index        = 0;
+    this.durations    = parseDurations(sprites.length, durations);
+    this.intervals    = calculateIntervals(this.durations);
+    this.loopDuration = this.intervals[this.intervals.length - 1];
   },
 
   update: function(dt) {
-    var loops, i;
+    var loops;
 
-    this.timer += dt;
-    loops = Math.floor(this.timer / this.loopDuration);
-    this.timer -= this.loopDuration * loops;
+    this.time += dt;
+    loops = Math.floor(this.time / this.loopDuration);
+    this.time -= this.loopDuration * loops;
 
-    for(i=0; i<loops; i++) { this.onLoopEnded(); }
+    if(loops !== 0) { this.onLoopEnded(loops); }
 
-    for(i=0; i<this.timeFrames.length-1; i++) {
-      if(this.timer >= this.timeFrames[i] &&
-         this.timer < this.timeFrames[i+1]) {
-        this.spriteIndex = i;
-        return;
-      }
-    }
-    this.spriteIndex = this.timeFrames.length;
+    this.index = findSpriteIndexByTime(this.intervals, this.time);
   },
 
   gotoSprite: function(newSpriteIndex) {
-    this.spriteIndex = newSpriteIndex;
-    this.time = this.timeFrames[newSpriteIndex];
+    this.index = newSpriteIndex;
+    this.time = this.intervals[newSpriteIndex];
   },
 
   getCurrentSprite: function() {
-    return this.sprites[this.spriteIndex];
+    return this.sprites[this.index];
   },
 
-  onLoopEnded: function() {}
+  onLoopEnded: function(how_many) {}
 });
 
 "getWidth getHeight getDimensions getCenter draw".split(" ").forEach(function(method) {
@@ -58,52 +50,63 @@ Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
 });
 
 
-var calculateTimeFrames = function(delays) {
+var calculateIntervals = function(durations) {
   var result = [0],
       time   = 0;
-  for(var i=0; i<delays.length; i++) {
-    time += delays[i];
+  for(var i=0; i<durations.length; i++) {
+    time += durations[i];
     result.push(time);
   }
   return result;
 };
 
-var parseDelays = function(length, delays) {
+var findSpriteIndexByTime = function(frames, time) {
+  var high = frames.length - 2,
+      low = 0,
+      i = 0;
+
+  while (low <= high) {
+    i = Math.floor((low + high) / 2);
+    if (time >= frames[i+1]) { low  = i + 1; continue; }
+    if (time < frames[i])   { high = i - 1; continue; }
+    break;
+  }
+
+  return i;
+};
+
+var parseDurations = function(length, durations) {
   var result=[], r, i, range, value;
 
-  if(Array.isArray(delays)) {
-    result = delays.slice(0);
+  if(Array.isArray(durations)) {
+    result = durations.slice(0);
 
-  } else if(typeof delays == "object") {
+  } else if(typeof durations == "object") {
     result.length = length;
-    for(r in delays) {
-      if(delays.hasOwnProperty(r)) {
+    for(r in durations) {
+      if(durations.hasOwnProperty(r)) {
         range = parseRange(r);
-        value = Number(delays[r]);
+        value = Number(durations[r]);
         for(i=0; i<range.length; i++) {
           result[range[i]] = value;
         }
       }
     }
   } else {
-    delays = Number(delays);
+    durations = Number(durations);
     for(i=0; i<length; i++) {
-      result.push(delays);
+      result.push(durations);
     }
   }
 
   if(result.length != length) {
-    throw new Error('The delays table length should be ' + length +
+    throw new Error('The durations table length should be ' + length +
                     ', but it is ' + result.length);
   }
 
   for(i=0; i<result.length; i++) {
-    if(typeof result[i] === "undefined") {
-      throw new Error('Missing delay for sprite ' + i);
-    }
-    if(isNaN(result[i])) {
-      throw new Error('Could not parse the delay for sprite ' + i);
-    }
+    if(typeof result[i] === "undefined") { throw new Error('Missing delay for sprite ' + i); }
+    if(isNaN(result[i])) { throw new Error('Could not parse the delay for sprite ' + i); }
   }
   return result;
 };
