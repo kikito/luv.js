@@ -147,7 +147,7 @@
             </div>
             
             <div class="content"><div class='highlight'><pre>Luv.Graphics.Animation = Luv.Class(<span class="string">'Luv.Graphics.Animation'</span>, {
-  init: <span class="keyword">function</span>(sprites, delays) {
+  init: <span class="keyword">function</span>(sprites, durations) {
     <span class="keyword">if</span>(!Array.isArray(sprites)) {
       <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Array of sprites needed. Got '</span> + sprites);
     }
@@ -155,43 +155,35 @@
       <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'No sprites where provided. Must provide at least one'</span>);
     }
     <span class="keyword">this</span>.sprites      = sprites.slice(<span class="number">0</span>);
-    <span class="keyword">this</span>.timer        = <span class="number">0</span>;
-    <span class="keyword">this</span>.spriteIndex  = <span class="number">0</span>;
-    <span class="keyword">this</span>.status       = <span class="string">"playing"</span>;
-    <span class="keyword">this</span>.delays       = parseDelays(sprites.length, delays);
-    <span class="keyword">this</span>.timeFrames   = calculateTimeFrames(<span class="keyword">this</span>.delays);
-    <span class="keyword">this</span>.loopDuration = <span class="keyword">this</span>.timeFrames[<span class="keyword">this</span>.timeFrames.length - <span class="number">1</span>];
+    <span class="keyword">this</span>.time         = <span class="number">0</span>;
+    <span class="keyword">this</span>.index        = <span class="number">0</span>;
+    <span class="keyword">this</span>.durations    = parseDurations(sprites.length, durations);
+    <span class="keyword">this</span>.intervals    = calculateIntervals(<span class="keyword">this</span>.durations);
+    <span class="keyword">this</span>.loopDuration = <span class="keyword">this</span>.intervals[<span class="keyword">this</span>.intervals.length - <span class="number">1</span>];
   },
 
   update: <span class="keyword">function</span>(dt) {
-    <span class="keyword">var</span> loops, i;
+    <span class="keyword">var</span> loops;
 
-    <span class="keyword">this</span>.timer += dt;
-    loops = Math.floor(<span class="keyword">this</span>.timer / <span class="keyword">this</span>.loopDuration);
-    <span class="keyword">this</span>.timer -= <span class="keyword">this</span>.loopDuration * loops;
+    <span class="keyword">this</span>.time += dt;
+    loops = Math.floor(<span class="keyword">this</span>.time / <span class="keyword">this</span>.loopDuration);
+    <span class="keyword">this</span>.time -= <span class="keyword">this</span>.loopDuration * loops;
 
-    <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;loops; i++) { <span class="keyword">this</span>.onLoopEnded(); }
+    <span class="keyword">if</span>(loops !== <span class="number">0</span>) { <span class="keyword">this</span>.onLoopEnded(loops); }
 
-    <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;<span class="keyword">this</span>.timeFrames.length-<span class="number">1</span>; i++) {
-      <span class="keyword">if</span>(<span class="keyword">this</span>.timer &gt;= <span class="keyword">this</span>.timeFrames[i] &amp;&amp;
-         <span class="keyword">this</span>.timer &lt; <span class="keyword">this</span>.timeFrames[i+<span class="number">1</span>]) {
-        <span class="keyword">this</span>.spriteIndex = i;
-        <span class="keyword">return</span>;
-      }
-    }
-    <span class="keyword">this</span>.spriteIndex = <span class="keyword">this</span>.timeFrames.length;
+    <span class="keyword">this</span>.index = findSpriteIndexByTime(<span class="keyword">this</span>.intervals, <span class="keyword">this</span>.time);
   },
 
   gotoSprite: <span class="keyword">function</span>(newSpriteIndex) {
-    <span class="keyword">this</span>.spriteIndex = newSpriteIndex;
-    <span class="keyword">this</span>.time = <span class="keyword">this</span>.timeFrames[newSpriteIndex];
+    <span class="keyword">this</span>.index = newSpriteIndex;
+    <span class="keyword">this</span>.time = <span class="keyword">this</span>.intervals[newSpriteIndex];
   },
 
   getCurrentSprite: <span class="keyword">function</span>() {
-    <span class="keyword">return</span> <span class="keyword">this</span>.sprites[<span class="keyword">this</span>.spriteIndex];
+    <span class="keyword">return</span> <span class="keyword">this</span>.sprites[<span class="keyword">this</span>.index];
   },
 
-  onLoopEnded: <span class="keyword">function</span>() {}
+  onLoopEnded: <span class="keyword">function</span>(how_many) {}
 });
 
 <span class="string">"getWidth getHeight getDimensions getCenter draw"</span>.split(<span class="string">" "</span>).forEach(<span class="keyword">function</span>(method) {
@@ -202,52 +194,63 @@
 });
 
 
-<span class="keyword">var</span> calculateTimeFrames = <span class="keyword">function</span>(delays) {
+<span class="keyword">var</span> calculateIntervals = <span class="keyword">function</span>(durations) {
   <span class="keyword">var</span> result = [<span class="number">0</span>],
       time   = <span class="number">0</span>;
-  <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>; i&lt;delays.length; i++) {
-    time += delays[i];
+  <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>; i&lt;durations.length; i++) {
+    time += durations[i];
     result.push(time);
   }
   <span class="keyword">return</span> result;
 };
 
-<span class="keyword">var</span> parseDelays = <span class="keyword">function</span>(length, delays) {
+<span class="keyword">var</span> findSpriteIndexByTime = <span class="keyword">function</span>(frames, time) {
+  <span class="keyword">var</span> high = frames.length - <span class="number">2</span>,
+      low = <span class="number">0</span>,
+      i = <span class="number">0</span>;
+
+  <span class="keyword">while</span> (low &lt;= high) {
+    i = Math.floor((low + high) / <span class="number">2</span>);
+    <span class="keyword">if</span> (time &gt;= frames[i+<span class="number">1</span>]) { low  = i + <span class="number">1</span>; <span class="keyword">continue</span>; }
+    <span class="keyword">if</span> (time &lt; frames[i])   { high = i - <span class="number">1</span>; <span class="keyword">continue</span>; }
+    <span class="keyword">break</span>;
+  }
+
+  <span class="keyword">return</span> i;
+};
+
+<span class="keyword">var</span> parseDurations = <span class="keyword">function</span>(length, durations) {
   <span class="keyword">var</span> result=[], r, i, range, value;
 
-  <span class="keyword">if</span>(Array.isArray(delays)) {
-    result = delays.slice(<span class="number">0</span>);
+  <span class="keyword">if</span>(Array.isArray(durations)) {
+    result = durations.slice(<span class="number">0</span>);
 
-  } <span class="keyword">else</span> <span class="keyword">if</span>(<span class="keyword">typeof</span> delays == <span class="string">"object"</span>) {
+  } <span class="keyword">else</span> <span class="keyword">if</span>(<span class="keyword">typeof</span> durations == <span class="string">"object"</span>) {
     result.length = length;
-    <span class="keyword">for</span>(r <span class="keyword">in</span> delays) {
-      <span class="keyword">if</span>(delays.hasOwnProperty(r)) {
+    <span class="keyword">for</span>(r <span class="keyword">in</span> durations) {
+      <span class="keyword">if</span>(durations.hasOwnProperty(r)) {
         range = parseRange(r);
-        value = Number(delays[r]);
+        value = Number(durations[r]);
         <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;range.length; i++) {
           result[range[i]] = value;
         }
       }
     }
   } <span class="keyword">else</span> {
-    delays = Number(delays);
+    durations = Number(durations);
     <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;length; i++) {
-      result.push(delays);
+      result.push(durations);
     }
   }
 
   <span class="keyword">if</span>(result.length != length) {
-    <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'The delays table length should be '</span> + length +
+    <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'The durations table length should be '</span> + length +
                     <span class="string">', but it is '</span> + result.length);
   }
 
   <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;result.length; i++) {
-    <span class="keyword">if</span>(<span class="keyword">typeof</span> result[i] === <span class="string">"undefined"</span>) {
-      <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Missing delay for sprite '</span> + i);
-    }
-    <span class="keyword">if</span>(isNaN(result[i])) {
-      <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Could not parse the delay for sprite '</span> + i);
-    }
+    <span class="keyword">if</span>(<span class="keyword">typeof</span> result[i] === <span class="string">"undefined"</span>) { <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Missing delay for sprite '</span> + i); }
+    <span class="keyword">if</span>(isNaN(result[i])) { <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Could not parse the delay for sprite '</span> + i); }
   }
   <span class="keyword">return</span> result;
 };
