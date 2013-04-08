@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-03) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-08) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // #shims.js
@@ -1879,7 +1879,7 @@ var setColor = function(self, name, r,g,b,a) {
 };
 
 var getColor = function(color) {
-  return [color.r, color.g, color.b, color.a];
+  return {r: color.r, g: color.g, b: color.b, a: color.a};
 };
 
 

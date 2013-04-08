@@ -15,8 +15,8 @@ describe("Luv.Graphics", function(){
       var gr = Luv.Graphics(newDOMCanvas(100, 200), Luv.Media());
 
       expect(gr.getDimensions()).to.deep.equal({width: 100, height: 200});
-      expect(gr.getColor()).to.deep.equal([255,255,255,255]);
-      expect(gr.getBackgroundColor()).to.deep.equal([0,0,0,255]);
+      expect(gr.getColor()).to.deep.equal({r: 255, g: 255, b: 255, a: 255});
+      expect(gr.getBackgroundColor()).to.deep.equal({r: 0, g: 0, b: 0, a: 255});
       expect(gr.el).to.be.ok;
       expect(gr.media).to.be.ok;
     });
@@ -92,6 +92,13 @@ describe("Luv.Graphics", function(){
         var fillText = sinon.spy(gr.ctx, 'fillText');
         gr.print("hello, luv", 100, 200);
         expect(fillText).to.have.been.calledWith('hello, luv', 100, 200);
+      });
+    });
+
+    describe(".setColor", function() {
+      it("accepts 3 numbers, defaults alpha to 255", function() {
+        gr.setColor(255,120,10);
+        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:255});
       });
     });
 

@@ -413,7 +413,7 @@ var setColor = function(self, name, r,g,b,a) {
 };
 
 var getColor = function(color) {
-  return [color.r, color.g, color.b, color.a];
+  return {r: color.r, g: color.g, b: color.b, a: color.a};
 };
 
 
