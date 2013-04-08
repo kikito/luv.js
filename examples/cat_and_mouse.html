@@ -49,12 +49,14 @@ luv.update = function(dt) {
 luv.draw = function() {
   if(!luv.media.isLoaded()) { return; }
 
+  luv.graphics.setAlpha(1);
   // draws the image with the calculated position, angle, and scale
   luv.graphics.drawCentered(cat.img, cat.x, cat.y, cat.angle, cat.sx, cat.sy);
 
   // draws a circle around the mouse mosition. Try making it green
   var mousePos = luv.mouse.getPosition();
-  luv.graphics.setColor(255,0,0,125);
+  luv.graphics.setColor(255,0,0);
+  luv.graphics.setAlpha(0.5);
   luv.graphics.fillCircle(mousePos.x, mousePos.y, 10);
 };
 
