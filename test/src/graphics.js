@@ -96,10 +96,36 @@ describe("Luv.Graphics", function(){
     });
 
     describe(".setColor", function() {
-      it("accepts 3 numbers, defaults alpha to 255", function() {
+      it("accepts 3 or 4 numbers, defaults alpha to 255", function() {
         gr.setColor(255,120,10);
         expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:255});
+        gr.setColor(255,120,10,5);
+        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:5});
       });
+
+      it("accepts an array of 3 or 4 numbers, defaulting alpha to 255", function() {
+        gr.setColor([255,120,10]);
+        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:255});
+        gr.setColor([255,120,10,5]);
+        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:5});
+      });
+
+      it("accepts a string, defaulting alpha to 255", function() {
+        gr.setColor("ff780A");
+        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:255});
+        gr.setColor("ff780A05");
+        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:5});
+
+        gr.setColor("#ff780A");
+        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:255});
+        gr.setColor("#ff780A05");
+        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10, a:5});
+      });
+
+
+
+
+
     });
 
     describe(".line", function(){

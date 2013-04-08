@@ -1868,13 +1868,25 @@ var setColor = function(self, name, r,g,b,a) {
     color.r = r[0];
     color.g = r[1];
     color.b = r[2];
-    color.a = r[3] || 255;
+    color.a = r[3];
+  } else if(typeof r === "object") {
+    color.r = r.r;
+    color.g = r.g;
+    color.b = r.b;
+    color.a = r.a;
+  } else if(typeof r === "string") {
+    r = r.replace("#", "");
+    color.r = parseInt(r.slice(0,2), 16);
+    color.g = parseInt(r.slice(2,4), 16);
+    color.b = parseInt(r.slice(4,6), 16);
+    color.a = parseInt(r.slice(6,8), 16);
   } else {
     color.r = r;
     color.g = g;
     color.b = b;
-    color.a = a || 255;
+    color.a = a;
   }
+  if(typeof color.a === "undefined" || isNaN(color.a)) { color.a = 255; }
   self[name + 'Style'] = "rgba(" + [color.r, color.g, color.b, color.a/255].join() + ")";
 };
 
