@@ -104,11 +104,6 @@
               </a>
             
               
-              <a class="source" href="shims.html">
-                shims.js
-              </a>
-            
-              
               <a class="source" href="timer.html">
                 timer.js
               </a>
@@ -343,12 +338,60 @@ in seconds. Note that it&#39;s capped by <code>deltaTimeLimit</code>.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>  nextFrame : <span class="keyword">function</span>(f) {
-    window.requestAnimationFrame(f);
+    requestAnimationFrame(f);
   }
 
 });
 
-Luv.Timer.DEFAULT_DELTA_TIME_LIMIT = <span class="number">0.25</span>;
+Luv.Timer.DEFAULT_DELTA_TIME_LIMIT = <span class="number">0.25</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p><code>performance.now</code> polyfill</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> performance = window.performance || {};
+performance.now = performance.now       ||
+                  performance.msNow     ||
+                  performance.mozNow    ||
+                  performance.webkitNow ||
+                  Date.now;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p><code>requestAnimationFrame</code> polyfill</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> lastTime = <span class="number">0</span>,
+    requestAnimationFrame =
+      window.requestAnimationFrame       ||
+      window.msRequestAnimationFrame     ||
+      window.mozRequestAnimationFrame    ||
+      window.webkitRequestAnimationFrame ||
+      window.oRequestAnimationFrame      ||
+      <span class="keyword">function</span>(callback) {
+        <span class="keyword">var</span> currTime   = performance.now(),
+            timeToCall = Math.max(<span class="number">0</span>, <span class="number">16</span> - (currTime - lastTime)),
+            id         = setTimeout(<span class="keyword">function</span>() { callback(currTime + timeToCall); }, timeToCall);
+        lastTime = currTime + timeToCall;
+        <span class="keyword">return</span> id;
+      };
 
 }());</pre></div></div>
             

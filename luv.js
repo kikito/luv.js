@@ -1,47 +1,6 @@
 /*! luv 0.0.1 (2013-04-09) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
-// #shims.js
-// This file contains browser fixes that make several old browsers compatible
-// with some basic html5 functionality via workarounds and clever hacks.
-
-(function() {
-// ## `window.performance.now` polyfill
-window.performance = window.performance || {};
-performance.now = performance.now || performance.webkitNow || performance.msNow || performance.mozNow || Date.now;
-}());
-
-(function() {
-// ## `requestAnimationFrame` polyfill
-// polyfill by [Erik Möller](http://creativejs.com/resources/requestanimationframe/)
-// adding fixes to [Paul Irish](http://paulirish.com/2011/requestanimationframe-for-smart-animating/)
-// and [Tino Zijdel](http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating)
-var lastTime = 0;
-var vendors = ['ms', 'moz', 'webkit', 'o'];
-
-for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-  window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-  window.cancelAnimationFrame  = window[vendors[x]+'CancelAnimationFrame'] ||
-                                 window[vendors[x]+'CancelRequestAnimationFrame'];
-}
-
-if (!window.requestAnimationFrame) {
-  window.requestAnimationFrame = function(callback, element) {
-    var currTime = performance.now;
-    var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-    var id = window.setTimeout(function() { callback(currTime + timeToCall); },
-                               timeToCall);
-    lastTime = currTime + timeToCall;
-    return id;
-  };
-}
-
-if (!window.cancelAnimationFrame) {
-  window.cancelAnimationFrame = function(id) { clearTimeout(id); };
-}
-
-}());
-
 // # core.js
 (function() {
 
@@ -491,12 +450,36 @@ Luv.Timer = Luv.Class('Luv.Timer', {
 
   // This function is used in the main game loop. For now, it just calls `window.requestAnimationFrame`.
   nextFrame : function(f) {
-    window.requestAnimationFrame(f);
+    requestAnimationFrame(f);
   }
 
 });
 
 Luv.Timer.DEFAULT_DELTA_TIME_LIMIT = 0.25;
+
+// `performance.now` polyfill
+var performance = window.performance || {};
+performance.now = performance.now       ||
+                  performance.msNow     ||
+                  performance.mozNow    ||
+                  performance.webkitNow ||
+                  Date.now;
+
+// `requestAnimationFrame` polyfill
+var lastTime = 0,
+    requestAnimationFrame =
+      window.requestAnimationFrame       ||
+      window.msRequestAnimationFrame     ||
+      window.mozRequestAnimationFrame    ||
+      window.webkitRequestAnimationFrame ||
+      window.oRequestAnimationFrame      ||
+      function(callback) {
+        var currTime   = performance.now(),
+            timeToCall = Math.max(0, 16 - (currTime - lastTime)),
+            id         = setTimeout(function() { callback(currTime + timeToCall); }, timeToCall);
+        lastTime = currTime + timeToCall;
+        return id;
+      };
 
 }());
 
