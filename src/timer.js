@@ -67,11 +67,35 @@ Luv.Timer = Luv.Class('Luv.Timer', {
 
   // This function is used in the main game loop. For now, it just calls `window.requestAnimationFrame`.
   nextFrame : function(f) {
-    window.requestAnimationFrame(f);
+    requestAnimationFrame(f);
   }
 
 });
 
 Luv.Timer.DEFAULT_DELTA_TIME_LIMIT = 0.25;
+
+// `performance.now` polyfill
+var performance = window.performance || {};
+performance.now = performance.now       ||
+                  performance.msNow     ||
+                  performance.mozNow    ||
+                  performance.webkitNow ||
+                  Date.now;
+
+// `requestAnimationFrame` polyfill
+var lastTime = 0,
+    requestAnimationFrame =
+      window.requestAnimationFrame       ||
+      window.msRequestAnimationFrame     ||
+      window.mozRequestAnimationFrame    ||
+      window.webkitRequestAnimationFrame ||
+      window.oRequestAnimationFrame      ||
+      function(callback) {
+        var currTime   = performance.now(),
+            timeToCall = Math.max(0, 16 - (currTime - lastTime)),
+            id         = setTimeout(function() { callback(currTime + timeToCall); }, timeToCall);
+        lastTime = currTime + timeToCall;
+        return id;
+      };
 
 }());
