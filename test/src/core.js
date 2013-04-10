@@ -18,6 +18,7 @@ describe("Luv", function(){
         expect(luv.timer).to.be.ok;
         expect(luv.keyboard).to.be.ok;
         expect(luv.mouse).to.be.ok;
+        expect(luv.touch).to.be.ok;
         expect(luv.media).to.be.ok;
       });
     });

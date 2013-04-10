@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-10) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-11) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -172,6 +172,7 @@ Luv = Base.subclass('Luv', {
     luv.timer     = Luv.Timer();
     luv.keyboard  = Luv.Keyboard(luv.el);
     luv.mouse     = Luv.Mouse(luv.el);
+    luv.touch     = Luv.Touch(luv.el);
     luv.audio     = Luv.Audio(luv.media);
     luv.graphics  = Luv.Graphics(luv.el, luv.media);
 
@@ -792,8 +793,8 @@ Luv.Touch = Luv.Class('Luv.Touch', {
 
       var t, fingerInfo,
           rect = el.getBoundingClientRect();
-      for(var i=0; i < evt.changedTouches.length; i++) {
-        t = evt.changedTouches[i];
+      for(var i=0; i < evt.touches.length; i++) {
+        t = evt.touches[i];
         fingerInfo = touch.fingers[t.identifier] = touch.fingers[t.identifier] || {};
         fingerInfo.x = t.pageX - rect.left;
         fingerInfo.y = t.pageY - rect.top;
@@ -807,8 +808,8 @@ Luv.Touch = Luv.Class('Luv.Touch', {
       evt.stopPropagation();
       var t, x, y,
           rect = el.getBoundingClientRect();
-      for(var i=0; i < evt.changedTouches.length; i++) {
-        t = evt.changedTouches[i];
+      for(var i=0; i < evt.touches.length; i++) {
+        t = evt.touches[i];
         x = t.pageX - rect.left;
         y = t.pageY - rect.top;
         delete(touch.fingers[t.identifier]);
@@ -822,8 +823,8 @@ Luv.Touch = Luv.Class('Luv.Touch', {
 
       var t, fingerInfo,
           rect = el.getBoundingClientRect();
-      for(var i=0; i < evt.changedTouches.length; i++) {
-        t = evt.changedTouches[i];
+      for(var i=0; i < evt.touches.length; i++) {
+        t = evt.touches[i];
         fingerInfo = touch.fingers[t.identifier] = touch.fingers[t.identifier] || {};
         fingerInfo.x = t.pageX - rect.left;
         fingerInfo.y = t.pageY - rect.top;

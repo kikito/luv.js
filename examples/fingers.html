@@ -1,0 +1,32 @@
+<!doctype html>
+<html><head><meta charset="utf-8" /><title>Fingers</title></head>
+<body>
+<script src="../luv.js"></script>
+<script>
+
+// This Luv.js example shows the touch API. You need to use it on a
+// touch-enabled device, like an ipad
+var luv = Luv({fullWindow: true});
+
+var colors = "13CEB6 279D6C 3B6CD22 4F3AD8 63098E 76D844 8AA6FA 9E75B0 B24466 C6131C D9E1D2 EDB088".split(" ");
+
+luv.draw = function() {
+  var status;
+  for(var i=1; i<13; i++) {
+    if(luv.touch.isPressed(i)) {
+      status = luv.touch.getFingerStatus(i);
+      luv.graphics.strokeCircle(status.x, status.y, status.radius);
+    }
+  }
+};
+
+luv.touch.onPress = function(finger, x, y, radius) {
+
+};
+
+// Don't forget to execute luv.run, or the game will not start.
+luv.run();
+
+</script>
+</body>
+</html>

@@ -24,8 +24,8 @@ Luv.Touch = Luv.Class('Luv.Touch', {
 
       var t, fingerInfo,
           rect = el.getBoundingClientRect();
-      for(var i=0; i < evt.changedTouches.length; i++) {
-        t = evt.changedTouches[i];
+      for(var i=0; i < evt.touches.length; i++) {
+        t = evt.touches[i];
         fingerInfo = touch.fingers[t.identifier] = touch.fingers[t.identifier] || {};
         fingerInfo.x = t.pageX - rect.left;
         fingerInfo.y = t.pageY - rect.top;
@@ -39,8 +39,8 @@ Luv.Touch = Luv.Class('Luv.Touch', {
       evt.stopPropagation();
       var t, x, y,
           rect = el.getBoundingClientRect();
-      for(var i=0; i < evt.changedTouches.length; i++) {
-        t = evt.changedTouches[i];
+      for(var i=0; i < evt.touches.length; i++) {
+        t = evt.touches[i];
         x = t.pageX - rect.left;
         y = t.pageY - rect.top;
         delete(touch.fingers[t.identifier]);
@@ -54,8 +54,8 @@ Luv.Touch = Luv.Class('Luv.Touch', {
 
       var t, fingerInfo,
           rect = el.getBoundingClientRect();
-      for(var i=0; i < evt.changedTouches.length; i++) {
-        t = evt.changedTouches[i];
+      for(var i=0; i < evt.touches.length; i++) {
+        t = evt.touches[i];
         fingerInfo = touch.fingers[t.identifier] = touch.fingers[t.identifier] || {};
         fingerInfo.x = t.pageX - rect.left;
         fingerInfo.y = t.pageY - rect.top;

@@ -169,6 +169,7 @@ Luv = Base.subclass('Luv', {
     luv.timer     = Luv.Timer();
     luv.keyboard  = Luv.Keyboard(luv.el);
     luv.mouse     = Luv.Mouse(luv.el);
+    luv.touch     = Luv.Touch(luv.el);
     luv.audio     = Luv.Audio(luv.media);
     luv.graphics  = Luv.Graphics(luv.el, luv.media);
 
