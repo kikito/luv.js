@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-11) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-12) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -787,47 +787,64 @@ Luv.Touch = Luv.Class('Luv.Touch', {
     touch.fingers = {};
     touch.el      = el;
 
+    preventDefault = function(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+    };
+
+    el.addEventListener('gesturestart',  preventDefault);
+    el.addEventListener('gesturechange', preventDefault);
+    el.addEventListener('gestureend',    preventDefault);
+
     el.addEventListener('touchstart', function(evt) {
-      evt.preventDefault();
-      evt.stopPropagation();
+      preventDefault(evt);
 
-      var t, fingerInfo,
+      var t, finger,
           rect = el.getBoundingClientRect();
-      for(var i=0; i < evt.touches.length; i++) {
-        t = evt.touches[i];
-        fingerInfo = touch.fingers[t.identifier] = touch.fingers[t.identifier] || {};
-        fingerInfo.x = t.pageX - rect.left;
-        fingerInfo.y = t.pageY - rect.top;
-        fingerInfo.radius = t.radius;
-        touch.onPressed(t.identifier, fingerInfo.x, fingerInfo.y, fingerInfo.radius);
+      for(var i=0; i < evt.targetTouches.length; i++) {
+        t = evt.targetTouches[i];
+        finger = getFingerByIdentifier(touch, t.identifier) || {
+          identifier: t.identifier,
+          position: getNextAvailablePosition(touch),
+          x: t.pageX - rect.left,
+          y: t.pageY - rect.top
+        };
+        touch.fingers[finger.position] = finger;
+        touch.onPressed(finger.position, finger.x, finger.y);
       }
     });
 
-    el.addEventListener('touchend', function(evt) {
-      evt.preventDefault();
-      evt.stopPropagation();
-      var t, x, y,
+    var touchend = function(evt) {
+      preventDefault(evt);
+
+      var t, finger,
           rect = el.getBoundingClientRect();
-      for(var i=0; i < evt.touches.length; i++) {
-        t = evt.touches[i];
-        x = t.pageX - rect.left;
-        y = t.pageY - rect.top;
-        delete(touch.fingers[t.identifier]);
-        touch.onReleased(t.identifier, x, y);
+      for(var i=0; i < evt.changedTouches.length; i++) {
+        t = evt.changedTouches[i];
+        finger = getFingerByIdentifier(touch, t.identifier);
+        if(finger) {
+          delete(touch.fingers[finger.position]);
+          touch.onReleased(finger.position, finger.x, finger.y);
+        }
       }
-    });
+    };
+    el.addEventListener('touchend', touchend);
+    el.addEventListener('touchleave', touchend);
+    el.addEventListener('touchcancel', touchend);
+
 
     el.addEventListener('touchmove', function(evt) {
-      evt.preventDefault();
-      evt.stopPropagation();
+      preventDefault(evt);
 
-      var t, fingerInfo,
+      var t, finger,
           rect = el.getBoundingClientRect();
-      for(var i=0; i < evt.touches.length; i++) {
-        t = evt.touches[i];
-        fingerInfo = touch.fingers[t.identifier] = touch.fingers[t.identifier] || {};
-        fingerInfo.x = t.pageX - rect.left;
-        fingerInfo.y = t.pageY - rect.top;
+      for(var i=0; i < evt.targetTouches.length; i++) {
+        t = evt.targetTouches[i];
+        finger = getFingerByIdentifier(touch, t.identifier);
+        if(finger) {
+          finger.x = t.pageX - rect.left;
+          finger.y = t.pageY - rect.top;
+        }
       }
     });
   },
@@ -837,21 +854,20 @@ Luv.Touch = Luv.Class('Luv.Touch', {
   //
   // The first parameter is a number indicating the finger touching the screen
   // (usually, 1 is for the index finger, and so on). `x` and `y`
-  // are the coordinates on the DOM element where the touching happens. `radius`
-  // gives an approximate idea of the area involved on the touch.
+  // are the coordinates on the DOM element where the touching happens.
   //
   // Example of use of onPressed:
 
   //       var luv = Luv();
-  //       luv.touch.onPressed = function(finger, x, y, radius) {
-  //         msg = "Finger " + finger + " in (" + x + "," + y + ") with radius " + radius;
+  //       luv.touch.onPressed = function(finger, x, y) {
+  //         msg = "Finger " + finger + " in (" + x + "," + y + ")";
   //       };
 
   // It does nothing by default.
-  onPressed  : function(finger, x, y, radius) {},
+  onPressed  : function(finger, x, y) {},
 
   // `onReleased` works the same way as onPressed, except that it gets triggered
-  // when a finger stops being pressed. As a result it has no radius. `x` and `y`
+  // when a finger stops being pressed. `x` and `y`
   // represent the positions at which the finger stopped touching the screen.
   onReleased : function(finger, x, y) {},
 
@@ -860,13 +876,39 @@ Luv.Touch = Luv.Class('Luv.Touch', {
     return !!this.fingers[finger];
   },
 
-  // `getFinger` returns the position and radius of a finger, or false if
-  // finger is not pressed
-  getFinger: function(finger) {
-    var info = this.fingers[finger];
-    return info && {x: info.x, y: info.y, radius: info.radius};
+  // `getFinger` returns the position of a finger, or false if the finger
+  // in question is not pressed
+  getFinger: function(position) {
+    var finger = this.fingers[position];
+    return finger && {position: finger.position,
+                      identifier: finger.identifier,
+                      x: finger.x, y: finger.y};
   }
 });
+
+var getMaxPosition = function(touch) {
+  var positions = Object.keys(touch.fingers);
+  if(positions.length === 0) { return 0; }
+  return Math.max.apply(Math, positions);
+};
+
+var getNextAvailablePosition = function(touch) {
+  var maxPosition = getMaxPosition(touch);
+  for(var i=1; i < maxPosition; i++) {
+    if(!touch.isPressed(i)){ return i; }
+  }
+  return maxPosition + 1;
+};
+
+var getFingerByIdentifier = function(touch, identifier) {
+  var fingers = touch.fingers;
+  for(var position in fingers) {
+    if(fingers.hasOwnProperty(position) &&
+       fingers[position].identifier == identifier) {
+      return fingers[position];
+    }
+  }
+};
 
 }());
 
