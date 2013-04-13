@@ -468,6 +468,14 @@ Luv.Timer = Luv.Class('Luv.Timer', {
 
   every : function(timeToCall, callback, context) {
     return addEvent(this, Luv.Timer.EveryEvent(timeToCall, callback, context));
+  },
+
+  clear : function(id) {
+    if(this.events[id]) {
+      delete(this.events[id]);
+      return true;
+    }
+    return false;
   }
 
 });

@@ -155,9 +155,28 @@ describe("Luv.Timer", function(){
           expect(sum).to.equal(4);
           expect(counter).to.equal(1);
         });
-
       });
 
+      describe("clear", function() {
+        it("cancels after events before they happen", function() {
+          var id = timer.after(5, count);
+          timer.clear(id);
+
+          timer.update(5);
+          expect(counter).to.equal(0);
+        });
+
+        it("cancels every events", function() {
+          var id = timer.every(1, count);
+          timer.update(2);
+          expect(counter).to.equal(2);
+
+          timer.clear(id);
+
+          timer.update(2);
+          expect(counter).to.equal(2);
+        });
+      });
     });
   });
 
