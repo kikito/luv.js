@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-09) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-14) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -408,6 +408,9 @@ Luv.Timer = Luv.Class('Luv.Timer', {
     // very low FPS, this makes sure that the delta time is not too great (its bad
     // for things like physics simulations, etc).
     this.deltaTimeLimit = Luv.Timer.DEFAULT_DELTA_TIME_LIMIT;
+
+    this.events = {};
+    this.maxEventId = 0;
   },
 
   // updates the timer with a new timestamp.
@@ -419,6 +422,12 @@ Luv.Timer = Luv.Class('Luv.Timer', {
   update : function(dt) {
     this.deltaTime = Math.max(0, Math.min(this.deltaTimeLimit, dt));
     this.microTime += dt * 1000;
+    for(var id in this.events) {
+      if(this.events.hasOwnProperty(id) &&
+         this.events[id].update(dt)) {
+        delete(this.events[id]);
+      }
+    }
   },
 
   // `deltaTimeLimit` means "the maximum delta time that the timer will report".
@@ -451,11 +460,22 @@ Luv.Timer = Luv.Class('Luv.Timer', {
   // This function is used in the main game loop. For now, it just calls `window.requestAnimationFrame`.
   nextFrame : function(f) {
     requestAnimationFrame(f);
+  },
+
+  after : function(timeToCall, callback, context) {
+    return addEvent(this, Luv.Timer.AfterEvent(timeToCall, callback, context));
   }
 
 });
 
 Luv.Timer.DEFAULT_DELTA_TIME_LIMIT = 0.25;
+
+var addEvent = function(timer, e) {
+  var id = timer.maxEventId++;
+  timer.events[id] = e;
+  return id;
+};
+
 
 // `performance.now` polyfill
 var performance = window.performance || {};
@@ -480,6 +500,33 @@ var lastTime = 0,
         lastTime = currTime + timeToCall;
         return id;
       };
+
+}());
+
+// # after_event.js
+(function() {
+
+// ## Luv.Timer.AfterEvent
+Luv.Timer.AfterEvent = Luv.Class('Luv.Timer.AfterEvent', {
+
+  init: function(timeToCall, callback, context) {
+    this.timeRunning = 0;
+    this.timeToCall  = timeToCall;
+    this.callback    = callback;
+    this.context     = context;
+  },
+
+  update: function(dt) {
+    this.timeRunning += dt;
+    var diff = this.timeRunning - this.timeToCall;
+    if(diff >= 0) {
+      this.callback.call(this.context, diff);
+      return true;
+    }
+    return false;
+  }
+
+});
 
 }());
 

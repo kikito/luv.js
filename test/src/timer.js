@@ -65,6 +65,53 @@ describe("Luv.Timer", function(){
         expect(timer.getFPS()).to.equal(0);
       });
     });
+
+    describe(".after", function() {
+      var counter, count, add;
+      beforeEach(function() {
+        counter = 0;
+        count = function()  { counter ++; };
+        add   = function(x) { counter += x; };
+      });
+
+      it("does not execute a callback before its time has come", function() {
+        timer.after(5, count);
+        timer.update(2);
+        expect(counter).to.equal(0);
+      });
+
+      it("executes the callback when its time comes", function() {
+        timer.after(5, count);
+        timer.update(5);
+        expect(counter).to.equal(1);
+      });
+
+      it("executes the callback if the update comes late", function() {
+        timer.after(5, count);
+
+        timer.update(6);
+        expect(counter).to.equal(1);
+      });
+
+      it("works even if the callback time is 0", function() {
+        timer.after(0, add);
+        timer.update(4);
+        expect(counter).to.equal(4);
+      });
+
+      it("returns the extra time passed as the first callback parameter", function() {
+        timer.after(5, add);
+        timer.update(10);
+        expect(counter).to.equal(5);
+      });
+
+      it("uses the third parameter as a ballback context if provided", function() {
+        var player = {health: 5};
+        timer.after(2, function(){this.health--;}, player);
+        timer.update(3);
+        expect(player.health).to.equal(4);
+      });
+    });
   });
 
 });
