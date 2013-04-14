@@ -63,6 +63,16 @@ module.exports = function(grunt) {
       dist: {
         src:  '<%= pkg.name %>.js',
         dest: '<%= pkg.name %>.min.js'
+      },
+      illiterate: {
+        options: {
+          compress: false,
+          mangle: false,
+          preserveComments: false,
+          beautify: true
+        },
+        src:  '<%= pkg.name %>.js',
+        dest: '<%= pkg.name %>.illiterate.js'
       }
     },
     watch: {
