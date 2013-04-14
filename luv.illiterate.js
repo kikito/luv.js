@@ -1,7 +1,7 @@
 /*! luv 0.0.1 (2013-04-14) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
-(function() {
+window.Luv = function() {
     var extend = function(dest) {
         var properties;
         for (var i = 1; i < arguments.length; i++) {
@@ -72,7 +72,7 @@
     baseMethods.getClass = function() {
         return Base;
     };
-    Luv = Base.subclass("Luv", {
+    var Luv = Base.subclass("Luv", {
         init: function(options) {
             options = initializeOptions(options);
             var luv = this;
@@ -162,7 +162,8 @@
         options.height = height;
         return options;
     };
-})();
+    return Luv;
+}();
 
 (function() {
     Luv.Timer = Luv.Class("Luv.Timer", {
