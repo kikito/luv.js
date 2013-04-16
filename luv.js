@@ -589,7 +589,8 @@ Luv.Timer.Tween = Luv.Class('Luv.Timer.Tween', {
   init: function(timeToFinish, from, to, easingFunction, updateFunction) {
     this.runningTime    = 0;
     this.timeToFinish   = timeToFinish;
-    this.from           = from;
+    this.subject        = from;
+    this.from           = deepCopy({}, from);
     this.to             = deepCopy({}, to);
     this.easing         = getEasingFunction(easingFunction);
     this.updateFunction = updateFunction || this.updateFunction;
@@ -607,6 +608,24 @@ Luv.Timer.Tween = Luv.Class('Luv.Timer.Tween', {
 
 Luv.Timer.Tween.easing = {
   linear: function(t, b, c, d){ return c * t / d + b; }
+};
+
+var deepEase = function(tween, subject, from, to) {
+  if(typeof to === "object") {
+    for(var key in to) {
+      if(to.hasOwnProperty(key)) {
+        subject[key] = deepEase(tween, subject[key], from[key], to[key]);
+      }
+    }
+  } else {
+    subject = tween.easing(
+      tween.runningTime,  // t
+      from,               // b
+      to - from,          // c
+      tween.timeeToFinish // d
+    );
+  }
+  return subject;
 };
 
 var getEasingFunction= function(easing) {

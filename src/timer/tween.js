@@ -36,11 +36,12 @@ var deepEase = function(tween, subject, from, to) {
       }
     }
   } else {
-    var t = tween.runningTime,
-        b = from,
-        c = to - from,
-        d = tween.timeeToFinish;
-    subject = tween.easing(t,b,c,d);
+    subject = tween.easing(
+      tween.runningTime,  // t
+      from,               // b
+      to - from,          // c
+      tween.timeeToFinish // d
+    );
   }
   return subject;
 };
