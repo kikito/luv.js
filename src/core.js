@@ -317,6 +317,9 @@ Luv.Class = function(name, methods) {
 // The root of Luv.js' (optional) class system
 Luv.Base = Base;
 
+// ## Luv.extend
+Luv.extend = extend;
+
 // ## initializeOptions
 var initializeOptions = function(options) {
   // Accepted options:

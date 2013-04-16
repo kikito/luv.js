@@ -8,6 +8,7 @@ module.exports = function(grunt) {
     "src/timer.js",
     "src/timer/after_event.js",
     "src/timer/every_event.js",
+    "src/timer/tween.js",
     "src/keyboard.js",
     "src/mouse.js",
     "src/media.js",

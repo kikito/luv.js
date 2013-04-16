@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-14) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-16) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -320,6 +320,9 @@ Luv.Class = function(name, methods) {
 // The root of Luv.js' (optional) class system
 Luv.Base = Base;
 
+// ## Luv.extend
+Luv.extend = extend;
+
 // ## initializeOptions
 var initializeOptions = function(options) {
   // Accepted options:
@@ -576,6 +579,57 @@ Luv.Timer.EveryEvent = Luv.Class('Luv.Timer.EveryEvent', {
 });
 
 }());
+
+// # tween.js
+(function(){
+
+// ## Luv.Timer.Tween
+Luv.Timer.Tween = Luv.Class('Luv.Timer.Tween', {
+
+  init: function(timeToFinish, from, to, easingFunction, updateFunction) {
+    this.runningTime    = 0;
+    this.timeToFinish   = timeToFinish;
+    this.from           = from;
+    this.to             = deepCopy({}, to);
+    this.easing         = getEasingFunction(easingFunction);
+    this.updateFunction = updateFunction || this.updateFunction;
+  },
+
+  update: function(dt) {
+
+  },
+
+  updateFunction: function(newValues) {
+
+  }
+
+});
+
+Luv.Timer.Tween.easing = {
+  linear: function(t, b, c, d){ return c * t / d + b; }
+};
+
+var getEasingFunction= function(easing) {
+  easing = easing || "linear";
+  return Luv.Timer.Tween.easing[easing];
+};
+
+var deepCopy = function(destination, keysObj, valuesObj) {
+  valuesObj = valuesObj || keysObj;
+  if(typeof keysObj === "object") {
+    for(var key in keysObj){
+      if(keysObj.hasOwnProperty(key)) {
+        destination[key] = valuesObj[key];
+      }
+    }
+  } else {
+    destination = valuesObj;
+  }
+  return destination;
+};
+
+}());
+
 
 // # keyboard.js
 (function() {

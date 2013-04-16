@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-14) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-16) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -130,6 +130,7 @@ window.Luv = function() {
         return Base.subclass(name, methods);
     };
     Luv.Base = Base;
+    Luv.extend = extend;
     var initializeOptions = function(options) {
         options = options || {};
         var el = options.el, id = options.id, width = options.width, height = options.height, body = document.getElementsByTagName("body")[0], html = document.getElementsByTagName("html")[0], fullCss = "width: 100%; height: 100%; margin: 0; overflow: hidden;";
@@ -273,6 +274,43 @@ window.Luv = function() {
             return false;
         }
     });
+})();
+
+(function() {
+    Luv.Timer.Tween = Luv.Class("Luv.Timer.Tween", {
+        init: function(timeToFinish, from, to, easingFunction, updateFunction) {
+            this.runningTime = 0;
+            this.timeToFinish = timeToFinish;
+            this.from = from;
+            this.to = deepCopy({}, to);
+            this.easing = getEasingFunction(easingFunction);
+            this.updateFunction = updateFunction || this.updateFunction;
+        },
+        update: function(dt) {},
+        updateFunction: function(newValues) {}
+    });
+    Luv.Timer.Tween.easing = {
+        linear: function(t, b, c, d) {
+            return c * t / d + b;
+        }
+    };
+    var getEasingFunction = function(easing) {
+        easing = easing || "linear";
+        return Luv.Timer.Tween.easing[easing];
+    };
+    var deepCopy = function(destination, keysObj, valuesObj) {
+        valuesObj = valuesObj || keysObj;
+        if (typeof keysObj === "object") {
+            for (var key in keysObj) {
+                if (keysObj.hasOwnProperty(key)) {
+                    destination[key] = valuesObj[key];
+                }
+            }
+        } else {
+            destination = valuesObj;
+        }
+        return destination;
+    };
 })();
 
 (function() {
