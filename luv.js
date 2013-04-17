@@ -675,7 +675,7 @@ var deepEase = function(tween, from, to) {
 
 var getEasingFunction= function(easing) {
   easing = easing || "linear";
-  return Luv.Timer.Tween.easing[easing];
+  return typeof easing == 'string' ? Luv.Timer.Tween.easing[easing] : easing;
 };
 
 var deepMerge = function(result, keysObj, valuesObj) {

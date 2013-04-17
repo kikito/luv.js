@@ -34,6 +34,16 @@ describe("Luv.Timer.Tween", function(){
       expect(function(){ Tween(1, {y:1}, {y:[1,2,3]}); }).to.Throw(Error);
       expect(function(){ Tween(1, {a:{b:{c:3}}}, {a:1}); }).to.Throw(Error);
     });
+
+    it("accepts the easing option as a string", function() {
+      var tween = Tween(5, 1, 10, {easing: 'linear'});
+      expect(tween.easing).to.equal(Tween.easing.linear);
+    });
+
+    it("accepts the easing option as a function", function() {
+      var tween = Tween(5, 1, 10, {easing: Tween.easing.linear});
+      expect(tween.easing).to.equal(Tween.easing.linear);
+    });
   });
 
   describe(".update", function() {
@@ -72,7 +82,6 @@ describe("Luv.Timer.Tween", function(){
     });
 
     it("uses the step option, if provided", function() {
-
       var sum = 0,
           tween = Tween(3, 0,3, { step: function(v){sum +=v; } });
 
@@ -89,6 +98,17 @@ describe("Luv.Timer.Tween", function(){
       expect(sum).to.equal(6);
     });
 
+    it("invokes the onFinished callback, if provided", function() {
+      var count = 0,
+          tween = Tween(3, 0,3, { onFinished: function(){count++;} });
+
+      tween.update(3);
+      expect(count).to.equal(1);
+      expect(tween.isFinished()).to.be.truthy;
+
+      tween.update(1);
+      expect(count).to.equal(1);
+    });
   });
 
 

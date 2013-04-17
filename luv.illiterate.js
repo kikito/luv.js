@@ -352,7 +352,7 @@ window.Luv = function() {
     };
     var getEasingFunction = function(easing) {
         easing = easing || "linear";
-        return Luv.Timer.Tween.easing[easing];
+        return typeof easing == "string" ? Luv.Timer.Tween.easing[easing] : easing;
     };
     var deepMerge = function(result, keysObj, valuesObj) {
         valuesObj = valuesObj || keysObj;
