@@ -108,6 +108,21 @@
                 timer.js
               </a>
             
+              
+              <a class="source" href="after.html">
+                timer/after.js
+              </a>
+            
+              
+              <a class="source" href="every.html">
+                timer/every.js
+              </a>
+            
+              
+              <a class="source" href="tween.html">
+                timer/tween.js
+              </a>
+            
           </div>
         </li>
       </ul>
@@ -123,10 +138,11 @@
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
               <h1>core.js</h1>
+<p>Global Luv variable definition</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>(<span class="keyword">function</span>() {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>window.Luv = (<span class="keyword">function</span>() {</pre></div></div>
             
         </li>
         
@@ -329,11 +345,11 @@ baseMethods.getClass = <span class="keyword">function</span>() { <span class="ke
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
               <h2>Luv definition</h2>
-<p>The main Luv class, and the only global variable defined by luv.js</p>
+<p>The main Luv class</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Luv = Base.subclass(<span class="string">'Luv'</span>, {</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> Luv = Base.subclass(<span class="string">'Luv'</span>, {</pre></div></div>
             
         </li>
         
@@ -744,6 +760,21 @@ For inheritance, do <BaseClass>.subclass(<name>, <methods>) instead</p>
               <div class="pilwrap for-h2">
                 <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
+              <h2>Luv.extend</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Luv.extend = extend;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
               <h2>initializeOptions</h2>
 
             </div>
@@ -753,11 +784,11 @@ For inheritance, do <BaseClass>.subclass(<name>, <methods>) instead</p>
         </li>
         
         
-        <li id="section-30">
+        <li id="section-31">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
+                <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
               <p>Accepted options:</p>
 <ul>
@@ -819,8 +850,22 @@ For inheritance, do <BaseClass>.subclass(<name>, <methods>) instead</p>
   options.height  = height;
 
   <span class="keyword">return</span> options;
-};
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <p>export the local Luv variable so that the window.Luv = ... at the top of this file can take it</p>
 
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">return</span> Luv;
 
 }());</pre></div></div>
             

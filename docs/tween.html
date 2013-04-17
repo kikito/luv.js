@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>timer/tween.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="CONTRIBUTING.html">
+                CONTRIBUTING.md
+              </a>
+            
+              
+              <a class="source" href="MIT-LICENSE.html">
+                MIT-LICENSE.md
+              </a>
+            
+              
+              <a class="source" href="index.html">
+                README.js.md
+              </a>
+            
+              
+              <a class="source" href="audio.html">
+                audio.js
+              </a>
+            
+              
+              <a class="source" href="null_sound.html">
+                audio/null_sound.js
+              </a>
+            
+              
+              <a class="source" href="sound.html">
+                audio/sound.js
+              </a>
+            
+              
+              <a class="source" href="sound_instance.html">
+                audio/sound_instance.js
+              </a>
+            
+              
+              <a class="source" href="core.html">
+                core.js
+              </a>
+            
+              
+              <a class="source" href="graphics.html">
+                graphics.js
+              </a>
+            
+              
+              <a class="source" href="animation.html">
+                graphics/animation.js
+              </a>
+            
+              
+              <a class="source" href="canvas.html">
+                graphics/canvas.js
+              </a>
+            
+              
+              <a class="source" href="image.html">
+                graphics/image.js
+              </a>
+            
+              
+              <a class="source" href="sprite.html">
+                graphics/sprite.js
+              </a>
+            
+              
+              <a class="source" href="sprite_sheet.html">
+                graphics/sprite_sheet.js
+              </a>
+            
+              
+              <a class="source" href="keyboard.html">
+                keyboard.js
+              </a>
+            
+              
+              <a class="source" href="media.html">
+                media.js
+              </a>
+            
+              
+              <a class="source" href="mouse.html">
+                mouse.js
+              </a>
+            
+              
+              <a class="source" href="timer.html">
+                timer.js
+              </a>
+            
+              
+              <a class="source" href="after.html">
+                timer/after.js
+              </a>
+            
+              
+              <a class="source" href="every.html">
+                timer/every.js
+              </a>
+            
+              
+              <a class="source" href="tween.html">
+                timer/tween.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h1">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1>timer/tween.js</h1>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>(<span class="keyword">function</span>(){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h2>Luv.Timer.Tween</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Luv.Timer.Tween = Luv.Class(<span class="string">'Luv.Timer.Tween'</span>, {
+
+  init: <span class="keyword">function</span>(timeToFinish, subject, to, options) {
+    deepParamsCheck(subject,to,[]);
+
+    options = options || {};
+    <span class="keyword">this</span>.easing       = getEasingFunction(options.easing);
+    <span class="keyword">this</span>.step         = options.step       || <span class="keyword">this</span>.step;
+    <span class="keyword">this</span>.onFinished   = options.onFinished || <span class="keyword">this</span>.onFinished;
+
+    <span class="keyword">this</span>.runningTime  = <span class="number">0</span>;
+    <span class="keyword">this</span>.finished     = <span class="literal">false</span>;
+    <span class="keyword">this</span>.timeToFinish = timeToFinish;
+    <span class="keyword">this</span>.subject      = subject;
+    <span class="keyword">this</span>.from         = deepCopy(subject, to);
+    <span class="keyword">this</span>.to           = deepCopy(to);
+  },
+
+  update: <span class="keyword">function</span>(dt) {
+    <span class="keyword">if</span>(<span class="keyword">this</span>.runningTime &gt;= <span class="keyword">this</span>.timeToFinish) { <span class="keyword">return</span>; }
+    <span class="keyword">this</span>.runningTime += dt;
+    <span class="keyword">if</span>(<span class="keyword">this</span>.runningTime &gt;= <span class="keyword">this</span>.timeToFinish) {
+      <span class="keyword">this</span>.runningTime = <span class="keyword">this</span>.timeToFinish;
+      <span class="keyword">this</span>.onFinished();
+      <span class="keyword">this</span>.finished = <span class="literal">true</span>;
+    }
+    <span class="keyword">this</span>.step(deepEase(<span class="keyword">this</span>, <span class="keyword">this</span>.from, <span class="keyword">this</span>.to));
+    <span class="keyword">return</span> <span class="keyword">this</span>.finished;
+  },
+
+  step: <span class="keyword">function</span>(values) {
+    <span class="keyword">this</span>.subject = deepMerge(<span class="keyword">this</span>.subject, values);
+  },
+
+  onFinished: <span class="keyword">function</span>() {
+  },
+
+  isFinished: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> !!<span class="keyword">this</span>.finished;
+  }
+
+});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h2>Easing functions</h2>
+<h3>linear</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> linear= <span class="keyword">function</span>(t, b, c, d){ <span class="keyword">return</span> c * t / d + b; },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <h3>quad</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  inQuad  = <span class="keyword">function</span>(t, b, c, d){ <span class="keyword">return</span> c * Math.pow(t / d, <span class="number">2</span>) + b; },
+  outQuad = <span class="keyword">function</span>(t, b, c, d){
+    t = t / d;
+    <span class="keyword">return</span> -c * t * (t - <span class="number">2</span>) + b;
+  },
+  inOutQuad = <span class="keyword">function</span>(t, b, c, d){
+    t = t / d * <span class="number">2</span>;
+    <span class="keyword">if</span>(t &lt; <span class="number">1</span>){ <span class="keyword">return</span> c / <span class="number">2</span> * Math.pow(t, <span class="number">2</span>) + b; }
+    <span class="keyword">return</span> -c / <span class="number">2</span> * ((t - <span class="number">1</span>) * (t - <span class="number">3</span>) - <span class="number">1</span>) + b;
+  },
+  outInQuad = <span class="keyword">function</span>(t, b, c, d){
+    <span class="keyword">if</span>(t &lt; d / <span class="number">2</span>) { <span class="keyword">return</span> outQuad(t * <span class="number">2</span>, b, c / <span class="number">2</span>, d); }
+    <span class="keyword">return</span> inQuad((t * <span class="number">2</span>) - d, b + c / <span class="number">2</span>, c / <span class="number">2</span>, d);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <h3>cubic</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  inCubic  = <span class="keyword">function</span>(t, b, c, d){ <span class="keyword">return</span> c * Math.pow(t / d, <span class="number">3</span>) + b; },
+  outCubic = <span class="keyword">function</span>(t, b, c, d){ <span class="keyword">return</span> c * (Math.pow(t / d - <span class="number">1</span>, <span class="number">3</span>) + <span class="number">1</span>) + b; },
+  inOutCubic = <span class="keyword">function</span>(t, b, c, d){
+    t = t / d * <span class="number">2</span>;
+    <span class="keyword">if</span>(t &lt; <span class="number">1</span>){ <span class="keyword">return</span> c / <span class="number">2</span> * t * t * t + b; }
+    t = t - <span class="number">2</span>;
+    <span class="keyword">return</span> c / <span class="number">2</span> * (t * t * t + <span class="number">2</span>) + b;
+  },
+  outInCubic = <span class="keyword">function</span>(t, b, c, d){
+    <span class="keyword">if</span>(t &lt; d / <span class="number">2</span>){ <span class="keyword">return</span> outCubic(t * <span class="number">2</span>, b, c / <span class="number">2</span>, d); }
+    <span class="keyword">return</span> inCubic((t * <span class="number">2</span>) - d, b + c / <span class="number">2</span>, c / <span class="number">2</span>, d);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <h3>quart</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  inQuart = <span class="keyword">function</span>(t, b, c, d){ <span class="keyword">return</span> c * Math.pow(t / d, <span class="number">4</span>) + b; },
+  outQuart = <span class="keyword">function</span>(t, b, c, d){ <span class="keyword">return</span> -c * (Math.pow(t / d - <span class="number">1</span>, <span class="number">4</span>) - <span class="number">1</span>) + b; },
+  inOutQuart = <span class="keyword">function</span>(t, b, c, d){
+    t = t / d * <span class="number">2</span>;
+    <span class="keyword">if</span>(t &lt; <span class="number">1</span>){ <span class="keyword">return</span> c / <span class="number">2</span> * Math.pow(t, <span class="number">4</span>) + b; }
+    <span class="keyword">return</span> -c / <span class="number">2</span> * (Math.pow(t - <span class="number">2</span>, <span class="number">4</span>) - <span class="number">2</span>) + b;
+  },
+  outInQuart = <span class="keyword">function</span>(t, b, c, d){
+    <span class="keyword">if</span>(t &lt; d / <span class="number">2</span>){ <span class="keyword">return</span> outQuart(t * <span class="number">2</span>, b, c / <span class="number">2</span>, d); }
+    <span class="keyword">return</span> inQuart((t * <span class="number">2</span>) - d, b + c / <span class="number">2</span>, c / <span class="number">2</span>, d);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <h3>quint</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  inQuint = <span class="keyword">function</span>(t, b, c, d){ <span class="keyword">return</span> c * Math.pow(t / d, <span class="number">5</span>) + b; },
+  outQuint = <span class="keyword">function</span>(t, b, c, d){ <span class="keyword">return</span> c * (Math.pow(t / d - <span class="number">1</span>, <span class="number">5</span>) + <span class="number">1</span>) + b; },
+  inOutQuint = <span class="keyword">function</span>(t, b, c, d){
+    t = t / d * <span class="number">2</span>;
+    <span class="keyword">if</span>(t &lt; <span class="number">1</span>){ <span class="keyword">return</span> c / <span class="number">2</span> * Math.pow(t, <span class="number">5</span>) + b; }
+    <span class="keyword">return</span> c / <span class="number">2</span> * (Math.pow(t - <span class="number">2</span>, <span class="number">5</span>) + <span class="number">2</span>) + b;
+  },
+  outInQuint = <span class="keyword">function</span>(t, b, c, d){
+    <span class="keyword">if</span>(t &lt; d / <span class="number">2</span>){ <span class="keyword">return</span> outQuint(t * <span class="number">2</span>, b, c / <span class="number">2</span>, d); }
+    <span class="keyword">return</span> inQuint((t * <span class="number">2</span>) - d, b + c / <span class="number">2</span>, c / <span class="number">2</span>, d);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <h3>sine</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  inSine = <span class="keyword">function</span>(t, b, c, d){ <span class="keyword">return</span> -c * Math.cos(t / d * (Math.PI / <span class="number">2</span>)) + c + b; },
+  outSine = <span class="keyword">function</span>(t, b, c, d){ <span class="keyword">return</span> c * Math.sin(t / d * (Math.PI / <span class="number">2</span>)) + b; },
+  inOutSine = <span class="keyword">function</span>(t, b, c, d){ <span class="keyword">return</span> -c / <span class="number">2</span> * (Math.cos(Math.PI * t / d) - <span class="number">1</span>) + b; },
+  outInSine = <span class="keyword">function</span>(t, b, c, d){
+    <span class="keyword">if</span>(t &lt; d / <span class="number">2</span>){ <span class="keyword">return</span> outSine(t * <span class="number">2</span>, b, c / <span class="number">2</span>, d); }
+    <span class="keyword">return</span> inSine((t * <span class="number">2</span>) -d, b + c / <span class="number">2</span>, c / <span class="number">2</span>, d);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <h3>expo</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  inExpo = <span class="keyword">function</span>(t, b, c, d){
+    <span class="keyword">if</span>(t === <span class="number">0</span>){ <span class="keyword">return</span> b; }
+    <span class="keyword">return</span> c * Math.pow(<span class="number">2</span>, <span class="number">10</span> * (t / d - <span class="number">1</span>)) + b - c * <span class="number">0.001</span>;
+  },
+  outExpo = <span class="keyword">function</span>(t, b, c, d){
+    <span class="keyword">if</span>(t == d){ <span class="keyword">return</span> b + c; }
+    <span class="keyword">return</span> c * <span class="number">1.001</span> * (-Math.pow(<span class="number">2</span>, -<span class="number">10</span> * t / d) + <span class="number">1</span>) + b;
+  },
+  inOutExpo = <span class="keyword">function</span>(t, b, c, d){
+    <span class="keyword">if</span>(t === <span class="number">0</span>){ <span class="keyword">return</span> b; }
+    <span class="keyword">if</span>(t == d){ <span class="keyword">return</span> b + c; }
+    t = t / d * <span class="number">2</span>;
+    <span class="keyword">if</span>(t &lt; <span class="number">1</span>){ <span class="keyword">return</span> c / <span class="number">2</span> * Math.pow(<span class="number">2</span>, <span class="number">10</span> * (t - <span class="number">1</span>)) + b - c * <span class="number">0.0005</span>; }
+    <span class="keyword">return</span> c / <span class="number">2</span> * <span class="number">1.0005</span> * (-Math.pow(<span class="number">2</span>, -<span class="number">10</span> * (t - <span class="number">1</span>)) + <span class="number">2</span>) + b;
+  },
+  outInExpo = <span class="keyword">function</span>(t, b, c, d){
+    <span class="keyword">if</span>(t &lt; d / <span class="number">2</span>){ <span class="keyword">return</span> outExpo(t * <span class="number">2</span>, b, c / <span class="number">2</span>, d); }
+    <span class="keyword">return</span> inExpo((t * <span class="number">2</span>) - d, b + c / <span class="number">2</span>, c / <span class="number">2</span>, d);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <h3>circ</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  inCirc = <span class="keyword">function</span>(t, b, c, d){ <span class="keyword">return</span>(-c * (Math.sqrt(<span class="number">1</span> - Math.pow(t / d, <span class="number">2</span>)) - <span class="number">1</span>) + b); },
+  outCirc = <span class="keyword">function</span>(t, b, c, d){ <span class="keyword">return</span>(c * Math.sqrt(<span class="number">1</span> - Math.pow(t / d - <span class="number">1</span>, <span class="number">2</span>)) + b); },
+  inOutCirc = <span class="keyword">function</span>(t, b, c, d){
+    t = t / d * <span class="number">2</span>;
+    <span class="keyword">if</span>(t &lt; <span class="number">1</span>){ <span class="keyword">return</span> -c / <span class="number">2</span> * (Math.sqrt(<span class="number">1</span> - t * t) - <span class="number">1</span>) + b; }
+    t = t - <span class="number">2</span>;
+    <span class="keyword">return</span> c / <span class="number">2</span> * (Math.sqrt(<span class="number">1</span> - t * t) + <span class="number">1</span>) + b;
+  },
+  outInCirc = <span class="keyword">function</span>(t, b, c, d){
+    <span class="keyword">if</span>(t &lt; d / <span class="number">2</span>){ <span class="keyword">return</span> outCirc(t * <span class="number">2</span>, b, c / <span class="number">2</span>, d); }
+    <span class="keyword">return</span> inCirc((t * <span class="number">2</span>) - d, b + c / <span class="number">2</span>, c / <span class="number">2</span>, d);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <h3>elastic</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  calculatePAS = <span class="keyword">function</span>(p,a,c,d) {
+    p = <span class="keyword">typeof</span> p === <span class="string">"undefined"</span> ? d * <span class="number">0.3</span> : p;
+    a = a || <span class="number">0</span>;
+    <span class="keyword">if</span>(a &lt; Math.abs(c)){
+      a = c;
+      s = p / <span class="number">4</span>;
+    } <span class="keyword">else</span> {
+      s = p / (<span class="number">2</span> * Math.PI) * Math.asin(c/a);
+    }
+    <span class="keyword">return</span> [p,a,s];
+  },
+  inElastic = <span class="keyword">function</span>(t, b, c, d, a, p){
+    <span class="keyword">if</span>(t === <span class="number">0</span>){ <span class="keyword">return</span> b; }
+    t = t / d;
+    <span class="keyword">if</span>(t == <span class="number">1</span> ){ <span class="keyword">return</span> b + c; }
+    <span class="keyword">var</span> pas = calculatePAS(p,a,c,d),
+        s = pas[<span class="number">2</span>];
+    p = pas[<span class="number">0</span>];
+    a = pas[<span class="number">1</span>];
+    t = t - <span class="number">1</span>;
+    <span class="keyword">return</span> -(a * Math.pow(<span class="number">2</span>, <span class="number">10</span> * t) * Math.sin((t * d - s) * (<span class="number">2</span> * Math.PI) / p)) + b;
+  },
+  outElastic = <span class="keyword">function</span>(t, b, c, d, a, p) {
+    <span class="keyword">if</span>(t === <span class="number">0</span>){ <span class="keyword">return</span> b; }
+    t = t / d;
+    <span class="keyword">if</span>(t == <span class="number">1</span> ){ <span class="keyword">return</span> b + c; }
+    <span class="keyword">var</span> pas = calculatePAS(p,a,c,d),
+        s = pas[<span class="number">2</span>];
+    p = pas[<span class="number">0</span>];
+    a = pas[<span class="number">1</span>];
+    <span class="keyword">return</span> a * Math.pow(<span class="number">2</span>, -<span class="number">10</span> * t) * Math.sin((t * d - s) * (<span class="number">2</span> * Math.PI) / p) + c + b;
+  },
+  inOutElastic = <span class="keyword">function</span>(t, b, c, d, a, p){
+    <span class="keyword">if</span>(t === <span class="number">0</span>){ <span class="keyword">return</span> b; }
+    t = t / d;
+    <span class="keyword">if</span>(t == <span class="number">1</span> ){ <span class="keyword">return</span> b + c; }
+    <span class="keyword">var</span> pas = calculatePAS(p,a,c,d),
+        s = pas[<span class="number">2</span>];
+    p = pas[<span class="number">0</span>];
+    a = pas[<span class="number">1</span>];
+
+    t = t - <span class="number">1</span>;
+    <span class="keyword">if</span>(t &lt; <span class="number">0</span>){ <span class="keyword">return</span> -<span class="number">0.5</span> * (a * Math.pow(<span class="number">2</span>, <span class="number">10</span> * t) * Math.sin((t * d - s) * (<span class="number">2</span> * Math.PI) / p)) + b; }
+    <span class="keyword">return</span> a * Math.pow(<span class="number">2</span>, -<span class="number">10</span> * t) * Math.sin((t * d - s) * (<span class="number">2</span> * Math.PI) / p ) * <span class="number">0.5</span> + c + b;
+  },
+  outInElastic = <span class="keyword">function</span>(t, b, c, d, a, p) {
+    <span class="keyword">if</span>(t &lt; d / <span class="number">2</span>){ <span class="keyword">return</span> outElastic(t * <span class="number">2</span>, b, c / <span class="number">2</span>, d, a, p); }
+    <span class="keyword">return</span> inElastic((t * <span class="number">2</span>) - d, b + c / <span class="number">2</span>, c / <span class="number">2</span>, d, a, p);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <h3>back</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  inBack = <span class="keyword">function</span>(t, b, c, d, s) {
+    s = s || <span class="number">1.70158</span>;
+    t = t / d;
+    <span class="keyword">return</span> c * t * t * ((s + <span class="number">1</span>) * t - s) + b;
+  },
+  outBack = <span class="keyword">function</span>(t, b, c, d, s) {
+    s = s || <span class="number">1.70158</span>;
+    t = t / d - <span class="number">1</span>;
+    <span class="keyword">return</span> c * (t * t * ((s + <span class="number">1</span>) * t + s) + <span class="number">1</span>) + b;
+  },
+  inOutBack = <span class="keyword">function</span>(t, b, c, d, s){
+    s = (s || <span class="number">1.70158</span>) * <span class="number">1.525</span>;
+    t = t / d * <span class="number">2</span>;
+    <span class="keyword">if</span>(t &lt; <span class="number">1</span>){ <span class="keyword">return</span> c / <span class="number">2</span> * (t * t * ((s + <span class="number">1</span>) * t - s)) + b; }
+    t = t - <span class="number">2</span>;
+    <span class="keyword">return</span> c / <span class="number">2</span> * (t * t * ((s + <span class="number">1</span>) * t + s) + <span class="number">2</span>) + b;
+  },
+  outInBack = <span class="keyword">function</span>(t, b, c, d, s){
+    <span class="keyword">if</span>(t &lt; d / <span class="number">2</span>){ <span class="keyword">return</span> outBack(t * <span class="number">2</span>, b, c / <span class="number">2</span>, d, s); }
+    <span class="keyword">return</span> inBack((t * <span class="number">2</span>) - d, b + c / <span class="number">2</span>, c / <span class="number">2</span>, d, s);
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <h3>bounce</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  outBounce = <span class="keyword">function</span>(t, b, c, d){
+    t = t / d;
+    <span class="keyword">if</span>(t &lt; <span class="number">1</span> / <span class="number">2.75</span>){ <span class="keyword">return</span> c * (<span class="number">7.5625</span> * t * t) + b; }
+    <span class="keyword">if</span>(t &lt; <span class="number">2</span> / <span class="number">2.75</span>){
+      t = t - (<span class="number">1.5</span> / <span class="number">2.75</span>);
+      <span class="keyword">return</span> c * (<span class="number">7.5625</span> * t * t + <span class="number">0.75</span>) + b;
+    } <span class="keyword">else</span> <span class="keyword">if</span>(t &lt; <span class="number">2.5</span> / <span class="number">2.75</span>){
+      t = t - (<span class="number">2.25</span> / <span class="number">2.75</span>);
+      <span class="keyword">return</span> c * (<span class="number">7.5625</span> * t * t + <span class="number">0.9375</span>) + b;
+    }
+    t = t - (<span class="number">2.625</span> / <span class="number">2.75</span>);
+    <span class="keyword">return</span> c * (<span class="number">7.5625</span> * t * t + <span class="number">0.984375</span>) + b;
+  },
+  inBounce = <span class="keyword">function</span>(t, b, c, d){ <span class="keyword">return</span> c - outBounce(d - t, <span class="number">0</span>, c, d) + b; },
+  inOutBounce = <span class="keyword">function</span>(t, b, c, d){
+    <span class="keyword">if</span>(t &lt; d / <span class="number">2</span>){ <span class="keyword">return</span> inBounce(t * <span class="number">2</span>, <span class="number">0</span>, c, d) * <span class="number">0.5</span> + b; }
+    <span class="keyword">return</span> outBounce(t * <span class="number">2</span> - d, <span class="number">0</span>, c, d) * <span class="number">0.5</span> + c * <span class="number">0.5</span> + b;
+  },
+  outInBounce = <span class="keyword">function</span>(t, b, c, d){
+    <span class="keyword">if</span>(t &lt; d / <span class="number">2</span>){ <span class="keyword">return</span> outBounce(t * <span class="number">2</span>, b, c / <span class="number">2</span>, d); }
+    <span class="keyword">return</span> inBounce((t * <span class="number">2</span>) - d, b + c / <span class="number">2</span>, c / <span class="number">2</span>, d);
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <h2>Luv.Timer.Tween.easing</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Luv.Timer.Tween.easing = {
+  linear    : linear,
+  inQuad    : inQuad,    outQuad    : outQuad,    inOutQuad    : inOutQuad,    outInQuad    : outInQuad,
+  inCubic   : inCubic,   outCubic   : outCubic,   inOutCubic   : inOutCubic,   outInCubic   : outInCubic,
+  inQuart   : inQuart,   outQuart   : outQuart,   inOutQuart   : inOutQuart,   outInQuart   : outInQuart,
+  inQuint   : inQuint,   outQuint   : outQuint,   inOutQuint   : inOutQuint,   outInQuint   : outInQuint,
+  inSine    : inSine,    outSine    : outSine,    inOutSine    : inOutSine,    outInSine    : outInSine,
+  inExpo    : inExpo,    outExpo    : outExpo,    inOutExpo    : inOutExpo,    outInExpo    : outInExpo,
+  inCirc    : inCirc,    outCirc    : outCirc,    inOutCirc    : inOutCirc,    outInCirc    : outInCirc,
+  inElastic : inElastic, outElastic : outElastic, inOutElastic : inOutElastic, outInElastic : outInElastic,
+  inBack    : inBack,    outBack    : outBack,    inOutBack    : inOutBack,    outInBack    : outInBack,
+  inBounce  : inBounce,  outBounce  : outBounce,  inOutBounce  : inOutBounce,  outInBounce  : outInBounce
+};
+
+
+<span class="keyword">var</span> deepParamsCheck = <span class="keyword">function</span>(subject, to, path) {
+  <span class="keyword">var</span> toType, newPath;
+  <span class="keyword">for</span>(<span class="keyword">var</span> k <span class="keyword">in</span> to) {
+    <span class="keyword">if</span>(to.hasOwnProperty(k)) {
+      toType  = <span class="keyword">typeof</span> to[k];
+      newPath = path.slice(<span class="number">0</span>);
+      newPath.push(String(k));
+      <span class="keyword">if</span>(toType === <span class="string">'number'</span>) {
+        <span class="keyword">if</span>(<span class="keyword">typeof</span> subject[k] !== <span class="string">'number'</span>) {
+          <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Parameter '"</span> + newPath.join(<span class="string">'/'</span>) + <span class="string">"' is missing from 'from' or isn't a number"</span>);
+        }
+      } <span class="keyword">else</span> <span class="keyword">if</span>(toType === <span class="string">'object'</span>) {
+        deepParamsCheck(subject[k], to[k], newPath);
+      } <span class="keyword">else</span> {
+        <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Parameter '"</span> + newPath.join(<span class="string">'/'</span>) + <span class="string">"' must be a number or string, was "</span> + to[k]);
+      }
+    }
+  }
+};
+
+
+<span class="keyword">var</span> deepEase = <span class="keyword">function</span>(tween, from, to) {
+  <span class="keyword">var</span> result;
+  <span class="keyword">if</span>(<span class="keyword">typeof</span> to === <span class="string">"object"</span>) {
+    result = Array.isArray(to) ? [] : {};
+    <span class="keyword">for</span>(<span class="keyword">var</span> key <span class="keyword">in</span> to) {
+      <span class="keyword">if</span>(to.hasOwnProperty(key)) {
+        result[key] = deepEase(tween, from[key], to[key]);
+      }
+    }
+  } <span class="keyword">else</span> {
+    result = tween.easing(
+      tween.runningTime,  <span class="comment">// t</span>
+      from,               <span class="comment">// b</span>
+      to - from,          <span class="comment">// c</span>
+      tween.timeToFinish  <span class="comment">// d</span>
+    );
+  }
+  <span class="keyword">return</span> result;
+};
+
+<span class="keyword">var</span> getEasingFunction= <span class="keyword">function</span>(easing) {
+  easing = easing || <span class="string">"linear"</span>;
+  <span class="keyword">return</span> <span class="keyword">typeof</span> easing == <span class="string">'string'</span> ? Luv.Timer.Tween.easing[easing] : easing;
+};
+
+<span class="keyword">var</span> deepMerge = <span class="keyword">function</span>(result, keysObj, valuesObj) {
+  valuesObj = valuesObj || keysObj;
+  <span class="keyword">if</span>(<span class="keyword">typeof</span> keysObj === <span class="string">"object"</span>) {
+    result = result || (Array.isArray(keysObj) ? [] : {});
+    <span class="keyword">for</span>(<span class="keyword">var</span> key <span class="keyword">in</span> keysObj){
+      <span class="keyword">if</span>(keysObj.hasOwnProperty(key)) {
+        result[key] = deepMerge(result[key], keysObj[key], valuesObj[key]);
+      }
+    }
+  } <span class="keyword">else</span> {
+    result = keysObj;
+  }
+  <span class="keyword">return</span> result;
+};
+
+<span class="keyword">var</span> deepCopy = <span class="keyword">function</span>(keysObj, valuesObj) {
+  <span class="keyword">return</span> deepMerge(<span class="literal">null</span>, keysObj, valuesObj);
+};
+
+}());</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

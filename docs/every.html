@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>image.js</title>
+  <title>timer/every.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -137,7 +137,7 @@
               <div class="pilwrap for-h1">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1>image.js</h1>
+              <h1>timer/every.js</h1>
 
             </div>
             
@@ -152,53 +152,34 @@
               <div class="pilwrap for-h2">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <h2>Luv.Graphics.Image</h2>
-<p>This class encapsulates images loaded from the internet</p>
+              <h2>Luv.Timer.Every</h2>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Luv.Graphics.Image = Luv.Class(<span class="string">'Luv.Graphics.Image'</span>, {
-  init: <span class="keyword">function</span>(media, path) {
-    <span class="keyword">var</span> image = <span class="keyword">this</span>;
+            <div class="content"><div class='highlight'><pre>Luv.Timer.Every = Luv.Class(<span class="string">'Luv.Timer.Every'</span>, {
 
-    image.path = path;
-
-    media.newAsset(image);
-
-    <span class="keyword">var</span> source   = <span class="keyword">new</span> Image(); <span class="comment">// html image</span>
-    image.source = source;
-
-    source.addEventListener(<span class="string">'load'</span>,  <span class="keyword">function</span>(){ media.registerLoad(image); });
-    source.addEventListener(<span class="string">'error'</span>, <span class="keyword">function</span>(){ media.registerError(image); });
-    source.src = path;
+  init: <span class="keyword">function</span>(timeToCall, callback, context) {
+    <span class="keyword">this</span>.timeRunning = <span class="number">0</span>;
+    <span class="keyword">this</span>.timeToCall  = timeToCall;
+    <span class="keyword">this</span>.callback    = callback;
+    <span class="keyword">this</span>.context     = context;
   },
 
-  toString      : <span class="keyword">function</span>() {
-    <span class="keyword">return</span> <span class="string">'instance of Luv.Graphics.Image("'</span> + <span class="keyword">this</span>.path + <span class="string">'")'</span>;
-  },
+  update: <span class="keyword">function</span>(dt) {
+    <span class="keyword">this</span>.timeRunning += dt;
 
-  getWidth      : <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.source.width; },
-
-  getHeight     : <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.source.height; },
-
-  getDimensions : <span class="keyword">function</span>() {
-    <span class="keyword">return</span> { width: <span class="keyword">this</span>.source.width, height: <span class="keyword">this</span>.source.height };
-  },
-
-  getCenter: <span class="keyword">function</span>() {
-    <span class="keyword">return</span> { x: <span class="keyword">this</span>.source.width / <span class="number">2</span>, y: <span class="keyword">this</span>.source.height / <span class="number">2</span> };
-  },
-
-  draw: <span class="keyword">function</span>(context, x, y) {
-    <span class="keyword">if</span>(!<span class="keyword">this</span>.isLoaded()) {
-      <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Attepted to draw a non loaded image: "</span> + <span class="keyword">this</span>);
+    <span class="keyword">if</span>(<span class="keyword">this</span>.timeToCall &gt; <span class="number">0</span>) {
+      <span class="keyword">while</span>(<span class="keyword">this</span>.timeRunning &gt;= <span class="keyword">this</span>.timeToCall) {
+        <span class="keyword">this</span>.callback.call(<span class="keyword">this</span>.context, <span class="keyword">this</span>.timeRunning - <span class="keyword">this</span>.timeToCall);
+        <span class="keyword">this</span>.timeRunning -= <span class="keyword">this</span>.timeToCall;
+      }
+    } <span class="keyword">else</span> {
+      <span class="keyword">this</span>.callback.call(<span class="keyword">this</span>.context, dt);
     }
-    context.drawImage(<span class="keyword">this</span>.source, x, y);
+    <span class="keyword">return</span> <span class="literal">false</span>;
   }
 
 });
-
-Luv.Graphics.Image.include(Luv.Media.Asset);
 
 }());</pre></div></div>
             

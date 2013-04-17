@@ -108,6 +108,21 @@
                 timer.js
               </a>
             
+              
+              <a class="source" href="after.html">
+                timer/after.js
+              </a>
+            
+              
+              <a class="source" href="every.html">
+                timer/every.js
+              </a>
+            
+              
+              <a class="source" href="tween.html">
+                timer/tween.js
+              </a>
+            
           </div>
         </li>
       </ul>
@@ -212,6 +227,9 @@ for things like physics simulations, etc).</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>    <span class="keyword">this</span>.deltaTimeLimit = Luv.Timer.DEFAULT_DELTA_TIME_LIMIT;
+
+    <span class="keyword">this</span>.events = {};
+    <span class="keyword">this</span>.maxEventId = <span class="number">0</span>;
   },</pre></div></div>
             
         </li>
@@ -247,6 +265,12 @@ for things like physics simulations, etc).</p>
             <div class="content"><div class='highlight'><pre>  update : <span class="keyword">function</span>(dt) {
     <span class="keyword">this</span>.deltaTime = Math.max(<span class="number">0</span>, Math.min(<span class="keyword">this</span>.deltaTimeLimit, dt));
     <span class="keyword">this</span>.microTime += dt * <span class="number">1000</span>;
+    <span class="keyword">for</span>(<span class="keyword">var</span> id <span class="keyword">in</span> <span class="keyword">this</span>.events) {
+      <span class="keyword">if</span>(<span class="keyword">this</span>.events.hasOwnProperty(id) &amp;&amp;
+         <span class="keyword">this</span>.events[id].update(dt)) {
+        <span class="keyword">delete</span>(<span class="keyword">this</span>.events[id]);
+      }
+    }
   },</pre></div></div>
             
         </li>
@@ -339,11 +363,37 @@ in seconds. Note that it&#39;s capped by <code>deltaTimeLimit</code>.</p>
             
             <div class="content"><div class='highlight'><pre>  nextFrame : <span class="keyword">function</span>(f) {
     requestAnimationFrame(f);
+  },
+
+  after : <span class="keyword">function</span>(timeToCall, callback, context) {
+    <span class="keyword">return</span> add(<span class="keyword">this</span>, Luv.Timer.After(timeToCall, callback, context));
+  },
+
+  every : <span class="keyword">function</span>(timeToCall, callback, context) {
+    <span class="keyword">return</span> add(<span class="keyword">this</span>, Luv.Timer.Every(timeToCall, callback, context));
+  },
+
+  tween : <span class="keyword">function</span>(timeToFinish, subject, to, options) {
+    <span class="keyword">return</span> add(<span class="keyword">this</span>, Luv.Timer.Tween(timeToFinish, subject, to, options));
+  },
+
+  clear : <span class="keyword">function</span>(id) {
+    <span class="keyword">if</span>(<span class="keyword">this</span>.events[id]) {
+      <span class="keyword">delete</span>(<span class="keyword">this</span>.events[id]);
+      <span class="keyword">return</span> <span class="literal">true</span>;
+    }
+    <span class="keyword">return</span> <span class="literal">false</span>;
   }
 
 });
 
-Luv.Timer.DEFAULT_DELTA_TIME_LIMIT = <span class="number">0.25</span>;</pre></div></div>
+Luv.Timer.DEFAULT_DELTA_TIME_LIMIT = <span class="number">0.25</span>;
+
+<span class="keyword">var</span> add = <span class="keyword">function</span>(timer, e) {
+  <span class="keyword">var</span> id = timer.maxEventId++;
+  timer.events[id] = e;
+  <span class="keyword">return</span> id;
+};</pre></div></div>
             
         </li>
         
