@@ -1,4 +1,4 @@
-// # tween.js
+// # timer/tween.js
 (function(){
 
 // ## Luv.Timer.Tween

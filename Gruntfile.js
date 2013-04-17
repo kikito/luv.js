@@ -6,8 +6,8 @@ module.exports = function(grunt) {
   var srcFiles  = [
     "src/core.js",
     "src/timer.js",
-    "src/timer/after_event.js",
-    "src/timer/every_event.js",
+    "src/timer/after.js",
+    "src/timer/every.js",
     "src/timer/tween.js",
     "src/keyboard.js",
     "src/mouse.js",

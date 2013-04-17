@@ -1,8 +1,8 @@
-// # after_event.js
+// # timer/after.js
 (function() {
 
-// ## Luv.Timer.AfterEvent
-Luv.Timer.AfterEvent = Luv.Class('Luv.Timer.AfterEvent', {
+// ## Luv.Timer.After
+Luv.Timer.After = Luv.Class('Luv.Timer.After', {
 
   init: function(timeToCall, callback, context) {
     this.timeRunning = 0;

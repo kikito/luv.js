@@ -157,6 +157,21 @@ describe("Luv.Timer", function(){
         });
       });
 
+      describe(".tween", function() {
+        it("starts executing the tween right away", function() {
+          var obj = {x: 0};
+          timer.tween(5, obj, {x: 10});
+          timer.update(2);
+          expect(obj.x).to.equal(4);
+        });
+        it("uses the step callback when provided", function() {
+          var obj = {x: 0};
+          timer.tween(5, 0, 10, {step: function(x){obj.x = x;}});
+          timer.update(2);
+          expect(obj.x).to.equal(4);
+        });
+      });
+
       describe("clear", function() {
         it("cancels after events before they happen", function() {
           var id = timer.after(5, count);
@@ -175,6 +190,17 @@ describe("Luv.Timer", function(){
 
           timer.update(2);
           expect(counter).to.equal(2);
+        });
+
+        it("cancels tweens", function() {
+          var obj = {x: 0};
+          var id = timer.tween(5, obj, {x: 10});
+          timer.update(2);
+          expect(obj.x).to.equal(4);
+
+          timer.clear(id);
+          timer.update(2);
+          expect(obj.x).to.equal(4);
         });
       });
     });

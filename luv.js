@@ -470,11 +470,15 @@ Luv.Timer = Luv.Class('Luv.Timer', {
   },
 
   after : function(timeToCall, callback, context) {
-    return addEvent(this, Luv.Timer.AfterEvent(timeToCall, callback, context));
+    return add(this, Luv.Timer.After(timeToCall, callback, context));
   },
 
   every : function(timeToCall, callback, context) {
-    return addEvent(this, Luv.Timer.EveryEvent(timeToCall, callback, context));
+    return add(this, Luv.Timer.Every(timeToCall, callback, context));
+  },
+
+  tween : function(timeToFinish, subject, to, options) {
+    return add(this, Luv.Timer.Tween(timeToFinish, subject, to, options));
   },
 
   clear : function(id) {
@@ -489,7 +493,7 @@ Luv.Timer = Luv.Class('Luv.Timer', {
 
 Luv.Timer.DEFAULT_DELTA_TIME_LIMIT = 0.25;
 
-var addEvent = function(timer, e) {
+var add = function(timer, e) {
   var id = timer.maxEventId++;
   timer.events[id] = e;
   return id;
@@ -522,11 +526,11 @@ var lastTime = 0,
 
 }());
 
-// # after_event.js
+// # timer/after.js
 (function() {
 
-// ## Luv.Timer.AfterEvent
-Luv.Timer.AfterEvent = Luv.Class('Luv.Timer.AfterEvent', {
+// ## Luv.Timer.After
+Luv.Timer.After = Luv.Class('Luv.Timer.After', {
 
   init: function(timeToCall, callback, context) {
     this.timeRunning = 0;
@@ -549,11 +553,11 @@ Luv.Timer.AfterEvent = Luv.Class('Luv.Timer.AfterEvent', {
 
 }());
 
-// # every_event.js
+// # timer/every.js
 (function() {
 
-// ## Luv.Timer.EveryEvent
-Luv.Timer.EveryEvent = Luv.Class('Luv.Timer.EveryEvent', {
+// ## Luv.Timer.Every
+Luv.Timer.Every = Luv.Class('Luv.Timer.Every', {
 
   init: function(timeToCall, callback, context) {
     this.timeRunning = 0;
@@ -580,7 +584,7 @@ Luv.Timer.EveryEvent = Luv.Class('Luv.Timer.EveryEvent', {
 
 }());
 
-// # tween.js
+// # timer/tween.js
 (function(){
 
 // ## Luv.Timer.Tween

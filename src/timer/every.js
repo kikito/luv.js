@@ -1,8 +1,8 @@
-// # every_event.js
+// # timer/every.js
 (function() {
 
-// ## Luv.Timer.EveryEvent
-Luv.Timer.EveryEvent = Luv.Class('Luv.Timer.EveryEvent', {
+// ## Luv.Timer.Every
+Luv.Timer.Every = Luv.Class('Luv.Timer.Every', {
 
   init: function(timeToCall, callback, context) {
     this.timeRunning = 0;
