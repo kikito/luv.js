@@ -278,15 +278,18 @@ window.Luv = function() {
 
 (function() {
     Luv.Timer.Tween = Luv.Class("Luv.Timer.Tween", {
-        init: function(timeToFinish, subject, to, easingFunction, updateFunction) {
+        init: function(timeToFinish, subject, to, options) {
             deepParamsCheck(subject, to, []);
+            options = options || {};
+            this.easing = getEasingFunction(options.easing);
+            this.step = options.step || this.step;
+            this.onFinished = options.onFinished || this.onFinished;
             this.runningTime = 0;
+            this.finished = false;
             this.timeToFinish = timeToFinish;
             this.subject = subject;
             this.from = deepCopy(subject, to);
             this.to = deepCopy(to);
-            this.easing = getEasingFunction(easingFunction);
-            this.updateFunction = updateFunction || this.updateFunction;
         },
         update: function(dt) {
             if (this.runningTime >= this.timeToFinish) {
@@ -295,12 +298,18 @@ window.Luv = function() {
             this.runningTime += dt;
             if (this.runningTime >= this.timeToFinish) {
                 this.runningTime = this.timeToFinish;
+                this.onFinished();
+                this.finished = true;
             }
-            var values = deepEase(this, this.from, this.to);
-            this.updateFunction(values);
+            this.step(deepEase(this, this.from, this.to));
+            return this.finished;
         },
-        updateFunction: function(values) {
+        step: function(values) {
             this.subject = deepMerge(this.subject, values);
+        },
+        onFinished: function() {},
+        isFinished: function() {
+            return !!this.finished;
         }
     });
     Luv.Timer.Tween.easing = {

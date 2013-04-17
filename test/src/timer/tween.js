@@ -13,7 +13,8 @@ describe("Luv.Timer.Tween", function(){
       expect(tween.from).to.equal(0);
       expect(tween.to).to.equal(10);
       expect(tween.easing).to.equal(Luv.Timer.Tween.easing.linear);
-      expect(tween.updateFunction).to.be.ok;
+      expect(tween.step).to.be.ok;
+      expect(tween.onFinished).to.be.ok;
     });
 
     it("creates references from in subject, but creates a copy of to and another of from", function() {
@@ -70,10 +71,10 @@ describe("Luv.Timer.Tween", function(){
       expect(from).to.deep.equal({a: [4, [8, 12]]});
     });
 
-    it("uses the updateFunction param, if provided", function() {
+    it("uses the step option, if provided", function() {
 
       var sum = 0,
-          tween = Tween(3, 0,3, "linear", function(v){sum +=v; });
+          tween = Tween(3, 0,3, { step: function(v){sum +=v; } });
 
       tween.update(1);
       expect(sum).to.equal(1);
