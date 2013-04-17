@@ -22,7 +22,7 @@ describe("Luv.Timer.Tween", function(){
           tween = Tween(1, from, to);
       expect(tween.subject).to.equal(from);
       expect(tween.from).to.not.equal(from);
-      expect(tween.from).to.not.equal(from);
+      expect(tween.from).to.deep.equal(from);
       expect(tween.to).to.not.equal(to);
       expect(tween.to).to.deep.equal(to);
     });
@@ -52,7 +52,7 @@ describe("Luv.Timer.Tween", function(){
       expect(tween.subject).to.equal(3);
     });
 
-    it("updates subject recursively", function() {
+    it("works with complex structures", function() {
       var from  = {a: [1, [2, 3]]},
           to    = {a: [4, [8, 12]]},
           tween = Tween(3, from, to);
@@ -68,6 +68,24 @@ describe("Luv.Timer.Tween", function(){
 
       tween.update(1);
       expect(from).to.deep.equal({a: [4, [8, 12]]});
+    });
+
+    it("uses the updateFunction param, if provided", function() {
+
+      var sum = 0,
+          tween = Tween(3, 0,3, "linear", function(v){sum +=v; });
+
+      tween.update(1);
+      expect(sum).to.equal(1);
+
+      tween.update(1);
+      expect(sum).to.equal(3);
+
+      tween.update(1);
+      expect(sum).to.equal(6);
+
+      tween.update(1);
+      expect(sum).to.equal(6);
     });
 
   });

@@ -17,15 +17,17 @@ Luv.Timer.Tween = Luv.Class('Luv.Timer.Tween', {
   },
 
   update: function(dt) {
+    if(this.runningTime >= this.timeToFinish) { return; }
     this.runningTime += dt;
     if(this.runningTime >= this.timeToFinish) {
       this.runningTime = this.timeToFinish;
     }
-    this.subject = deepEase(this, this.subject, this.from, this.to);
+    var values = deepEase(this, this.from, this.to);
+    this.updateFunction(values);
   },
 
-  updateFunction: function(newValues) {
-
+  updateFunction: function(values) {
+    this.subject = deepMerge(this.subject, values);
   }
 
 });
@@ -57,22 +59,24 @@ var deepParamsCheck = function(subject, to, path) {
 };
 
 
-var deepEase = function(tween, subject, from, to) {
+var deepEase = function(tween, from, to) {
+  var result;
   if(typeof to === "object") {
+    result = Array.isArray(to) ? [] : {};
     for(var key in to) {
       if(to.hasOwnProperty(key)) {
-        subject[key] = deepEase(tween, subject[key], from[key], to[key]);
+        result[key] = deepEase(tween, from[key], to[key]);
       }
     }
   } else {
-    subject = tween.easing(
+    result = tween.easing(
       tween.runningTime,  // t
       from,               // b
       to - from,          // c
       tween.timeToFinish  // d
     );
   }
-  return subject;
+  return result;
 };
 
 var getEasingFunction= function(easing) {
@@ -80,20 +84,23 @@ var getEasingFunction= function(easing) {
   return Luv.Timer.Tween.easing[easing];
 };
 
-var deepCopy = function(keysObj, valuesObj) {
-  var result;
+var deepMerge = function(result, keysObj, valuesObj) {
   valuesObj = valuesObj || keysObj;
   if(typeof keysObj === "object") {
-    result = Array.isArray(keysObj) ? [] : {};
+    result = result || (Array.isArray(keysObj) ? [] : {});
     for(var key in keysObj){
       if(keysObj.hasOwnProperty(key)) {
-        result[key] = deepCopy(keysObj[key], valuesObj[key]);
+        result[key] = deepMerge(result[key], keysObj[key], valuesObj[key]);
       }
     }
   } else {
     result = keysObj;
   }
   return result;
+};
+
+var deepCopy = function(keysObj, valuesObj) {
+  return deepMerge(null, keysObj, valuesObj);
 };
 
 }());
