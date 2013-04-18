@@ -6,6 +6,9 @@ module.exports = function(grunt) {
   var srcFiles  = [
     "src/core.js",
     "src/timer.js",
+    "src/timer/after.js",
+    "src/timer/every.js",
+    "src/timer/tween.js",
     "src/keyboard.js",
     "src/mouse.js",
     "src/touch.js",
@@ -62,6 +65,16 @@ module.exports = function(grunt) {
       dist: {
         src:  '<%= pkg.name %>.js',
         dest: '<%= pkg.name %>.min.js'
+      },
+      illiterate: {
+        options: {
+          compress: false,
+          mangle: false,
+          preserveComments: false,
+          beautify: true
+        },
+        src:  '<%= pkg.name %>.js',
+        dest: '<%= pkg.name %>.illiterate.js'
       }
     },
     watch: {

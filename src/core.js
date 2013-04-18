@@ -1,5 +1,7 @@
 // # core.js
-(function() {
+
+// Global Luv variable definition
+window.Luv = (function() {
 
 // ## Luv.js Class System
 
@@ -120,8 +122,8 @@ baseMethods.getClass = function() { return Base; };
 
 // ## Luv definition
 
-// The main Luv class, and the only global variable defined by luv.js
-Luv = Base.subclass('Luv', {
+// The main Luv class
+var Luv = Base.subclass('Luv', {
 // Luv expects a single `options` parameter (see `initializeOptions` for a list of accepted options).
 // and returns a game.
 // The recommended name for the variable to store the game is `luv`, but you are free to choose any other.
@@ -316,6 +318,9 @@ Luv.Class = function(name, methods) {
 // The root of Luv.js' (optional) class system
 Luv.Base = Base;
 
+// ## Luv.extend
+Luv.extend = extend;
+
 // ## initializeOptions
 var initializeOptions = function(options) {
   // Accepted options:
@@ -376,5 +381,7 @@ var initializeOptions = function(options) {
   return options;
 };
 
+// export the local Luv variable so that the window.Luv = ... at the top of this file can take it
+return Luv;
 
 }());

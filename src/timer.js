@@ -25,6 +25,9 @@ Luv.Timer = Luv.Class('Luv.Timer', {
     // very low FPS, this makes sure that the delta time is not too great (its bad
     // for things like physics simulations, etc).
     this.deltaTimeLimit = Luv.Timer.DEFAULT_DELTA_TIME_LIMIT;
+
+    this.events = {};
+    this.maxEventId = 0;
   },
 
   // updates the timer with a new timestamp.
@@ -36,6 +39,12 @@ Luv.Timer = Luv.Class('Luv.Timer', {
   update : function(dt) {
     this.deltaTime = Math.max(0, Math.min(this.deltaTimeLimit, dt));
     this.microTime += dt * 1000;
+    for(var id in this.events) {
+      if(this.events.hasOwnProperty(id) &&
+         this.events[id].update(dt)) {
+        delete(this.events[id]);
+      }
+    }
   },
 
   // `deltaTimeLimit` means "the maximum delta time that the timer will report".
@@ -68,11 +77,38 @@ Luv.Timer = Luv.Class('Luv.Timer', {
   // This function is used in the main game loop. For now, it just calls `window.requestAnimationFrame`.
   nextFrame : function(f) {
     requestAnimationFrame(f);
+  },
+
+  after : function(timeToCall, callback, context) {
+    return add(this, Luv.Timer.After(timeToCall, callback, context));
+  },
+
+  every : function(timeToCall, callback, context) {
+    return add(this, Luv.Timer.Every(timeToCall, callback, context));
+  },
+
+  tween : function(timeToFinish, subject, to, options) {
+    return add(this, Luv.Timer.Tween(timeToFinish, subject, to, options));
+  },
+
+  clear : function(id) {
+    if(this.events[id]) {
+      delete(this.events[id]);
+      return true;
+    }
+    return false;
   }
 
 });
 
 Luv.Timer.DEFAULT_DELTA_TIME_LIMIT = 0.25;
+
+var add = function(timer, e) {
+  var id = timer.maxEventId++;
+  timer.events[id] = e;
+  return id;
+};
+
 
 // `performance.now` polyfill
 var performance = window.performance || {};

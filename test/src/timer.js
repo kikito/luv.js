@@ -65,6 +65,145 @@ describe("Luv.Timer", function(){
         expect(timer.getFPS()).to.equal(0);
       });
     });
+
+    describe("event methods", function() {
+      var counter, count, sum, add;
+      beforeEach(function() {
+        counter = sum = 0;
+        count = function()  { counter ++; };
+        add   = function(x) { sum += x; };
+      });
+
+      describe(".after", function() {
+        it("does not execute a callback before its time has come", function() {
+          timer.after(5, count);
+          timer.update(2);
+          expect(counter).to.equal(0);
+        });
+
+        it("executes the callback when its time comes", function() {
+          timer.after(5, count);
+          timer.update(5);
+          expect(counter).to.equal(1);
+        });
+
+        it("executes the callback if the update comes late", function() {
+          timer.after(5, count);
+          timer.update(6);
+          expect(counter).to.equal(1);
+        });
+
+        it("works even if the callback time is 0", function() {
+          timer.after(0, add);
+          timer.update(4);
+          expect(sum).to.equal(4);
+        });
+
+        it("returns the extra time passed as the first callback parameter", function() {
+          timer.after(5, add);
+          timer.update(10);
+          expect(sum).to.equal(5);
+        });
+
+        it("uses the third parameter as a callback context", function() {
+          var player = {health: 5};
+          timer.after(2, function(){this.health--;}, player);
+          timer.update(3);
+          expect(player.health).to.equal(4);
+        });
+      });
+
+      describe(".every", function() {
+
+        it("does not execute the callback before its time has come", function() {
+          timer.every(5, count);
+          timer.update(2);
+          expect(counter).to.equal(0);
+        });
+
+        it("executes the callback when its time comes, several times as the time passes", function() {
+          timer.every(3, count);
+          timer.update(5); // 5
+          expect(counter).to.equal(1);
+          timer.update(1); // 6
+          expect(counter).to.equal(2);
+          timer.update(8); // 14
+          expect(counter).to.equal(4);
+        });
+
+        it("passes the time differential as an extra parameter", function() {
+          timer.every(3, add);
+          timer.update(5); // 5
+          expect(sum).to.equal(2);
+          timer.update(1); // 6
+          expect(sum).to.equal(2);
+          timer.update(8); // 14
+          expect(sum).to.equal(9);
+        });
+
+        it("uses the third parameter as a callback context", function() {
+          var player = {health: 5};
+          timer.every(1, function(){this.health--;}, player);
+          timer.update(3);
+          expect(player.health).to.equal(2);
+        });
+
+        it("works even if the callback time is 0", function() {
+          timer.every(0, add);
+          timer.every(0, count);
+          timer.update(4);
+          expect(sum).to.equal(4);
+          expect(counter).to.equal(1);
+        });
+      });
+
+      describe(".tween", function() {
+        it("starts executing the tween right away", function() {
+          var obj = {x: 0};
+          timer.tween(5, obj, {x: 10});
+          timer.update(2);
+          expect(obj.x).to.equal(4);
+        });
+        it("uses the step callback when provided", function() {
+          var obj = {x: 0};
+          timer.tween(5, 0, 10, {step: function(x){obj.x = x;}});
+          timer.update(2);
+          expect(obj.x).to.equal(4);
+        });
+      });
+
+      describe("clear", function() {
+        it("cancels after events before they happen", function() {
+          var id = timer.after(5, count);
+          timer.clear(id);
+
+          timer.update(5);
+          expect(counter).to.equal(0);
+        });
+
+        it("cancels every events", function() {
+          var id = timer.every(1, count);
+          timer.update(2);
+          expect(counter).to.equal(2);
+
+          timer.clear(id);
+
+          timer.update(2);
+          expect(counter).to.equal(2);
+        });
+
+        it("cancels tweens", function() {
+          var obj = {x: 0};
+          var id = timer.tween(5, obj, {x: 10});
+          timer.update(2);
+          expect(obj.x).to.equal(4);
+
+          timer.clear(id);
+          timer.update(2);
+          expect(obj.x).to.equal(4);
+        });
+      });
+    });
   });
 
 });

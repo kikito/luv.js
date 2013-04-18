@@ -50,6 +50,7 @@ Luv.Mouse = Luv.Class('Luv.Mouse', {
       var rect = el.getBoundingClientRect();
       mouse.x = evt.pageX - rect.left;
       mouse.y = evt.pageY - rect.top;
+      mouse.onMoved(mouse.x, mouse.y);
     });
 
     el.addEventListener('mousedown', function(evt) {
@@ -89,6 +90,8 @@ Luv.Mouse = Luv.Class('Luv.Mouse', {
 
   // Works the same as `onPressed`, but is called when a button stops being pressed.
   onReleased: function(x,y,button) {},
+
+  onMoved: function(x,y) {},
 
   // Returns true if a button is pressed, false otherwhise. Usually used inside
   // the update loop:

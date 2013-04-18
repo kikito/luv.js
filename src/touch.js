@@ -18,7 +18,7 @@ Luv.Touch = Luv.Class('Luv.Touch', {
     touch.fingers = {};
     touch.el      = el;
 
-    preventDefault = function(evt) {
+    var preventDefault = function(evt) {
       evt.preventDefault();
       evt.stopPropagation();
     };
@@ -34,14 +34,17 @@ Luv.Touch = Luv.Class('Luv.Touch', {
           rect = el.getBoundingClientRect();
       for(var i=0; i < evt.targetTouches.length; i++) {
         t = evt.targetTouches[i];
-        finger = getFingerByIdentifier(touch, t.identifier) || {
-          identifier: t.identifier,
-          position: getNextAvailablePosition(touch),
-          x: t.pageX - rect.left,
-          y: t.pageY - rect.top
-        };
-        touch.fingers[finger.position] = finger;
-        touch.onPressed(finger.position, finger.x, finger.y);
+        finger = getFingerByIdentifier(touch, t.identifier);
+        if(!finger){
+          finger = {
+            identifier: t.identifier,
+            position: getNextAvailablePosition(touch),
+            x: t.pageX - rect.left,
+            y: t.pageY - rect.top
+          };
+          touch.fingers[finger.position] = finger;
+          touch.onPressed(finger.position, finger.x, finger.y);
+        }
       }
     });
 
@@ -59,10 +62,9 @@ Luv.Touch = Luv.Class('Luv.Touch', {
         }
       }
     };
-    el.addEventListener('touchend', touchend);
-    el.addEventListener('touchleave', touchend);
+    el.addEventListener('touchend',    touchend);
+    el.addEventListener('touchleave',  touchend);
     el.addEventListener('touchcancel', touchend);
-
 
     el.addEventListener('touchmove', function(evt) {
       preventDefault(evt);
@@ -75,6 +77,7 @@ Luv.Touch = Luv.Class('Luv.Touch', {
         if(finger) {
           finger.x = t.pageX - rect.left;
           finger.y = t.pageY - rect.top;
+          touch.onMoved(finger.position, finger.x, finger.y);
         }
       }
     });
@@ -101,6 +104,8 @@ Luv.Touch = Luv.Class('Luv.Touch', {
   // when a finger stops being pressed. `x` and `y`
   // represent the positions at which the finger stopped touching the screen.
   onReleased : function(finger, x, y) {},
+
+  onMoved: function(finger, x, y) {},
 
   // `isPressed` returns true if the finger in question is pressing the screen
   isPressed : function(finger) {
