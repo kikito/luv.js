@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-18) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-19) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -287,6 +287,7 @@ window.Luv = function() {
             this.easing = getEasingFunction(options.easing);
             this.step = options.step || this.step;
             this.onFinished = options.onFinished || this.onFinished;
+            this.context = options.context || this;
             this.runningTime = 0;
             this.finished = false;
             this.timeToFinish = timeToFinish;
@@ -301,10 +302,10 @@ window.Luv = function() {
             this.runningTime += dt;
             if (this.runningTime >= this.timeToFinish) {
                 this.runningTime = this.timeToFinish;
-                this.onFinished();
+                this.onFinished.call(this.context);
                 this.finished = true;
             }
-            this.step(deepEase(this, this.from, this.to));
+            this.step.call(this.context, deepEase(this, this.from, this.to));
             return this.finished;
         },
         step: function(values) {
