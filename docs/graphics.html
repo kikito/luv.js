@@ -762,7 +762,7 @@ be halved.</li>
 and <code>ox,oy</code> = <code>5,5</code>, then the rotation will occur around the point in 15,15.</li>
 </ul>
 <p>You can implement other drawable objects if you want. Drawable objects must implement a <code>draw</code> method with the following signature:</p>
-<pre><code>  obj.draw(context, x, y)</code></pre>
+<pre><code>  obj.draw(graphics, x, y)</code></pre>
 <p>Where context is a js canvas 2d context, and x and y are the coordinates of the
 object&#39;s top left corner.</p>
 <p>It is also recommended that your drawable objects implement a <code>getCenter</code> function, so they can be used by <code>drawCentered</code> (see
@@ -793,11 +793,11 @@ apply an &quot;image smoothing&quot; algorithm to rotated/translated images. See
       ctx.rotate(angle);
       ctx.scale(sx,sy);
       ctx.translate(-ox, -oy);
-      drawable.draw(ctx, <span class="number">0</span>, <span class="number">0</span>);
+      drawable.draw(<span class="keyword">this</span>, <span class="number">0</span>, <span class="number">0</span>);
 
       ctx.restore();
     } <span class="keyword">else</span> {
-      drawable.draw(ctx, x, y);
+      drawable.draw(<span class="keyword">this</span>, x, y);
     }
   },</pre></div></div>
             

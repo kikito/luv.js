@@ -210,8 +210,8 @@ applying effects. Usage:</p>
     <span class="keyword">this</span>.el.setAttribute(<span class="string">'height'</span>, height);
   },
 
-  draw: <span class="keyword">function</span>(context, x, y) {
-    context.drawImage(<span class="keyword">this</span>.el, x, y);
+  draw: <span class="keyword">function</span>(graphics, x, y) {
+    graphics.ctx.drawImage(<span class="keyword">this</span>.el, x, y);
   }
 });
 

@@ -165,6 +165,7 @@
     <span class="keyword">this</span>.easing       = getEasingFunction(options.easing);
     <span class="keyword">this</span>.step         = options.step       || <span class="keyword">this</span>.step;
     <span class="keyword">this</span>.onFinished   = options.onFinished || <span class="keyword">this</span>.onFinished;
+    <span class="keyword">this</span>.context      = options.context    || <span class="keyword">this</span>;
 
     <span class="keyword">this</span>.runningTime  = <span class="number">0</span>;
     <span class="keyword">this</span>.finished     = <span class="literal">false</span>;
@@ -179,10 +180,10 @@
     <span class="keyword">this</span>.runningTime += dt;
     <span class="keyword">if</span>(<span class="keyword">this</span>.runningTime &gt;= <span class="keyword">this</span>.timeToFinish) {
       <span class="keyword">this</span>.runningTime = <span class="keyword">this</span>.timeToFinish;
-      <span class="keyword">this</span>.onFinished();
+      <span class="keyword">this</span>.onFinished.call(<span class="keyword">this</span>.context);
       <span class="keyword">this</span>.finished = <span class="literal">true</span>;
     }
-    <span class="keyword">this</span>.step(deepEase(<span class="keyword">this</span>, <span class="keyword">this</span>.from, <span class="keyword">this</span>.to));
+    <span class="keyword">this</span>.step.call(<span class="keyword">this</span>.context, deepEase(<span class="keyword">this</span>, <span class="keyword">this</span>.from, <span class="keyword">this</span>.to));
     <span class="keyword">return</span> <span class="keyword">this</span>.finished;
   },
 

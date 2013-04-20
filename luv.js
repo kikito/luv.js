@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-18) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-20) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -275,7 +275,7 @@ var Luv = Base.subclass('Luv', {
     var loop = function() {
 
       // The first thing we do is updating the timer with the new frame
-      luv.timer.step();
+      luv.timer.nativeUpdate(luv.el);
 
       // We obtain dt (the difference between previous and this frame's timestamp, in seconds) and pass it
       // to luv.update
@@ -421,8 +421,8 @@ Luv.Timer = Luv.Class('Luv.Timer', {
   },
 
   // updates the timer with a new timestamp.
-  step : function() {
-    this.update((performance.now() - this.microTime) / 1000);
+  nativeUpdate : function(el) {
+    this.update((performance.now() - this.microTime) / 1000, el);
   },
 
   // updates the timer with a new deltatime
@@ -501,7 +501,7 @@ var add = function(timer, e) {
 
 
 // `performance.now` polyfill
-var performance = window.performance || {};
+var performance = window.performance || Date;
 performance.now = performance.now       ||
                   performance.msNow     ||
                   performance.mozNow    ||
@@ -597,6 +597,7 @@ Luv.Timer.Tween = Luv.Class('Luv.Timer.Tween', {
     this.easing       = getEasingFunction(options.easing);
     this.step         = options.step       || this.step;
     this.onFinished   = options.onFinished || this.onFinished;
+    this.context      = options.context    || this;
 
     this.runningTime  = 0;
     this.finished     = false;
@@ -611,10 +612,10 @@ Luv.Timer.Tween = Luv.Class('Luv.Timer.Tween', {
     this.runningTime += dt;
     if(this.runningTime >= this.timeToFinish) {
       this.runningTime = this.timeToFinish;
-      this.onFinished();
+      this.onFinished.call(this.context);
       this.finished = true;
     }
-    this.step(deepEase(this, this.from, this.to));
+    this.step.call(this.context, deepEase(this, this.from, this.to));
     return this.finished;
   },
 
@@ -2169,7 +2170,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   //
   // You can implement other drawable objects if you want. Drawable objects must implement a `draw` method with the following signature:
   //
-  //       obj.draw(context, x, y)
+  //       obj.draw(graphics, x, y)
   //
   // Where context is a js canvas 2d context, and x and y are the coordinates of the
   // object's top left corner.
@@ -2200,11 +2201,11 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
       ctx.rotate(angle);
       ctx.scale(sx,sy);
       ctx.translate(-ox, -oy);
-      drawable.draw(ctx, 0, 0);
+      drawable.draw(this, 0, 0);
 
       ctx.restore();
     } else {
-      drawable.draw(ctx, x, y);
+      drawable.draw(this, x, y);
     }
   },
 
@@ -2625,8 +2626,8 @@ Luv.Graphics.Canvas = Luv.Class('Luv.Graphics.Canvas', {
     this.el.setAttribute('height', height);
   },
 
-  draw: function(context, x, y) {
-    context.drawImage(this.el, x, y);
+  draw: function(graphics, x, y) {
+    graphics.ctx.drawImage(this.el, x, y);
   }
 });
 
@@ -2669,11 +2670,11 @@ Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
     return { x: this.source.width / 2, y: this.source.height / 2 };
   },
 
-  draw: function(context, x, y) {
+  draw: function(graphics, x, y) {
     if(!this.isLoaded()) {
       throw new Error("Attepted to draw a non loaded image: " + this);
     }
-    context.drawImage(this.source, x, y);
+    graphics.ctx.drawImage(this.source, x, y);
   }
 
 });
@@ -2725,11 +2726,11 @@ Luv.Graphics.Sprite = Luv.Class('Luv.Graphics.Sprite', {
     return { left: this.l, top: this.t, width: this.w, height: this.h };
   },
 
-  draw: function(context, x, y) {
+  draw: function(graphics, x, y) {
     if(!this.image.isLoaded()) {
       throw new Error("Attepted to draw a prite of a non loaded image: " + this);
     }
-    context.drawImage(this.image.source, this.l, this.t, this.w, this.h, x, y, this.w, this.h);
+    graphics.ctx.drawImage(this.image.source, this.l, this.t, this.w, this.h, x, y, this.w, this.h);
   }
 
 });

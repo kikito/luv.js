@@ -245,8 +245,8 @@ for things like physics simulations, etc).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  step : <span class="keyword">function</span>() {
-    <span class="keyword">this</span>.update((performance.now() - <span class="keyword">this</span>.microTime) / <span class="number">1000</span>);
+            <div class="content"><div class='highlight'><pre>  nativeUpdate : <span class="keyword">function</span>(el) {
+    <span class="keyword">this</span>.update((performance.now() - <span class="keyword">this</span>.microTime) / <span class="number">1000</span>, el);
   },</pre></div></div>
             
         </li>
@@ -408,7 +408,7 @@ Luv.Timer.DEFAULT_DELTA_TIME_LIMIT = <span class="number">0.25</span>;
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> performance = window.performance || {};
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> performance = window.performance || Date;
 performance.now = performance.now       ||
                   performance.msNow     ||
                   performance.mozNow    ||
