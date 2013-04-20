@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-19) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-20) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -112,7 +112,7 @@ window.Luv = function() {
             var luv = this;
             luv.load();
             var loop = function() {
-                luv.timer.step();
+                luv.timer.nativeUpdate(luv.el);
                 var dt = luv.timer.getDeltaTime();
                 luv.update(dt);
                 luv.graphics.setCanvas();
@@ -175,8 +175,8 @@ window.Luv = function() {
             this.events = {};
             this.maxEventId = 0;
         },
-        step: function() {
-            this.update((performance.now() - this.microTime) / 1e3);
+        nativeUpdate: function(el) {
+            this.update((performance.now() - this.microTime) / 1e3, el);
         },
         update: function(dt) {
             this.deltaTime = Math.max(0, Math.min(this.deltaTimeLimit, dt));
@@ -225,7 +225,7 @@ window.Luv = function() {
         timer.events[id] = e;
         return id;
     };
-    var performance = window.performance || {};
+    var performance = window.performance || Date;
     performance.now = performance.now || performance.msNow || performance.mozNow || performance.webkitNow || Date.now;
     var lastTime = 0, requestAnimationFrame = window.requestAnimationFrame || window.msRequestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || function(callback) {
         var currTime = performance.now(), timeToCall = Math.max(0, 16 - (currTime - lastTime)), id = setTimeout(function() {

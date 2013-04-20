@@ -31,8 +31,8 @@ Luv.Timer = Luv.Class('Luv.Timer', {
   },
 
   // updates the timer with a new timestamp.
-  step : function() {
-    this.update((performance.now() - this.microTime) / 1000);
+  nativeUpdate : function(el) {
+    this.update((performance.now() - this.microTime) / 1000, el);
   },
 
   // updates the timer with a new deltatime
@@ -111,7 +111,7 @@ var add = function(timer, e) {
 
 
 // `performance.now` polyfill
-var performance = window.performance || {};
+var performance = window.performance || Date;
 performance.now = performance.now       ||
                   performance.msNow     ||
                   performance.mozNow    ||

@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-19) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-20) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -275,7 +275,7 @@ var Luv = Base.subclass('Luv', {
     var loop = function() {
 
       // The first thing we do is updating the timer with the new frame
-      luv.timer.step();
+      luv.timer.nativeUpdate(luv.el);
 
       // We obtain dt (the difference between previous and this frame's timestamp, in seconds) and pass it
       // to luv.update
@@ -421,8 +421,8 @@ Luv.Timer = Luv.Class('Luv.Timer', {
   },
 
   // updates the timer with a new timestamp.
-  step : function() {
-    this.update((performance.now() - this.microTime) / 1000);
+  nativeUpdate : function(el) {
+    this.update((performance.now() - this.microTime) / 1000, el);
   },
 
   // updates the timer with a new deltatime
@@ -501,7 +501,7 @@ var add = function(timer, e) {
 
 
 // `performance.now` polyfill
-var performance = window.performance || {};
+var performance = window.performance || Date;
 performance.now = performance.now       ||
                   performance.msNow     ||
                   performance.mozNow    ||

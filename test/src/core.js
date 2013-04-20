@@ -143,11 +143,11 @@ describe("Luv", function(){
 
       var luv = Luv();
 
-      var load      = sinon.spy(luv,'load'),
-          update    = sinon.spy(luv, 'update'),
-          step      = sinon.spy(luv.timer, 'step'),
-          clear     = sinon.spy(luv.graphics, 'clear'),
-          draw      = sinon.spy(luv, 'draw');
+      var load         = sinon.spy(luv,'load'),
+          update       = sinon.spy(luv, 'update'),
+          nativeUpdate = sinon.spy(luv.timer, 'nativeUpdate'),
+          clear        = sinon.spy(luv.graphics, 'clear'),
+          draw         = sinon.spy(luv, 'draw');
 
       var counter = 0;
       var nextFrame = sinon.stub(luv.timer, 'nextFrame', function(f) {
@@ -158,7 +158,7 @@ describe("Luv", function(){
 
       luv.run();
 
-      expect(step).to.have.been.called;
+      expect(nativeUpdate).to.have.been.called;
       expect(load).to.have.been.called;
       expect(update).to.have.been.called;
       expect(clear).to.have.been.called;
