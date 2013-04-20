@@ -1339,10 +1339,10 @@ window.Luv = function() {
                 ctx.rotate(angle);
                 ctx.scale(sx, sy);
                 ctx.translate(-ox, -oy);
-                drawable.draw(ctx, 0, 0);
+                drawable.draw(this, 0, 0);
                 ctx.restore();
             } else {
-                drawable.draw(ctx, x, y);
+                drawable.draw(this, x, y);
             }
         },
         drawCentered: function(drawable, x, y, angle, sx, sy) {
@@ -1644,8 +1644,8 @@ window.Luv = function() {
             this.el.setAttribute("width", width);
             this.el.setAttribute("height", height);
         },
-        draw: function(context, x, y) {
-            context.drawImage(this.el, x, y);
+        draw: function(graphics, x, y) {
+            graphics.ctx.drawImage(this.el, x, y);
         }
     });
 })();
@@ -1687,11 +1687,11 @@ window.Luv = function() {
                 y: this.source.height / 2
             };
         },
-        draw: function(context, x, y) {
+        draw: function(graphics, x, y) {
             if (!this.isLoaded()) {
                 throw new Error("Attepted to draw a non loaded image: " + this);
             }
-            context.drawImage(this.source, x, y);
+            graphics.ctx.drawImage(this.source, x, y);
         }
     });
     Luv.Graphics.Image.include(Luv.Media.Asset);
@@ -1738,11 +1738,11 @@ window.Luv = function() {
                 height: this.h
             };
         },
-        draw: function(context, x, y) {
+        draw: function(graphics, x, y) {
             if (!this.image.isLoaded()) {
                 throw new Error("Attepted to draw a prite of a non loaded image: " + this);
             }
-            context.drawImage(this.image.source, this.l, this.t, this.w, this.h, x, y, this.w, this.h);
+            graphics.ctx.drawImage(this.image.source, this.l, this.t, this.w, this.h, x, y, this.w, this.h);
         }
     });
 })();

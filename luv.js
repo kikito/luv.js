@@ -2170,7 +2170,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   //
   // You can implement other drawable objects if you want. Drawable objects must implement a `draw` method with the following signature:
   //
-  //       obj.draw(context, x, y)
+  //       obj.draw(graphics, x, y)
   //
   // Where context is a js canvas 2d context, and x and y are the coordinates of the
   // object's top left corner.
@@ -2201,11 +2201,11 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
       ctx.rotate(angle);
       ctx.scale(sx,sy);
       ctx.translate(-ox, -oy);
-      drawable.draw(ctx, 0, 0);
+      drawable.draw(this, 0, 0);
 
       ctx.restore();
     } else {
-      drawable.draw(ctx, x, y);
+      drawable.draw(this, x, y);
     }
   },
 
@@ -2626,8 +2626,8 @@ Luv.Graphics.Canvas = Luv.Class('Luv.Graphics.Canvas', {
     this.el.setAttribute('height', height);
   },
 
-  draw: function(context, x, y) {
-    context.drawImage(this.el, x, y);
+  draw: function(graphics, x, y) {
+    graphics.ctx.drawImage(this.el, x, y);
   }
 });
 
@@ -2670,11 +2670,11 @@ Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
     return { x: this.source.width / 2, y: this.source.height / 2 };
   },
 
-  draw: function(context, x, y) {
+  draw: function(graphics, x, y) {
     if(!this.isLoaded()) {
       throw new Error("Attepted to draw a non loaded image: " + this);
     }
-    context.drawImage(this.source, x, y);
+    graphics.ctx.drawImage(this.source, x, y);
   }
 
 });
@@ -2726,11 +2726,11 @@ Luv.Graphics.Sprite = Luv.Class('Luv.Graphics.Sprite', {
     return { left: this.l, top: this.t, width: this.w, height: this.h };
   },
 
-  draw: function(context, x, y) {
+  draw: function(graphics, x, y) {
     if(!this.image.isLoaded()) {
       throw new Error("Attepted to draw a prite of a non loaded image: " + this);
     }
-    context.drawImage(this.image.source, this.l, this.t, this.w, this.h, x, y, this.w, this.h);
+    graphics.ctx.drawImage(this.image.source, this.l, this.t, this.w, this.h, x, y, this.w, this.h);
   }
 
 });
