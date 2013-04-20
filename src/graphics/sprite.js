@@ -41,11 +41,11 @@ Luv.Graphics.Sprite = Luv.Class('Luv.Graphics.Sprite', {
     return { left: this.l, top: this.t, width: this.w, height: this.h };
   },
 
-  draw: function(context, x, y) {
+  draw: function(graphics, x, y) {
     if(!this.image.isLoaded()) {
       throw new Error("Attepted to draw a prite of a non loaded image: " + this);
     }
-    context.drawImage(this.image.source, this.l, this.t, this.w, this.h, x, y, this.w, this.h);
+    graphics.ctx.drawImage(this.image.source, this.l, this.t, this.w, this.h, x, y, this.w, this.h);
   }
 
 });

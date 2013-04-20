@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-19) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-20) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -113,7 +113,7 @@ window.Luv = function() {
             var luv = this;
             luv.load();
             var loop = function() {
-                luv.timer.step();
+                luv.timer.nativeUpdate(luv.el);
                 var dt = luv.timer.getDeltaTime();
                 luv.update(dt);
                 luv.graphics.setCanvas();
@@ -176,8 +176,8 @@ window.Luv = function() {
             this.events = {};
             this.maxEventId = 0;
         },
-        step: function() {
-            this.update((performance.now() - this.microTime) / 1e3);
+        nativeUpdate: function(el) {
+            this.update((performance.now() - this.microTime) / 1e3, el);
         },
         update: function(dt) {
             this.deltaTime = Math.max(0, Math.min(this.deltaTimeLimit, dt));
@@ -226,7 +226,7 @@ window.Luv = function() {
         timer.events[id] = e;
         return id;
     };
-    var performance = window.performance || {};
+    var performance = window.performance || Date;
     performance.now = performance.now || performance.msNow || performance.mozNow || performance.webkitNow || Date.now;
     var lastTime = 0, requestAnimationFrame = window.requestAnimationFrame || window.msRequestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || function(callback) {
         var currTime = performance.now(), timeToCall = Math.max(0, 16 - (currTime - lastTime)), id = setTimeout(function() {
@@ -1444,10 +1444,10 @@ window.Luv = function() {
                 ctx.rotate(angle);
                 ctx.scale(sx, sy);
                 ctx.translate(-ox, -oy);
-                drawable.draw(ctx, 0, 0);
+                drawable.draw(this, 0, 0);
                 ctx.restore();
             } else {
-                drawable.draw(ctx, x, y);
+                drawable.draw(this, x, y);
             }
         },
         drawCentered: function(drawable, x, y, angle, sx, sy) {
@@ -1749,8 +1749,8 @@ window.Luv = function() {
             this.el.setAttribute("width", width);
             this.el.setAttribute("height", height);
         },
-        draw: function(context, x, y) {
-            context.drawImage(this.el, x, y);
+        draw: function(graphics, x, y) {
+            graphics.ctx.drawImage(this.el, x, y);
         }
     });
 })();
@@ -1792,11 +1792,11 @@ window.Luv = function() {
                 y: this.source.height / 2
             };
         },
-        draw: function(context, x, y) {
+        draw: function(graphics, x, y) {
             if (!this.isLoaded()) {
                 throw new Error("Attepted to draw a non loaded image: " + this);
             }
-            context.drawImage(this.source, x, y);
+            graphics.ctx.drawImage(this.source, x, y);
         }
     });
     Luv.Graphics.Image.include(Luv.Media.Asset);
@@ -1843,11 +1843,11 @@ window.Luv = function() {
                 height: this.h
             };
         },
-        draw: function(context, x, y) {
+        draw: function(graphics, x, y) {
             if (!this.image.isLoaded()) {
                 throw new Error("Attepted to draw a prite of a non loaded image: " + this);
             }
-            context.drawImage(this.image.source, this.l, this.t, this.w, this.h, x, y, this.w, this.h);
+            graphics.ctx.drawImage(this.image.source, this.l, this.t, this.w, this.h, x, y, this.w, this.h);
         }
     });
 })();

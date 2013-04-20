@@ -35,11 +35,11 @@ Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
     return { x: this.source.width / 2, y: this.source.height / 2 };
   },
 
-  draw: function(context, x, y) {
+  draw: function(graphics, x, y) {
     if(!this.isLoaded()) {
       throw new Error("Attepted to draw a non loaded image: " + this);
     }
-    context.drawImage(this.source, x, y);
+    graphics.ctx.drawImage(this.source, x, y);
   }
 
 });

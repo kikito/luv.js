@@ -285,7 +285,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   //
   // You can implement other drawable objects if you want. Drawable objects must implement a `draw` method with the following signature:
   //
-  //       obj.draw(context, x, y)
+  //       obj.draw(graphics, x, y)
   //
   // Where context is a js canvas 2d context, and x and y are the coordinates of the
   // object's top left corner.
@@ -316,11 +316,11 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
       ctx.rotate(angle);
       ctx.scale(sx,sy);
       ctx.translate(-ox, -oy);
-      drawable.draw(ctx, 0, 0);
+      drawable.draw(this, 0, 0);
 
       ctx.restore();
     } else {
-      drawable.draw(ctx, x, y);
+      drawable.draw(this, x, y);
     }
   },
 

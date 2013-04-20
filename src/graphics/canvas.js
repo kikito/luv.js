@@ -48,8 +48,8 @@ Luv.Graphics.Canvas = Luv.Class('Luv.Graphics.Canvas', {
     this.el.setAttribute('height', height);
   },
 
-  draw: function(context, x, y) {
-    context.drawImage(this.el, x, y);
+  draw: function(graphics, x, y) {
+    graphics.ctx.drawImage(this.el, x, y);
   }
 });
 

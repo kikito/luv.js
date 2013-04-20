@@ -273,7 +273,7 @@ var Luv = Base.subclass('Luv', {
     var loop = function() {
 
       // The first thing we do is updating the timer with the new frame
-      luv.timer.step();
+      luv.timer.nativeUpdate(luv.el);
 
       // We obtain dt (the difference between previous and this frame's timestamp, in seconds) and pass it
       // to luv.update
