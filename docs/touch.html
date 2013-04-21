@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>touch.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="CONTRIBUTING.html">
+                CONTRIBUTING.md
+              </a>
+            
+              
+              <a class="source" href="MIT-LICENSE.html">
+                MIT-LICENSE.md
+              </a>
+            
+              
+              <a class="source" href="index.html">
+                README.js.md
+              </a>
+            
+              
+              <a class="source" href="audio.html">
+                audio.js
+              </a>
+            
+              
+              <a class="source" href="null_sound.html">
+                audio/null_sound.js
+              </a>
+            
+              
+              <a class="source" href="sound.html">
+                audio/sound.js
+              </a>
+            
+              
+              <a class="source" href="sound_instance.html">
+                audio/sound_instance.js
+              </a>
+            
+              
+              <a class="source" href="core.html">
+                core.js
+              </a>
+            
+              
+              <a class="source" href="graphics.html">
+                graphics.js
+              </a>
+            
+              
+              <a class="source" href="animation.html">
+                graphics/animation.js
+              </a>
+            
+              
+              <a class="source" href="canvas.html">
+                graphics/canvas.js
+              </a>
+            
+              
+              <a class="source" href="image.html">
+                graphics/image.js
+              </a>
+            
+              
+              <a class="source" href="sprite.html">
+                graphics/sprite.js
+              </a>
+            
+              
+              <a class="source" href="sprite_sheet.html">
+                graphics/sprite_sheet.js
+              </a>
+            
+              
+              <a class="source" href="keyboard.html">
+                keyboard.js
+              </a>
+            
+              
+              <a class="source" href="media.html">
+                media.js
+              </a>
+            
+              
+              <a class="source" href="mouse.html">
+                mouse.js
+              </a>
+            
+              
+              <a class="source" href="timer.html">
+                timer.js
+              </a>
+            
+              
+              <a class="source" href="after.html">
+                timer/after.js
+              </a>
+            
+              
+              <a class="source" href="every.html">
+                timer/every.js
+              </a>
+            
+              
+              <a class="source" href="tween.html">
+                timer/tween.js
+              </a>
+            
+              
+              <a class="source" href="touch.html">
+                touch.js
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h1">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1>touch.js</h1>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>(<span class="keyword">function</span>() {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h2>Luv.Touch</h2>
+<p>This class encapsulates the functionality which has to do with touch interfaces in Luv</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Luv.Touch = Luv.Class(<span class="string">'Luv.Touch'</span>, {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>You will almost never need to instantiate this Luv module manually. Instead,
+you will create a <code>Luv</code> object, which will have a <code>touch</code> attribute. For
+example:</p>
+<pre><code>   var luv = Luv();
+   luv.touch // You will use this</code></pre>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  init: <span class="keyword">function</span>(el) {
+    <span class="keyword">var</span> touch = <span class="keyword">this</span>;
+
+    touch.fingers = {};
+    touch.el      = el;
+
+    <span class="keyword">var</span> preventDefault = <span class="keyword">function</span>(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+    };
+
+    el.addEventListener(<span class="string">'gesturestart'</span>,  preventDefault);
+    el.addEventListener(<span class="string">'gesturechange'</span>, preventDefault);
+    el.addEventListener(<span class="string">'gestureend'</span>,    preventDefault);
+
+    el.addEventListener(<span class="string">'touchstart'</span>, <span class="keyword">function</span>(evt) {
+      preventDefault(evt);
+
+      <span class="keyword">var</span> t, finger,
+          rect = el.getBoundingClientRect();
+      <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>; i &lt; evt.targetTouches.length; i++) {
+        t = evt.targetTouches[i];
+        finger = getFingerByIdentifier(touch, t.identifier);
+        <span class="keyword">if</span>(!finger){
+          finger = {
+            identifier: t.identifier,
+            position: getNextAvailablePosition(touch),
+            x: t.pageX - rect.left,
+            y: t.pageY - rect.top
+          };
+          touch.fingers[finger.position] = finger;
+          touch.onPressed(finger.position, finger.x, finger.y);
+        }
+      }
+    });
+
+    <span class="keyword">var</span> touchend = <span class="keyword">function</span>(evt) {
+      preventDefault(evt);
+
+      <span class="keyword">var</span> t, finger,
+          rect = el.getBoundingClientRect();
+      <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>; i &lt; evt.changedTouches.length; i++) {
+        t = evt.changedTouches[i];
+        finger = getFingerByIdentifier(touch, t.identifier);
+        <span class="keyword">if</span>(finger) {
+          <span class="keyword">delete</span>(touch.fingers[finger.position]);
+          touch.onReleased(finger.position, finger.x, finger.y);
+        }
+      }
+    };
+    el.addEventListener(<span class="string">'touchend'</span>,    touchend);
+    el.addEventListener(<span class="string">'touchleave'</span>,  touchend);
+    el.addEventListener(<span class="string">'touchcancel'</span>, touchend);
+
+    el.addEventListener(<span class="string">'touchmove'</span>, <span class="keyword">function</span>(evt) {
+      preventDefault(evt);
+
+      <span class="keyword">var</span> t, finger,
+          rect = el.getBoundingClientRect();
+      <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>; i &lt; evt.targetTouches.length; i++) {
+        t = evt.targetTouches[i];
+        finger = getFingerByIdentifier(touch, t.identifier);
+        <span class="keyword">if</span>(finger) {
+          finger.x = t.pageX - rect.left;
+          finger.y = t.pageY - rect.top;
+          touch.onMoved(finger.position, finger.x, finger.y);
+        }
+      }
+    });
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p><code>onPressed</code> is a user-overrideable function that is triggered when the screen
+is touched.</p>
+<p>The first parameter is a number indicating the finger touching the screen
+(usually, 1 is for the index finger, and so on). <code>x</code> and <code>y</code>
+are the coordinates on the DOM element where the touching happens.</p>
+<p>Example of use of onPressed:</p>
+<pre><code>  var luv = Luv();
+  luv.touch.onPressed = function(finger, x, y) {
+    msg = &quot;Finger &quot; + finger + &quot; in (&quot; + x + &quot;,&quot; + y + &quot;)&quot;;
+  };</code></pre>
+<p>It does nothing by default.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  onPressed  : <span class="keyword">function</span>(finger, x, y) {},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p><code>onReleased</code> works the same way as onPressed, except that it gets triggered
+when a finger stops being pressed. <code>x</code> and <code>y</code>
+represent the positions at which the finger stopped touching the screen.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  onReleased : <span class="keyword">function</span>(finger, x, y) {},
+
+  onMoved: <span class="keyword">function</span>(finger, x, y) {},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p><code>isPressed</code> returns true if the finger in question is pressing the screen</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  isPressed : <span class="keyword">function</span>(finger) {
+    <span class="keyword">return</span> !!<span class="keyword">this</span>.fingers[finger];
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p><code>getFinger</code> returns the position of a finger, or false if the finger
+in question is not pressed</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  getFinger: <span class="keyword">function</span>(position) {
+    <span class="keyword">var</span> finger = <span class="keyword">this</span>.fingers[position];
+    <span class="keyword">return</span> finger &amp;&amp; {position: finger.position,
+                      identifier: finger.identifier,
+                      x: finger.x, y: finger.y};
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p><code>getFingers</code> returns an array with all the fingers information, with the following
+syntax: `[ {position: 1, x: 2, y:2}, {position: 5, x: 120, y:40} ]</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  getFingers: <span class="keyword">function</span>() {
+    <span class="keyword">var</span> result = [],
+        positions = Object.keys(<span class="keyword">this</span>.fingers).sort(),
+        finger, position;
+    <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>; i &lt; positions.length; i++) {
+      position = positions[i];
+      finger   = <span class="keyword">this</span>.fingers[position];
+      result.push({position: position, x: finger.x, y: finger.y});
+    }
+    <span class="keyword">return</span> result;
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p><code>isSupported</code> returns true if the device/browser accepts touch events, false
+otherwise</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  isSupported: <span class="keyword">function</span>() {
+    <span class="keyword">return</span> window.ontouchstart !== <span class="literal">undefined</span>;
+  }
+});
+
+<span class="keyword">var</span> getMaxPosition = <span class="keyword">function</span>(touch) {
+  <span class="keyword">var</span> positions = Object.keys(touch.fingers);
+  <span class="keyword">if</span>(positions.length === <span class="number">0</span>) { <span class="keyword">return</span> <span class="number">0</span>; }
+  <span class="keyword">return</span> Math.max.apply(Math, positions);
+};
+
+<span class="keyword">var</span> getNextAvailablePosition = <span class="keyword">function</span>(touch) {
+  <span class="keyword">var</span> maxPosition = getMaxPosition(touch);
+  <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">1</span>; i &lt; maxPosition; i++) {
+    <span class="keyword">if</span>(!touch.isPressed(i)){ <span class="keyword">return</span> i; }
+  }
+  <span class="keyword">return</span> maxPosition + <span class="number">1</span>;
+};
+
+<span class="keyword">var</span> getFingerByIdentifier = <span class="keyword">function</span>(touch, identifier) {
+  <span class="keyword">var</span> fingers = touch.fingers;
+  <span class="keyword">for</span>(<span class="keyword">var</span> position <span class="keyword">in</span> fingers) {
+    <span class="keyword">if</span>(fingers.hasOwnProperty(position) &amp;&amp;
+       fingers[position].identifier == identifier) {
+      <span class="keyword">return</span> fingers[position];
+    }
+  }
+};
+
+}());</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

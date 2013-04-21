@@ -123,6 +123,11 @@
                 timer/tween.js
               </a>
             
+              
+              <a class="source" href="touch.html">
+                touch.js
+              </a>
+            
           </div>
         </li>
       </ul>
@@ -251,6 +256,7 @@ browsers don&#39;t provide a native &#39;stopped scrolling&#39; event</p>
       <span class="keyword">var</span> rect = el.getBoundingClientRect();
       mouse.x = evt.pageX - rect.left;
       mouse.y = evt.pageY - rect.top;
+      mouse.onMoved(mouse.x, mouse.y);
     });
 
     el.addEventListener(<span class="string">'mousedown'</span>, <span class="keyword">function</span>(evt) {
@@ -348,7 +354,9 @@ buttons is pressed.
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  onReleased: <span class="keyword">function</span>(x,y,button) {},</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  onReleased: <span class="keyword">function</span>(x,y,button) {},
+
+  onMoved: <span class="keyword">function</span>(x,y) {},</pre></div></div>
             
         </li>
         

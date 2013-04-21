@@ -123,6 +123,11 @@
                 timer/tween.js
               </a>
             
+              
+              <a class="source" href="touch.html">
+                touch.js
+              </a>
+            
           </div>
         </li>
       </ul>
@@ -163,8 +168,8 @@
 
     options = options || {};
     <span class="keyword">this</span>.easing       = getEasingFunction(options.easing);
-    <span class="keyword">this</span>.step         = options.step       || <span class="keyword">this</span>.step;
-    <span class="keyword">this</span>.onFinished   = options.onFinished || <span class="keyword">this</span>.onFinished;
+    <span class="keyword">this</span>.every        = options.every      || <span class="keyword">this</span>.every;
+    <span class="keyword">this</span>.after        = options.after      || <span class="keyword">this</span>.after;
     <span class="keyword">this</span>.context      = options.context    || <span class="keyword">this</span>;
 
     <span class="keyword">this</span>.runningTime  = <span class="number">0</span>;
@@ -180,18 +185,18 @@
     <span class="keyword">this</span>.runningTime += dt;
     <span class="keyword">if</span>(<span class="keyword">this</span>.runningTime &gt;= <span class="keyword">this</span>.timeToFinish) {
       <span class="keyword">this</span>.runningTime = <span class="keyword">this</span>.timeToFinish;
-      <span class="keyword">this</span>.onFinished.call(<span class="keyword">this</span>.context);
+      <span class="keyword">this</span>.after.call(<span class="keyword">this</span>.context);
       <span class="keyword">this</span>.finished = <span class="literal">true</span>;
     }
-    <span class="keyword">this</span>.step.call(<span class="keyword">this</span>.context, deepEase(<span class="keyword">this</span>, <span class="keyword">this</span>.from, <span class="keyword">this</span>.to));
+    <span class="keyword">this</span>.every.call(<span class="keyword">this</span>.context, deepEase(<span class="keyword">this</span>, <span class="keyword">this</span>.from, <span class="keyword">this</span>.to));
     <span class="keyword">return</span> <span class="keyword">this</span>.finished;
   },
 
-  step: <span class="keyword">function</span>(values) {
+  every: <span class="keyword">function</span>(values) {
     <span class="keyword">this</span>.subject = deepMerge(<span class="keyword">this</span>.subject, values);
   },
 
-  onFinished: <span class="keyword">function</span>() {
+  after: <span class="keyword">function</span>() {
   },
 
   isFinished: <span class="keyword">function</span>() {

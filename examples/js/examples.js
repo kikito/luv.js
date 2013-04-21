@@ -3,7 +3,7 @@
   var $code, $iframe, refreshInputTimeout;
 
   var ordered_example_ids =
-    "introduction hello_luv rectangles bubbles bob_the_square cat_and_mouse airplanes ding paint"
+    "introduction hello_luv rectangles bubbles bob_the_square cat_and_mouse fingers airplanes ding paint"
       .split(" "),
     humanize   = function(str)  { return str.replace(/_/g, " "); },
     makeUpper  = function(str)  { return str.toUpperCase(); },

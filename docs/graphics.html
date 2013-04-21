@@ -123,6 +123,11 @@
                 timer/tween.js
               </a>
             
+              
+              <a class="source" href="touch.html">
+                touch.js
+              </a>
+            
           </div>
         </li>
       </ul>
@@ -224,6 +229,7 @@ up the screen. See <code>setBackgroundColor</code> for details.</p>
             <div class="content"><div class='highlight'><pre>  clear : <span class="keyword">function</span>() {
     <span class="keyword">this</span>.ctx.save();
     <span class="keyword">this</span>.ctx.setTransform(<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>);
+    <span class="keyword">this</span>.ctx.globalAlpha = <span class="number">1</span>;
     <span class="keyword">this</span>.ctx.fillStyle = <span class="keyword">this</span>.backgroundColorStyle;
     <span class="keyword">this</span>.ctx.fillRect(<span class="number">0</span>, <span class="number">0</span>, <span class="keyword">this</span>.getWidth(), <span class="keyword">this</span>.getHeight());
     <span class="keyword">this</span>.ctx.restore();
@@ -271,7 +277,7 @@ during the next graphical operations. If you set the color to <code>255,0,0</cod
               </div>
               <p><code>getColor</code> returns the currently selected color. See <code>setColor</code> for details.
 The current color is returned like a JS object whith the properties
-<code>red</code>, <code>green</code>, <code>blue</code> and <code>alpha</code>.</p>
+<code>r</code>, <code>g</code> &amp; <code>b</code></p>
 <pre><code>   var luv = Luv();
    var c = luv.graphics.getColor();
    console.log(c.red, c.green, c.blue, c.alpha);</code></pre>
