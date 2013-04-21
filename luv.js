@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-20) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-21) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -596,8 +596,8 @@ Luv.Timer.Tween = Luv.Class('Luv.Timer.Tween', {
 
     options = options || {};
     this.easing       = getEasingFunction(options.easing);
-    this.step         = options.step       || this.step;
-    this.onFinished   = options.onFinished || this.onFinished;
+    this.every        = options.every      || this.every;
+    this.after        = options.after      || this.after;
     this.context      = options.context    || this;
 
     this.runningTime  = 0;
@@ -613,18 +613,18 @@ Luv.Timer.Tween = Luv.Class('Luv.Timer.Tween', {
     this.runningTime += dt;
     if(this.runningTime >= this.timeToFinish) {
       this.runningTime = this.timeToFinish;
-      this.onFinished.call(this.context);
+      this.after.call(this.context);
       this.finished = true;
     }
-    this.step.call(this.context, deepEase(this, this.from, this.to));
+    this.every.call(this.context, deepEase(this, this.from, this.to));
     return this.finished;
   },
 
-  step: function(values) {
+  every: function(values) {
     this.subject = deepMerge(this.subject, values);
   },
 
-  onFinished: function() {
+  after: function() {
   },
 
   isFinished: function() {
@@ -1327,6 +1327,20 @@ Luv.Touch = Luv.Class('Luv.Touch', {
     return finger && {position: finger.position,
                       identifier: finger.identifier,
                       x: finger.x, y: finger.y};
+  },
+
+  // `getFingers` returns an array with all the fingers information, with the following
+  // syntax: `[ {position: 1, x: 2, y:2}, {position: 5, x: 120, y:40} ]
+  getFingers: function() {
+    var result = [],
+        positions = Object.keys(this.fingers).sort(),
+        finger, position;
+    for(var i=0; i < positions.length; i++) {
+      position = positions[i];
+      finger   = this.fingers[position];
+      result.push({position: position, x: finger.x, y: finger.y});
+    }
+    return result;
   }
 });
 

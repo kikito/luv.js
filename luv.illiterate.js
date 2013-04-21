@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-20) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-21) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -286,8 +286,8 @@ window.Luv = function() {
             deepParamsCheck(subject, to, []);
             options = options || {};
             this.easing = getEasingFunction(options.easing);
-            this.step = options.step || this.step;
-            this.onFinished = options.onFinished || this.onFinished;
+            this.every = options.every || this.every;
+            this.after = options.after || this.after;
             this.context = options.context || this;
             this.runningTime = 0;
             this.finished = false;
@@ -303,16 +303,16 @@ window.Luv = function() {
             this.runningTime += dt;
             if (this.runningTime >= this.timeToFinish) {
                 this.runningTime = this.timeToFinish;
-                this.onFinished.call(this.context);
+                this.after.call(this.context);
                 this.finished = true;
             }
-            this.step.call(this.context, deepEase(this, this.from, this.to));
+            this.every.call(this.context, deepEase(this, this.from, this.to));
             return this.finished;
         },
-        step: function(values) {
+        every: function(values) {
             this.subject = deepMerge(this.subject, values);
         },
-        onFinished: function() {},
+        after: function() {},
         isFinished: function() {
             return !!this.finished;
         }
@@ -935,6 +935,19 @@ window.Luv = function() {
                 x: finger.x,
                 y: finger.y
             };
+        },
+        getFingers: function() {
+            var result = [], positions = Object.keys(this.fingers).sort(), finger, position;
+            for (var i = 0; i < positions.length; i++) {
+                position = positions[i];
+                finger = this.fingers[position];
+                result.push({
+                    position: position,
+                    x: finger.x,
+                    y: finger.y
+                });
+            }
+            return result;
         }
     });
     var getMaxPosition = function(touch) {

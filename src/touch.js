@@ -119,6 +119,20 @@ Luv.Touch = Luv.Class('Luv.Touch', {
     return finger && {position: finger.position,
                       identifier: finger.identifier,
                       x: finger.x, y: finger.y};
+  },
+
+  // `getFingers` returns an array with all the fingers information, with the following
+  // syntax: `[ {position: 1, x: 2, y:2}, {position: 5, x: 120, y:40} ]
+  getFingers: function() {
+    var result = [],
+        positions = Object.keys(this.fingers).sort(),
+        finger, position;
+    for(var i=0; i < positions.length; i++) {
+      position = positions[i];
+      finger   = this.fingers[position];
+      result.push({position: position, x: finger.x, y: finger.y});
+    }
+    return result;
   }
 });
 
