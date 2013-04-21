@@ -1,34 +1,60 @@
 <!doctype html>
 <html><head><meta charset="utf-8" /><title>Fingers</title></head>
 <body>
-  <pre id="console">
-  </pre>
 <script src="../luv.js"></script>
 <script>
 
 // This Luv.js example shows the touch API. You need to use it on a
 // touch-enabled device, like an ipad
-var luv = Luv({fullWindow: false});
+var luv = Luv({fullWindow: true});
 
 var colors = "B24466 C6131C 13CEB6 279D6C 3B6CD22 4F3AD8 63098E 76D844 8AA6FA 9E75B0D9E1D2 EDB088".split(" ");
+var circles = [];
 
-var console = document.getElementById('console');
+var removeCircle = function(circle) {
+  var index = circles.indexOf(circle);
+  if(index !== -1) {
+    circles.splice(index, 1);
+  }
+};
+
+luv.load = function() {
+  luv.graphics.setLineWidth(3);
+};
 
 luv.draw = function() {
-  var finger;
-  for(var i=1; i<13; i++) {
-    finger = luv.touch.getFinger(i);
-    if(finger) {
-      luv.graphics.setColor(colors[i]);
-      luv.graphics.fillCircle(finger.x, finger.y, 50);
-    }
+  var fingers = luv.touch.getFingers(),
+      finger, circle;
+  luv.graphics.setAlpha(1);
+  for(var i=0; i<fingers.length; i++) {
+    finger = fingers[i];
+    luv.graphics.setColor(colors[finger.position]);
+    luv.graphics.fillCircle(finger.x, finger.y, 30);
+  }
+
+  for(i=0; i<circles.length; i++) {
+    circle = circles[i];
+    luv.graphics.setAlpha(circle.alpha);
+    luv.graphics.strokeCircle(circle.x, circle.y, circle.radius);
   }
 };
 
 luv.touch.onPressed = function(finger, x, y) {
+  var circle = { x: x, y: y, radius: 30, alpha: 1, color: colors[finger] };
+  circles.push(circle);
+  luv.timer.tween(1, circle, {radius: 60}, {
+    after: function(){ removeCircle(circle); },
+    easing: 'outQuad'
+  });
 };
 
 luv.touch.onReleased = function(finger, x, y) {
+  var circle = { x: x, y: y, radius: 90, alpha: 1, color: colors[finger] };
+  circles.push(circle);
+  luv.timer.tween(1, circle, {radius: 20, alpha: 0}, {
+    after: function(){ removeCircle(circle); },
+    easing: 'inCubic'
+  });
 };
 
 // Don't forget to execute luv.run, or the game will not start.
