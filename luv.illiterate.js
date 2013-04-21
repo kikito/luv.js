@@ -948,6 +948,9 @@ window.Luv = function() {
                 });
             }
             return result;
+        },
+        isSupported: function() {
+            return window.ontouchstart !== undefined;
         }
     });
     var getMaxPosition = function(touch) {

@@ -133,6 +133,12 @@ Luv.Touch = Luv.Class('Luv.Touch', {
       result.push({position: position, x: finger.x, y: finger.y});
     }
     return result;
+  },
+
+  // `isSupported` returns true if the device/browser accepts touch events, false
+  // otherwise
+  isSupported: function() {
+    return window.ontouchstart !== undefined;
   }
 });
 
