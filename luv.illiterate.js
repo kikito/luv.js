@@ -1344,6 +1344,7 @@ window.Luv = function() {
         clear: function() {
             this.ctx.save();
             this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            this.ctx.globalAlpha = 1;
             this.ctx.fillStyle = this.backgroundColorStyle;
             this.ctx.fillRect(0, 0, this.getWidth(), this.getHeight());
             this.ctx.restore();
