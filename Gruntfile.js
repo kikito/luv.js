@@ -11,6 +11,7 @@ module.exports = function(grunt) {
     "src/timer/tween.js",
     "src/keyboard.js",
     "src/mouse.js",
+    "src/touch.js",
     "src/media.js",
     "src/audio.js",
     "src/audio/sound.js",

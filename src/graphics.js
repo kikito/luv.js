@@ -49,6 +49,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   clear : function() {
     this.ctx.save();
     this.ctx.setTransform(1,0,0,1,0,0);
+    this.ctx.globalAlpha = 1;
     this.ctx.fillStyle = this.backgroundColorStyle;
     this.ctx.fillRect(0, 0, this.getWidth(), this.getHeight());
     this.ctx.restore();
@@ -78,7 +79,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 
   // `getColor` returns the currently selected color. See `setColor` for details.
   // The current color is returned like a JS object whith the properties
-  // `red`, `green`, `blue` and `alpha`.
+  // `r`, `g` & `b`
   //
   //        var luv = Luv();
   //        var c = luv.graphics.getColor();

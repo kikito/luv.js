@@ -164,11 +164,17 @@ describe("Luv.Timer", function(){
           timer.update(2);
           expect(obj.x).to.equal(4);
         });
-        it("uses the step callback when provided", function() {
+        it("uses the every callback when provided", function() {
           var obj = {x: 0};
-          timer.tween(5, 0, 10, {step: function(x){obj.x = x;}});
+          timer.tween(5, 0, 10, {every: function(x){obj.x = x;}});
           timer.update(2);
           expect(obj.x).to.equal(4);
+        });
+        it("invokes the after callback when provided", function() {
+          var called = false;
+          timer.tween(5, 0, 10, {after: function() { called = true; }});
+          timer.update(6);
+          expect(called).to.be.ok;
         });
       });
 

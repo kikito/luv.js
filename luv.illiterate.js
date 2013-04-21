@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-20) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-21) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -87,6 +87,7 @@ window.Luv = function() {
             luv.timer = Luv.Timer();
             luv.keyboard = Luv.Keyboard(luv.el);
             luv.mouse = Luv.Mouse(luv.el);
+            luv.touch = Luv.Touch(luv.el);
             luv.audio = Luv.Audio(luv.media);
             luv.graphics = Luv.Graphics(luv.el, luv.media);
             if (options.fullWindow) {
@@ -285,8 +286,8 @@ window.Luv = function() {
             deepParamsCheck(subject, to, []);
             options = options || {};
             this.easing = getEasingFunction(options.easing);
-            this.step = options.step || this.step;
-            this.onFinished = options.onFinished || this.onFinished;
+            this.every = options.every || this.every;
+            this.after = options.after || this.after;
             this.context = options.context || this;
             this.runningTime = 0;
             this.finished = false;
@@ -302,16 +303,16 @@ window.Luv = function() {
             this.runningTime += dt;
             if (this.runningTime >= this.timeToFinish) {
                 this.runningTime = this.timeToFinish;
-                this.onFinished.call(this.context);
+                this.after.call(this.context);
                 this.finished = true;
             }
-            this.step.call(this.context, deepEase(this, this.from, this.to));
+            this.every.call(this.context, deepEase(this, this.from, this.to));
             return this.finished;
         },
-        step: function(values) {
+        every: function(values) {
             this.subject = deepMerge(this.subject, values);
         },
-        onFinished: function() {},
+        after: function() {},
         isFinished: function() {
             return !!this.finished;
         }
@@ -815,6 +816,7 @@ window.Luv = function() {
                 var rect = el.getBoundingClientRect();
                 mouse.x = evt.pageX - rect.left;
                 mouse.y = evt.pageY - rect.top;
+                mouse.onMoved(mouse.x, mouse.y);
             });
             el.addEventListener("mousedown", function(evt) {
                 handlePress(getButtonFromEvent(evt));
@@ -839,6 +841,7 @@ window.Luv = function() {
         },
         onPressed: function(x, y, button) {},
         onReleased: function(x, y, button) {},
+        onMoved: function(x, y) {},
         isPressed: function(button) {
             return !!this.pressedButtons[button];
         }
@@ -855,6 +858,124 @@ window.Luv = function() {
     var getWheelButtonFromEvent = function(evt) {
         var delta = Math.max(-1, Math.min(1, evt.wheelDelta || -evt.detail));
         return delta === 1 ? "wu" : "wd";
+    };
+})();
+
+(function() {
+    Luv.Touch = Luv.Class("Luv.Touch", {
+        init: function(el) {
+            var touch = this;
+            touch.fingers = {};
+            touch.el = el;
+            var preventDefault = function(evt) {
+                evt.preventDefault();
+                evt.stopPropagation();
+            };
+            el.addEventListener("gesturestart", preventDefault);
+            el.addEventListener("gesturechange", preventDefault);
+            el.addEventListener("gestureend", preventDefault);
+            el.addEventListener("touchstart", function(evt) {
+                preventDefault(evt);
+                var t, finger, rect = el.getBoundingClientRect();
+                for (var i = 0; i < evt.targetTouches.length; i++) {
+                    t = evt.targetTouches[i];
+                    finger = getFingerByIdentifier(touch, t.identifier);
+                    if (!finger) {
+                        finger = {
+                            identifier: t.identifier,
+                            position: getNextAvailablePosition(touch),
+                            x: t.pageX - rect.left,
+                            y: t.pageY - rect.top
+                        };
+                        touch.fingers[finger.position] = finger;
+                        touch.onPressed(finger.position, finger.x, finger.y);
+                    }
+                }
+            });
+            var touchend = function(evt) {
+                preventDefault(evt);
+                var t, finger, rect = el.getBoundingClientRect();
+                for (var i = 0; i < evt.changedTouches.length; i++) {
+                    t = evt.changedTouches[i];
+                    finger = getFingerByIdentifier(touch, t.identifier);
+                    if (finger) {
+                        delete touch.fingers[finger.position];
+                        touch.onReleased(finger.position, finger.x, finger.y);
+                    }
+                }
+            };
+            el.addEventListener("touchend", touchend);
+            el.addEventListener("touchleave", touchend);
+            el.addEventListener("touchcancel", touchend);
+            el.addEventListener("touchmove", function(evt) {
+                preventDefault(evt);
+                var t, finger, rect = el.getBoundingClientRect();
+                for (var i = 0; i < evt.targetTouches.length; i++) {
+                    t = evt.targetTouches[i];
+                    finger = getFingerByIdentifier(touch, t.identifier);
+                    if (finger) {
+                        finger.x = t.pageX - rect.left;
+                        finger.y = t.pageY - rect.top;
+                        touch.onMoved(finger.position, finger.x, finger.y);
+                    }
+                }
+            });
+        },
+        onPressed: function(finger, x, y) {},
+        onReleased: function(finger, x, y) {},
+        onMoved: function(finger, x, y) {},
+        isPressed: function(finger) {
+            return !!this.fingers[finger];
+        },
+        getFinger: function(position) {
+            var finger = this.fingers[position];
+            return finger && {
+                position: finger.position,
+                identifier: finger.identifier,
+                x: finger.x,
+                y: finger.y
+            };
+        },
+        getFingers: function() {
+            var result = [], positions = Object.keys(this.fingers).sort(), finger, position;
+            for (var i = 0; i < positions.length; i++) {
+                position = positions[i];
+                finger = this.fingers[position];
+                result.push({
+                    position: position,
+                    x: finger.x,
+                    y: finger.y
+                });
+            }
+            return result;
+        },
+        isSupported: function() {
+            return window.ontouchstart !== undefined;
+        }
+    });
+    var getMaxPosition = function(touch) {
+        var positions = Object.keys(touch.fingers);
+        if (positions.length === 0) {
+            return 0;
+        }
+        return Math.max.apply(Math, positions);
+    };
+    var getNextAvailablePosition = function(touch) {
+        var maxPosition = getMaxPosition(touch);
+        for (var i = 1; i < maxPosition; i++) {
+            if (!touch.isPressed(i)) {
+                return i;
+            }
+        }
+        return maxPosition + 1;
+    };
+    var getFingerByIdentifier = function(touch, identifier) {
+        var fingers = touch.fingers;
+        for (var position in fingers) {
+            if (fingers.hasOwnProperty(position) && fingers[position].identifier == identifier) {
+                return fingers[position];
+            }
+        }
     };
 })();
 
@@ -1226,6 +1347,7 @@ window.Luv = function() {
         clear: function() {
             this.ctx.save();
             this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            this.ctx.globalAlpha = 1;
             this.ctx.fillStyle = this.backgroundColorStyle;
             this.ctx.fillRect(0, 0, this.getWidth(), this.getHeight());
             this.ctx.restore();

@@ -9,8 +9,8 @@ Luv.Timer.Tween = Luv.Class('Luv.Timer.Tween', {
 
     options = options || {};
     this.easing       = getEasingFunction(options.easing);
-    this.step         = options.step       || this.step;
-    this.onFinished   = options.onFinished || this.onFinished;
+    this.every        = options.every      || this.every;
+    this.after        = options.after      || this.after;
     this.context      = options.context    || this;
 
     this.runningTime  = 0;
@@ -26,18 +26,18 @@ Luv.Timer.Tween = Luv.Class('Luv.Timer.Tween', {
     this.runningTime += dt;
     if(this.runningTime >= this.timeToFinish) {
       this.runningTime = this.timeToFinish;
-      this.onFinished.call(this.context);
+      this.after.call(this.context);
       this.finished = true;
     }
-    this.step.call(this.context, deepEase(this, this.from, this.to));
+    this.every.call(this.context, deepEase(this, this.from, this.to));
     return this.finished;
   },
 
-  step: function(values) {
+  every: function(values) {
     this.subject = deepMerge(this.subject, values);
   },
 
-  onFinished: function() {
+  after: function() {
   },
 
   isFinished: function() {

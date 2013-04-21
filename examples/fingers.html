@@ -1,0 +1,81 @@
+<!doctype html>
+<html><head><meta charset="utf-8" /><title>Fingers</title></head>
+<body>
+<script src="../luv.js"></script>
+<script>
+
+// This Luv.js example shows the touch API. You need to use it on a
+// touch-enabled device, like an ipad
+// There is also some tweening used on the circles at the end
+var luv = Luv({fullWindow: true});
+
+
+// The color of each finger, and an array to store the circles while they zoom
+// in or out.
+var colors = "B24466 C6131C 13CEB6 279D6C 3B6CD22 4F3AD8 63098E 76D844 8AA6FA 9E75B0D9E1D2 EDB088".split(" "),
+    circles = [],
+    Radius = 50; // The default radius of each finger
+
+var removeCircle = function(circle) {
+  var index = circles.indexOf(circle);
+  if(index !== -1) {
+    circles.splice(index, 1);
+  }
+};
+
+// Load is here used for basic setup only (line width, for the animated circles)
+luv.load = function() {
+  luv.graphics.setLineWidth(3);
+};
+
+luv.draw = function() {
+  // First draw filled circles everywhere where a finger is currently touching
+  // luv.touch.getFingers() gives a list of all the fingers currently on the
+  // screen
+  var fingers = luv.touch.getFingers(),
+      finger, i;
+  luv.graphics.setAlpha(1);
+  for(i=0; i<fingers.length; i++) {
+    finger = fingers[i];
+    luv.graphics.setColor(colors[finger.position]);
+    luv.graphics.fillCircle(finger.x, finger.y, Radius);
+  }
+
+  // Then draw all the animated (shrinking/expanding) circles.
+  var circle;
+  for(i=0; i<circles.length; i++) {
+    circle = circles[i];
+    luv.graphics.setAlpha(circle.alpha);
+    luv.graphics.setColor(circle.color);
+    luv.graphics.strokeCircle(circle.x, circle.y, circle.radius);
+  }
+};
+
+// When a finger touches the screen, show a circle expanding away, with the
+// finger's color. When the circle expands to a certain distance, delete it
+luv.touch.onPressed = function(finger, x, y) {
+  var circle = { x: x, y: y, radius: Radius, alpha: 1, color: colors[finger] };
+  circles.push(circle);
+  luv.timer.tween(0.7, circle, {radius: Radius * 2, alpha: 0}, {
+    after: function(){ removeCircle(circle); },
+    easing: 'outQuint'
+  });
+};
+
+// When a finger leaves the screen, draw a circle "compressing to the point where
+// the finger was", and then remove it from the list of fingers
+luv.touch.onReleased = function(finger, x, y) {
+  var circle = { x: x, y: y, radius: Radius, alpha: 1, color: colors[finger] };
+  circles.push(circle);
+  luv.timer.tween(0.5, circle, {radius: 5, alpha: 0}, {
+    after: function(){ removeCircle(circle); },
+    easing: 'inCubic'
+  });
+};
+
+// Don't forget to execute luv.run, or the game will not start.
+luv.run();
+
+</script>
+</body>
+</html>
