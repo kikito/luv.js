@@ -135,9 +135,9 @@ Luv.Touch = Luv.Class('Luv.Touch', {
     return result;
   },
 
-  // `isSupported` returns true if the device/browser accepts touch events, false
+  // `isAvailable` returns true if the device/browser accepts touch events, false
   // otherwise
-  isSupported: function() {
+  isAvailable: function() {
     return window.ontouchstart !== undefined;
   }
 });

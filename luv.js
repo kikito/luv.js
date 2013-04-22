@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-21) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-22) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -1343,9 +1343,9 @@ Luv.Touch = Luv.Class('Luv.Touch', {
     return result;
   },
 
-  // `isSupported` returns true if the device/browser accepts touch events, false
+  // `isAvailable` returns true if the device/browser accepts touch events, false
   // otherwise
-  isSupported: function() {
+  isAvailable: function() {
     return window.ontouchstart !== undefined;
   }
 });
