@@ -95,23 +95,27 @@ describe("Luv.Graphics", function(){
       });
     });
 
-    describe(".setColor", function() {
+    describe(".parseColor", function() {
       it("accepts 3 numbers", function() {
-        gr.setColor(255,120,10);
-        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10});
+        expect(gr.parseColor(255,120,10)).to.deep.equal({r:255, g:120, b:10});
       });
 
       it("accepts an array of 3 numbers", function() {
-        gr.setColor([255,120,10]);
-        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10});
+        expect(gr.parseColor([255,120,10])).to.deep.equal({r:255, g:120, b:10});
       });
 
-      it("accepts a string", function() {
-        gr.setColor("ff780A");
-        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10});
+      it("accepts an hex string", function() {
+        expect(gr.parseColor("ff780A")).to.deep.equal({r:255, g:120, b:10});
+        expect(gr.parseColor("#ff780A")).to.deep.equal({r:255, g:120, b:10});
+      });
 
-        gr.setColor("#ff780A");
-        expect(gr.getColor()).to.deep.equal({r:255, g:120, b:10});
+      it("accepts a 3-letters hex string", function() {
+        expect(gr.parseColor("f10")).to.deep.equal({r:255, g:17, b:0});
+        expect(gr.parseColor("#f10")).to.deep.equal({r:255, g:17, b:0});
+      });
+
+      it("accepts rgb(xx,yy,zz)", function() {
+        expect(gr.parseColor("rgb(255, 20, 15)")).to.deep.equal({r:255, g:20, b:15});
       });
     });
 

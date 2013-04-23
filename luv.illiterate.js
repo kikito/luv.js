@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-22) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-23) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -1358,6 +1358,9 @@ window.Luv = function() {
         getColor: function() {
             return getColor(this.color);
         },
+        parseColor: function(r, g, b) {
+            return Luv.Graphics.parseColor(r, g, b);
+        },
         setAlpha: function(alpha) {
             this.alpha = clampNumber(alpha, 0, 1);
             this.ctx.globalAlpha = this.alpha;
@@ -1499,27 +1502,59 @@ window.Luv = function() {
             return Luv.Graphics.SpriteSheet(image, w, h, l, t, b);
         }
     });
+    Luv.Graphics.parseColor = function(r, g, b) {
+        var m, p = parseInt;
+        if (Array.isArray(r)) {
+            return {
+                r: r[0],
+                g: r[1],
+                b: r[2]
+            };
+        }
+        if (typeof r === "object") {
+            return {
+                r: r.r,
+                g: r.g,
+                b: r.b
+            };
+        }
+        if (typeof r === "string") {
+            r = r.replace(/#|\s+/g, "");
+            m = /^([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})/.exec(r);
+            if (m) {
+                return {
+                    r: p(m[1], 16),
+                    g: p(m[2], 16),
+                    b: p(m[3], 16)
+                };
+            }
+            m = /^([\da-fA-F])([\da-fA-F])([\da-fA-F])/.exec(r);
+            if (m) {
+                return {
+                    r: p(m[1], 16) * 17,
+                    g: p(m[2], 16) * 17,
+                    b: p(m[3], 16) * 17
+                };
+            }
+            m = /^rgb\(([\d]+),([\d]+),([\d]+)\)/.exec(r);
+            if (m) {
+                return {
+                    r: p(m[1], 10),
+                    g: p(m[2], 10),
+                    b: p(m[3], 10)
+                };
+            }
+        }
+        return {
+            r: r,
+            g: g,
+            b: b
+        };
+    };
     var twoPI = Math.PI * 2;
     var setColor = function(self, name, r, g, b) {
-        var color = self[name];
-        if (Array.isArray(r)) {
-            color.r = r[0];
-            color.g = r[1];
-            color.b = r[2];
-        } else if (typeof r === "object") {
-            color.r = r.r;
-            color.g = r.g;
-            color.b = r.b;
-        } else if (typeof r === "string") {
-            r = r.replace("#", "");
-            color.r = parseInt(r.slice(0, 2), 16);
-            color.g = parseInt(r.slice(2, 4), 16);
-            color.b = parseInt(r.slice(4, 6), 16);
-        } else {
-            color.r = r;
-            color.g = g;
-            color.b = b;
-        }
+        var color = self[name], newColor = Luv.Graphics.parseColor(r, g, b);
+        Luv.extend(color, newColor);
         self[name + "Style"] = "rgb(" + [ color.r, color.g, color.b ].join() + ")";
     };
     var getColor = function(color) {
