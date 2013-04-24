@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-23) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-24) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
