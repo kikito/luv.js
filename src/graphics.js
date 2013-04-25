@@ -61,31 +61,31 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   // during the next graphical operations. If you set the color to `255,0,0`
   // (pure red) and then draw a line or a rectangle, they will be red.
   //
-  // The parameters are:
-  //
-  // * r: Red component. A number between 0 and 255
-  // * g: Green component. A number between 0 and 255
-  // * b: Blue component. A number between 0 and 255
-  //
-  // The default color is white (`255, 255, 255`)
-  //
-  // In addition to being specified as 3 numbers, colors can also be specified:
-  //
-  // * As an array: `luv.graphics.setColor([255,0,120])`
-  // * As an object: `luv.graphics.setColor({r:255, g:0, b:120})`
-  // * As a string: `luv.graphics.setColor("ff0078")` (Also accepts it prefixed by a hash: `"#ff0078"`)
-  //
+  // Admits the same parameters as `parseColor` (see below)
   setColor  : function(r,g,b) { setColor(this, 'color', r,g,b); },
 
   // `getColor` returns the currently selected color. See `setColor` for details.
   // The current color is returned like a JS object whith the properties
-  // `r`, `g` & `b`
+  // `r`, `g` & `b`, similar to what parseColor returns.
   //
   //        var luv = Luv();
   //        var c = luv.graphics.getColor();
   //        console.log(c.red, c.green, c.blue, c.alpha);
   getColor  : function() { return getColor(this.color); },
 
+  // `parseColor` transforms a variety of parameters into a "standard js object" of the form
+  // `{r: 255, g: 0, b: 120}`.
+  //
+  // Types of accepted params:
+  //
+  // * Three integers: `luv.graphics.parseColor(255, 0, 120)`
+  // * Array of integers: `luv.graphics.parseColor([255, 0, 120])`
+  // * As an object: `luv.graphics.parseColor({r:255, g:0, b:120})`
+  // * Strings:
+  //   * 6-digit hex: `luv.graphics.setColor("#ff0078")`
+  //   * 3-digit hex: `luv.graphics.setColor("#f12")`
+  //   * rgb: `luv.graphics.setColor("rgb(255,0,120)")`
+  //
   parseColor : function(r,g,b) {
     return Luv.Graphics.parseColor(r,g,b);
   },
@@ -416,6 +416,8 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 
 });
 
+// `Luv.Graphics.parseColor` is a class method implementing `parseColor` at the instance level. See the
+// `parseColor` instance method above for details.
 Luv.Graphics.parseColor = function(r,g,b) {
   var m, p = parseInt;
 
@@ -424,15 +426,15 @@ Luv.Graphics.parseColor = function(r,g,b) {
   if(typeof r === "string") {
     r = r.replace(/#|\s+/g,""); // Remove all spaces and #
 
-    // ffffff & #fffff
+    // `ffffff` & `#ffffff`
     m = /^([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})/.exec(r);
     if(m){ return { r: p(m[1], 16), g: p(m[2], 16), b: p(m[3], 16) }; }
 
-    // fff & #fff
+    // `fff` & `#fff`
     m = /^([\da-fA-F])([\da-fA-F])([\da-fA-F])/.exec(r);
     if(m){ return { r: p(m[1], 16) * 17, g: p(m[2], 16) * 17, b: p(m[3], 16) * 17 }; }
 
-    // rgb(255,3,120)
+    // `rgb(255,3,120)`
     m = /^rgb\(([\d]+),([\d]+),([\d]+)\)/.exec(r);
     if(m){ return { r: p(m[1], 10), g: p(m[2], 10), b: p(m[3], 10) }; }
   }

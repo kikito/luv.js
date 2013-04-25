@@ -85,10 +85,10 @@ Luv.Audio.getSupportedTypes = function() {
   return Object.keys(supportedTypes);
 };
 
-// These internal variables are the ones that really allow sound type detection
-var el = document.createElement('audio');
-var supportedTypes = {};
-var audioAvailable = !!el.canPlayType;
+// These internal variables dealing with audio support detection
+var el = document.createElement('audio'),
+    supportedTypes = {},
+    audioAvailable = !!el.canPlayType;
 if(audioAvailable) {
   supportedTypes.ogg = !!el.canPlayType('audio/ogg; codecs="vorbis"');
   supportedTypes.mp3 = !!el.canPlayType('audio/mpeg;');

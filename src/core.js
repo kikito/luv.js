@@ -319,6 +319,7 @@ Luv.Class = function(name, methods) {
 Luv.Base = Base;
 
 // ## Luv.extend
+// Expose extend so that it can be used in other modules
 Luv.extend = extend;
 
 // ## initializeOptions

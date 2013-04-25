@@ -3,8 +3,17 @@
 
 // ## Luv.Graphics.SpriteSheet
 // A Spritesheet is used to easily divide an image in rectangular blocks (sprites)
-// These can later on be used for other means (like animations)
+// Their most important use is animations (see Luv.Graphics.Animation for details)
 Luv.Graphics.SpriteSheet = Luv.Class('Luv.Graphics.SpriteSheet', {
+
+  // `init` has the following parameters:
+  //
+  // * `image` is the image from which the spriteSheet takes its sprites. It's mandatory.
+  // * `width` and `height` are the dimensions (in pixels) of all the sprites that the
+  //   spriteSheet will generate. They are mandatory.
+  // * `left` and `top` are the coordinates where the spritesheet starts inside the image;
+  //   an "offset" (they default to 0,0)
+  // * `border` is the distance in pixels between each sprite and its neighbors. Defaults to 0.
   init: function(image, width, height, left, top, border) {
     this.image   = image;
     this.width   = width;
@@ -14,6 +23,24 @@ Luv.Graphics.SpriteSheet = Luv.Class('Luv.Graphics.SpriteSheet', {
     this.border  = border || 0;
   },
 
+  // `getSprites` accepts a variable number of parameters and returns an array of sprites (instances of
+  // `Luv.Graphics.Sprite`). The parameters can be either integers or strings of the form 'A-B', where A and
+  // B are integers, too. It's parsed as follows:
+  //
+  // * Two integers reference one sprite. For example `sheet.getSprites(1,1)` will return the sprite on the
+  //   second row and second column of the spritesheet in one array. `sheet.getSprites(0,0, 0,1)` will return
+  //   the first two sprites of the first column of the spritesheet.
+  // * An integer and a string will "iterate" over the string, between A and B. For example,
+  //   `sheet.getSprites('0-9', 0)` will return the first 9 sprites of the first row of the sheet (y remains fixed
+  //   at 0, and x iterates from 0 to 9. You can also iterate over columns: `sheet.getSprites(0, '0-9')`. If you
+  //   want to iterate backwards (from right to left or from bottom to top) just switch the numbers of the string:
+  //   `sheet.getSprites('9-0', 0)`.
+  // * Two strings will iterate over a set of rows and columns (rows will get iterated over first). This means that
+  //   `sheet.getSprites('5-10', '2-3')` will return the sprites in [5,2], [5,3], [6,2], [6,3] ... [10,2], [10,3].
+  //
+  // Finally, take into accont that you can get as many rows/columns as you want
+  // in a single call, and even add individual spritesheets. For example, this call will get the 10 first sprites
+  // of the first two rows, and then the sprite in 10,10: `sheet.getSprites('0-9',0, '0-9',1, 10,10)`.
   getSprites: function() {
     var result = [], xCoords, yCoords;
 

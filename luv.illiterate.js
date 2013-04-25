@@ -1067,9 +1067,7 @@ window.Luv = function() {
     Luv.Audio.getSupportedTypes = function() {
         return Object.keys(supportedTypes);
     };
-    var el = document.createElement("audio");
-    var supportedTypes = {};
-    var audioAvailable = !!el.canPlayType;
+    var el = document.createElement("audio"), supportedTypes = {}, audioAvailable = !!el.canPlayType;
     if (audioAvailable) {
         supportedTypes.ogg = !!el.canPlayType('audio/ogg; codecs="vorbis"');
         supportedTypes.mp3 = !!el.canPlayType("audio/mpeg;");
@@ -1856,50 +1854,50 @@ window.Luv = function() {
 
 (function() {
     Luv.Graphics.Sprite = Luv.Class("Luv.Graphics.Sprite", {
-        init: function(image, l, t, w, h) {
+        init: function(image, left, top, width, height) {
             this.image = image;
-            this.l = l;
-            this.t = t;
-            this.w = w;
-            this.h = h;
+            this.left = left;
+            this.top = top;
+            this.width = width;
+            this.height = height;
         },
         toString: function() {
-            return "instance of Luv.Graphics.Sprite(" + this.image + ", " + this.l + ", " + this.t + ", " + this.w + ", " + this.h + ")";
+            return [ "instance of Luv.Graphics.Sprite(", this.image, ", ", this.left, ", ", this.top, ", ", this.width, ", ", this.height, ")" ].join("");
         },
         getImage: function() {
             return this.image;
         },
         getWidth: function() {
-            return this.w;
+            return this.width;
         },
         getHeight: function() {
-            return this.h;
+            return this.height;
         },
         getDimensions: function() {
             return {
-                width: this.w,
-                height: this.h
+                width: this.width,
+                height: this.height
             };
         },
         getCenter: function() {
             return {
-                x: this.w / 2,
-                y: this.h / 2
+                x: this.width / 2,
+                y: this.height / 2
             };
         },
         getBoundingBox: function() {
             return {
-                left: this.l,
-                top: this.t,
-                width: this.w,
-                height: this.h
+                left: this.left,
+                top: this.top,
+                width: this.width,
+                height: this.height
             };
         },
         draw: function(graphics, x, y) {
             if (!this.image.isLoaded()) {
                 throw new Error("Attepted to draw a prite of a non loaded image: " + this);
             }
-            graphics.ctx.drawImage(this.image.source, this.l, this.t, this.w, this.h, x, y, this.w, this.h);
+            graphics.ctx.drawImage(this.image.source, this.left, this.top, this.width, this.height, x, y, this.width, this.height);
         }
     });
 })();
