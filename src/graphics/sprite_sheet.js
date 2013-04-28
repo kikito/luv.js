@@ -32,7 +32,7 @@ Luv.Graphics.SpriteSheet = Luv.Class('Luv.Graphics.SpriteSheet', {
   //   the first two sprites of the first column of the spritesheet.
   // * An integer and a string will "iterate" over the string, between A and B. For example,
   //   `sheet.getSprites('0-9', 0)` will return the first 9 sprites of the first row of the sheet (y remains fixed
-  //   at 0, and x iterates from 0 to 9. You can also iterate over columns: `sheet.getSprites(0, '0-9')`. If you
+  //   at 0, and x iterates from 0 to 9). You can also iterate over columns: `sheet.getSprites(0, '0-9')`. If you
   //   want to iterate backwards (from right to left or from bottom to top) just switch the numbers of the string:
   //   `sheet.getSprites('9-0', 0)`.
   // * Two strings will iterate over a set of rows and columns (rows will get iterated over first). This means that
@@ -56,6 +56,7 @@ Luv.Graphics.SpriteSheet = Luv.Class('Luv.Graphics.SpriteSheet', {
     return result;
   },
 
+  // `Sprite` returns the instance of Luv.Graphics.Sprite which is on column x, row y of the SpriteSheet.
   Sprite: function(x,y) {
     return Luv.Graphics.Sprite(
       this.image,
@@ -66,13 +67,19 @@ Luv.Graphics.SpriteSheet = Luv.Class('Luv.Graphics.SpriteSheet', {
     );
   },
 
-  Animation: function(spriteInfo, delays) {
+  // `Animation` returns an instance of Luv.Graphics.Animation.
+  //
+  // * `spriteInfo` is an array of indexes for sprites, following the same rules as the parameters of getSprites.
+  // * `durations` follows the same rules as it does in Luv.Graphics.Animation.init. See Luv.Graphics.Animation.init
+  //   for details
+  Animation: function(spriteInfo, durations) {
     var sprites = this.getSprites.apply(this, spriteInfo);
-    return Luv.Graphics.Animation(sprites, delays);
+    return Luv.Graphics.Animation(sprites, durations);
   }
 
 });
 
+// Transform a string of type '2-5' in an array of type [2,3,4,5].
 var parseRange = function(r) {
   if(typeof r == "number") { return [r]; }
   if(typeof r == "string") {

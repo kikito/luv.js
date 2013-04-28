@@ -2,7 +2,30 @@
 (function() {
 
 // ## Luv.Graphics.Animation
+// Animations are lists of sprites which are swapped as time passes.
 Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
+
+  // `init` only takes two params.
+  //
+  // Althrough you can instantiate Animation directly, you will probably want to use
+  // Luv.Graphics.SpriteSheet.Animation. Like this:
+  //
+  //       var image = luv.graphics.Image('player.png'),
+  //           sheet = luv.graphics.SpriteSheet(image, 32,32);
+  //           anim  = sheet.Animation([0,0, '0-5',1], 0.1);
+  //
+  // But you can instantiate Animation directly if you want. It needs two parameters.
+  //
+  // * `sprites` is an array of drawables (normally instances of Luv.Graphics.Sprite)
+  //   which will be sequentially updated as the animation rolls. Usually the output
+  //   of SpriteSheet.getSprites.
+  // * `durations` can be:
+  //   * A positive number, representing a duration in seconds. It will be used for
+  //     all frames. For example, 0.1 will mean that all frames will take 0.1s.
+  //   * An array of numbers, each one representing the duration of one frame. When
+  //     providing an array, it must have at least one number per sprite.
+  //   * A javascript object. The keys can be integers or strings of the form 'a-b',
+  //     where a and b are integers representing an interval.
   init: function(sprites, durations) {
     if(!Array.isArray(sprites)) {
       throw new Error('Array of sprites needed. Got ' + sprites);
@@ -18,6 +41,8 @@ Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
     this.loopDuration = this.intervals[this.intervals.length - 1];
   },
 
+  // `update` changes the internal counters of the animation, and updates the current
+  // sprite accordingly to the time that has passed.
   update: function(dt) {
     var loops;
 
@@ -30,18 +55,22 @@ Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
     this.index = findSpriteIndexByTime(this.intervals, this.time);
   },
 
+  // `gotoStprite` resets the animation to the sprite specified by `newSpriteIndex` (an integer)
   gotoSprite: function(newSpriteIndex) {
     this.index = newSpriteIndex;
     this.time = this.intervals[newSpriteIndex];
   },
 
+  // `getCurrentSprite` returns the sprite currently being shown by the animation.
   getCurrentSprite: function() {
     return this.sprites[this.index];
   },
 
+  // `onLoopEnded` is invoked every time an animation loop ends. It can be reset and used for controlling purposes.
   onLoopEnded: function(how_many) {}
 });
 
+// These methods are delegated to the current animation sprite
 "getWidth getHeight getDimensions getCenter draw".split(" ").forEach(function(method) {
   Luv.Graphics.Animation.methods[method] = function() {
     var sprite = this.getCurrentSprite();
@@ -49,7 +78,7 @@ Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
   };
 });
 
-
+// private function. It transforms the durations table into an intervals table, for faster searches
 var calculateIntervals = function(durations) {
   var result = [0],
       time   = 0;
@@ -60,6 +89,8 @@ var calculateIntervals = function(durations) {
   return result;
 };
 
+// private function. Given a time, it returns the index of the sprite which should be
+// used to represent it.
 var findSpriteIndexByTime = function(frames, time) {
   var high = frames.length - 2,
       low = 0,
@@ -75,6 +106,7 @@ var findSpriteIndexByTime = function(frames, time) {
   return i;
 };
 
+// Parses the durations param and transforms it into a simple numbers array.
 var parseDurations = function(length, durations) {
   var result=[], r, i, range, value;
 
@@ -111,6 +143,7 @@ var parseDurations = function(length, durations) {
   return result;
 };
 
+// Given the string '1-5', return the array [1,2,3,4,5]
 var parseRange = function(r) {
   var match, result, start, end, i;
   if(typeof r != "string") {
