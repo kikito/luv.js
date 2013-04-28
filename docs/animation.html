@@ -158,11 +158,46 @@
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
               <h2>Luv.Graphics.Animation</h2>
+<p>Animations are lists of sprites which are swapped as time passes.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Luv.Graphics.Animation = Luv.Class(<span class="string">'Luv.Graphics.Animation'</span>, {
-  init: <span class="keyword">function</span>(sprites, durations) {
+            <div class="content"><div class='highlight'><pre>Luv.Graphics.Animation = Luv.Class(<span class="string">'Luv.Graphics.Animation'</span>, {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p><code>init</code> only takes two params.</p>
+<p>Althrough you can instantiate Animation directly, you will probably want to use
+Luv.Graphics.SpriteSheet.Animation. Like this:</p>
+<pre><code>  var image = luv.graphics.Image(&#39;player.png&#39;),
+      sheet = luv.graphics.SpriteSheet(image, 32,32);
+      anim  = sheet.Animation([0,0, &#39;0-5&#39;,1], 0.1);</code></pre>
+<p>But you can instantiate Animation directly if you want. It needs two parameters.</p>
+<ul>
+<li><code>sprites</code> is an array of drawables (normally instances of Luv.Graphics.Sprite)
+which will be sequentially updated as the animation rolls. Usually the output
+of SpriteSheet.getSprites.</li>
+<li><code>durations</code> can be:<ul>
+<li>A positive number, representing a duration in seconds. It will be used for
+all frames. For example, 0.1 will mean that all frames will take 0.1s.</li>
+<li>An array of numbers, each one representing the duration of one frame. When
+providing an array, it must have at least one number per sprite.</li>
+<li>A javascript object. The keys can be integers or strings of the form &#39;a-b&#39;,
+where a and b are integers representing an interval.</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  init: <span class="keyword">function</span>(sprites, durations) {
     <span class="keyword">if</span>(!Array.isArray(sprites)) {
       <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Array of sprites needed. Got '</span> + sprites);
     }
@@ -175,9 +210,23 @@
     <span class="keyword">this</span>.durations    = parseDurations(sprites.length, durations);
     <span class="keyword">this</span>.intervals    = calculateIntervals(<span class="keyword">this</span>.durations);
     <span class="keyword">this</span>.loopDuration = <span class="keyword">this</span>.intervals[<span class="keyword">this</span>.intervals.length - <span class="number">1</span>];
-  },
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p><code>update</code> changes the internal counters of the animation, and updates the current
+sprite accordingly to the time that has passed.</p>
 
-  update: <span class="keyword">function</span>(dt) {
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  update: <span class="keyword">function</span>(dt) {
     <span class="keyword">var</span> loops;
 
     <span class="keyword">this</span>.time += dt;
@@ -187,29 +236,93 @@
     <span class="keyword">if</span>(loops !== <span class="number">0</span>) { <span class="keyword">this</span>.onLoopEnded(loops); }
 
     <span class="keyword">this</span>.index = findSpriteIndexByTime(<span class="keyword">this</span>.intervals, <span class="keyword">this</span>.time);
-  },
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p><code>gotoStprite</code> resets the animation to the sprite specified by <code>newSpriteIndex</code> (an integer)</p>
 
-  gotoSprite: <span class="keyword">function</span>(newSpriteIndex) {
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  gotoSprite: <span class="keyword">function</span>(newSpriteIndex) {
     <span class="keyword">this</span>.index = newSpriteIndex;
     <span class="keyword">this</span>.time = <span class="keyword">this</span>.intervals[newSpriteIndex];
-  },
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p><code>getCurrentSprite</code> returns the sprite currently being shown by the animation.</p>
 
-  getCurrentSprite: <span class="keyword">function</span>() {
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  getCurrentSprite: <span class="keyword">function</span>() {
     <span class="keyword">return</span> <span class="keyword">this</span>.sprites[<span class="keyword">this</span>.index];
-  },
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p><code>onLoopEnded</code> is invoked every time an animation loop ends. It can be reset and used for controlling purposes.</p>
 
-  onLoopEnded: <span class="keyword">function</span>(how_many) {}
-});
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  onLoopEnded: <span class="keyword">function</span>(how_many) {}
+});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>These methods are delegated to the current animation sprite</p>
 
-<span class="string">"getWidth getHeight getDimensions getCenter draw"</span>.split(<span class="string">" "</span>).forEach(<span class="keyword">function</span>(method) {
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="string">"getWidth getHeight getDimensions getCenter draw"</span>.split(<span class="string">" "</span>).forEach(<span class="keyword">function</span>(method) {
   Luv.Graphics.Animation.methods[method] = <span class="keyword">function</span>() {
     <span class="keyword">var</span> sprite = <span class="keyword">this</span>.getCurrentSprite();
     <span class="keyword">return</span> sprite[method].apply(sprite, arguments);
   };
-});
+});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>private function. It transforms the durations table into an intervals table, for faster searches</p>
 
-
-<span class="keyword">var</span> calculateIntervals = <span class="keyword">function</span>(durations) {
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> calculateIntervals = <span class="keyword">function</span>(durations) {
   <span class="keyword">var</span> result = [<span class="number">0</span>],
       time   = <span class="number">0</span>;
   <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>; i&lt;durations.length; i++) {
@@ -217,9 +330,23 @@
     result.push(time);
   }
   <span class="keyword">return</span> result;
-};
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>private function. Given a time, it returns the index of the sprite which should be
+used to represent it.</p>
 
-<span class="keyword">var</span> findSpriteIndexByTime = <span class="keyword">function</span>(frames, time) {
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> findSpriteIndexByTime = <span class="keyword">function</span>(frames, time) {
   <span class="keyword">var</span> high = frames.length - <span class="number">2</span>,
       low = <span class="number">0</span>,
       i = <span class="number">0</span>;
@@ -232,9 +359,22 @@
   }
 
   <span class="keyword">return</span> i;
-};
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Parses the durations param and transforms it into a simple numbers array.</p>
 
-<span class="keyword">var</span> parseDurations = <span class="keyword">function</span>(length, durations) {
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> parseDurations = <span class="keyword">function</span>(length, durations) {
   <span class="keyword">var</span> result=[], r, i, range, value;
 
   <span class="keyword">if</span>(Array.isArray(durations)) {
@@ -268,9 +408,22 @@
     <span class="keyword">if</span>(isNaN(result[i])) { <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Could not parse the delay for sprite '</span> + i); }
   }
   <span class="keyword">return</span> result;
-};
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Given the string &#39;1-5&#39;, return the array [1,2,3,4,5]</p>
 
-<span class="keyword">var</span> parseRange = <span class="keyword">function</span>(r) {
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> parseRange = <span class="keyword">function</span>(r) {
   <span class="keyword">var</span> match, result, start, end, i;
   <span class="keyword">if</span>(<span class="keyword">typeof</span> r != <span class="string">"string"</span>) {
     <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Unknown range type (must be integer or string in the form 'start-end'): "</span> + r);

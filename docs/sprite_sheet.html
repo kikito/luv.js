@@ -159,21 +159,73 @@
               </div>
               <h2>Luv.Graphics.SpriteSheet</h2>
 <p>A Spritesheet is used to easily divide an image in rectangular blocks (sprites)
-These can later on be used for other means (like animations)</p>
+Their most important use is animations (see Luv.Graphics.Animation for details)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Luv.Graphics.SpriteSheet = Luv.Class(<span class="string">'Luv.Graphics.SpriteSheet'</span>, {
-  init: <span class="keyword">function</span>(image, width, height, left, top, border) {
+            <div class="content"><div class='highlight'><pre>Luv.Graphics.SpriteSheet = Luv.Class(<span class="string">'Luv.Graphics.SpriteSheet'</span>, {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p><code>init</code> has the following parameters:</p>
+<ul>
+<li><code>image</code> is the image from which the spriteSheet takes its sprites. It&#39;s mandatory.</li>
+<li><code>width</code> and <code>height</code> are the dimensions (in pixels) of all the sprites that the
+spriteSheet will generate. They are mandatory.</li>
+<li><code>left</code> and <code>top</code> are the coordinates where the spritesheet starts inside the image;
+an &quot;offset&quot; (they default to 0,0)</li>
+<li><code>border</code> is the distance in pixels between each sprite and its neighbors. Defaults to 0.</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  init: <span class="keyword">function</span>(image, width, height, left, top, border) {
     <span class="keyword">this</span>.image   = image;
     <span class="keyword">this</span>.width   = width;
     <span class="keyword">this</span>.height  = height;
     <span class="keyword">this</span>.left    = left   || <span class="number">0</span>;
     <span class="keyword">this</span>.top     = top    || <span class="number">0</span>;
     <span class="keyword">this</span>.border  = border || <span class="number">0</span>;
-  },
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p><code>getSprites</code> accepts a variable number of parameters and returns an array of sprites (instances of
+<code>Luv.Graphics.Sprite</code>). The parameters can be either integers or strings of the form &#39;A-B&#39;, where A and
+B are integers, too. It&#39;s parsed as follows:</p>
+<ul>
+<li>Two integers reference one sprite. For example <code>sheet.getSprites(1,1)</code> will return the sprite on the
+second row and second column of the spritesheet in one array. <code>sheet.getSprites(0,0, 0,1)</code> will return
+the first two sprites of the first column of the spritesheet.</li>
+<li>An integer and a string will &quot;iterate&quot; over the string, between A and B. For example,
+<code>sheet.getSprites(&#39;0-9&#39;, 0)</code> will return the first 9 sprites of the first row of the sheet (y remains fixed
+at 0, and x iterates from 0 to 9). You can also iterate over columns: <code>sheet.getSprites(0, &#39;0-9&#39;)</code>. If you
+want to iterate backwards (from right to left or from bottom to top) just switch the numbers of the string:
+<code>sheet.getSprites(&#39;9-0&#39;, 0)</code>.</li>
+<li>Two strings will iterate over a set of rows and columns (rows will get iterated over first). This means that
+<code>sheet.getSprites(&#39;5-10&#39;, &#39;2-3&#39;)</code> will return the sprites in [5,2], [5,3], [6,2], [6,3] ... [10,2], [10,3].</li>
+</ul>
+<p>Finally, take into accont that you can get as many rows/columns as you want
+in a single call, and even add individual spritesheets. For example, this call will get the 10 first sprites
+of the first two rows, and then the sprite in 10,10: <code>sheet.getSprites(&#39;0-9&#39;,0, &#39;0-9&#39;,1, 10,10)</code>.</p>
 
-  getSprites: <span class="keyword">function</span>() {
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  getSprites: <span class="keyword">function</span>() {
     <span class="keyword">var</span> result = [], xCoords, yCoords;
 
     <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>; i&lt;arguments.length; i+=<span class="number">2</span>) {
@@ -186,9 +238,22 @@ These can later on be used for other means (like animations)</p>
       }
     }
     <span class="keyword">return</span> result;
-  },
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p><code>Sprite</code> returns the instance of Luv.Graphics.Sprite which is on column x, row y of the SpriteSheet.</p>
 
-  Sprite: <span class="keyword">function</span>(x,y) {
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  Sprite: <span class="keyword">function</span>(x,y) {
     <span class="keyword">return</span> Luv.Graphics.Sprite(
       <span class="keyword">this</span>.image,
       <span class="keyword">this</span>.left + <span class="keyword">this</span>.width * x + <span class="keyword">this</span>.border * (x+<span class="number">1</span>),
@@ -196,16 +261,47 @@ These can later on be used for other means (like animations)</p>
       <span class="keyword">this</span>.width,
       <span class="keyword">this</span>.height
     );
-  },
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p><code>Animation</code> returns an instance of Luv.Graphics.Animation.</p>
+<ul>
+<li><code>spriteInfo</code> is an array of indexes for sprites, following the same rules as the parameters of getSprites.</li>
+<li><code>durations</code> follows the same rules as it does in Luv.Graphics.Animation.init. See Luv.Graphics.Animation.init
+for details</li>
+</ul>
 
-  Animation: <span class="keyword">function</span>(spriteInfo, delays) {
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  Animation: <span class="keyword">function</span>(spriteInfo, durations) {
     <span class="keyword">var</span> sprites = <span class="keyword">this</span>.getSprites.apply(<span class="keyword">this</span>, spriteInfo);
-    <span class="keyword">return</span> Luv.Graphics.Animation(sprites, delays);
+    <span class="keyword">return</span> Luv.Graphics.Animation(sprites, durations);
   }
 
-});
+});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Transform a string of type &#39;2-5&#39; in an array of type [2,3,4,5].</p>
 
-<span class="keyword">var</span> parseRange = <span class="keyword">function</span>(r) {
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> parseRange = <span class="keyword">function</span>(r) {
   <span class="keyword">if</span>(<span class="keyword">typeof</span> r == <span class="string">"number"</span>) { <span class="keyword">return</span> [r]; }
   <span class="keyword">if</span>(<span class="keyword">typeof</span> r == <span class="string">"string"</span>) {
     <span class="keyword">var</span> split = r.split(<span class="string">"-"</span>);

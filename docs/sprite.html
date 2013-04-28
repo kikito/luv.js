@@ -159,52 +159,77 @@
               </div>
               <h2>Luv.Graphics.Sprite</h2>
 <p>Represents a rectangular region of an image
-Useful for spritesheets and animations
-FIXME: replace ltwh by left top width height</p>
+Useful for spritesheets and animations</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Luv.Graphics.Sprite = Luv.Class(<span class="string">'Luv.Graphics.Sprite'</span>, {
-  init: <span class="keyword">function</span>(image, l,t,w,h) {
+            <div class="content"><div class='highlight'><pre>Luv.Graphics.Sprite = Luv.Class(<span class="string">'Luv.Graphics.Sprite'</span>, {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>The constructor expects an image and the coordinates of the sprite&#39;s Bounding box.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  init: <span class="keyword">function</span>(image, left,top,width,height) {
     <span class="keyword">this</span>.image = image;
-    <span class="keyword">this</span>.l = l;
-    <span class="keyword">this</span>.t = t;
-    <span class="keyword">this</span>.w = w;
-    <span class="keyword">this</span>.h = h;
+    <span class="keyword">this</span>.left = left;
+    <span class="keyword">this</span>.top = top;
+    <span class="keyword">this</span>.width = width;
+    <span class="keyword">this</span>.height = height;
   },
 
   toString : <span class="keyword">function</span>() {
-    <span class="keyword">return</span> <span class="string">'instance of Luv.Graphics.Sprite('</span> +
-            <span class="keyword">this</span>.image + <span class="string">', '</span> +
-            <span class="keyword">this</span>.l + <span class="string">', '</span> +
-            <span class="keyword">this</span>.t + <span class="string">', '</span> +
-            <span class="keyword">this</span>.w + <span class="string">', '</span> +
-            <span class="keyword">this</span>.h + <span class="string">')'</span>  ;
+    <span class="keyword">return</span> [
+      <span class="string">'instance of Luv.Graphics.Sprite('</span>,
+      <span class="keyword">this</span>.image, <span class="string">', '</span>,
+      <span class="keyword">this</span>.left, <span class="string">', '</span>,  <span class="keyword">this</span>.top, <span class="string">', '</span>, <span class="keyword">this</span>.width, <span class="string">', '</span>, <span class="keyword">this</span>.height, <span class="string">')'</span>
+    ].join(<span class="string">""</span>);
   },
 
   getImage      : <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.image; },
 
-  getWidth      : <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.w; },
+  getWidth      : <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.width; },
 
-  getHeight     : <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.h; },
+  getHeight     : <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.height; },
 
   getDimensions : <span class="keyword">function</span>() {
-    <span class="keyword">return</span> { width: <span class="keyword">this</span>.w, height: <span class="keyword">this</span>.h };
+    <span class="keyword">return</span> { width: <span class="keyword">this</span>.width, height: <span class="keyword">this</span>.height };
   },
 
   getCenter     : <span class="keyword">function</span>() {
-    <span class="keyword">return</span> { x: <span class="keyword">this</span>.w / <span class="number">2</span>, y: <span class="keyword">this</span>.h / <span class="number">2</span> };
+    <span class="keyword">return</span> { x: <span class="keyword">this</span>.width / <span class="number">2</span>, y: <span class="keyword">this</span>.height / <span class="number">2</span> };
   },
 
   getBoundingBox : <span class="keyword">function</span>() {
-    <span class="keyword">return</span> { left: <span class="keyword">this</span>.l, top: <span class="keyword">this</span>.t, width: <span class="keyword">this</span>.w, height: <span class="keyword">this</span>.h };
-  },
+    <span class="keyword">return</span> { left: <span class="keyword">this</span>.left, top: <span class="keyword">this</span>.top, width: <span class="keyword">this</span>.width, height: <span class="keyword">this</span>.height };
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p><code>draw</code> makes Sprites drawable. It draws only the parts of the image that include the sprite, and nothing else.</p>
 
-  draw: <span class="keyword">function</span>(graphics, x, y) {
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  draw: <span class="keyword">function</span>(graphics, x, y) {
     <span class="keyword">if</span>(!<span class="keyword">this</span>.image.isLoaded()) {
       <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Attepted to draw a prite of a non loaded image: "</span> + <span class="keyword">this</span>);
     }
-    graphics.ctx.drawImage(<span class="keyword">this</span>.image.source, <span class="keyword">this</span>.l, <span class="keyword">this</span>.t, <span class="keyword">this</span>.w, <span class="keyword">this</span>.h, x, y, <span class="keyword">this</span>.w, <span class="keyword">this</span>.h);
+    graphics.ctx.drawImage(<span class="keyword">this</span>.image.source, <span class="keyword">this</span>.left, <span class="keyword">this</span>.top, <span class="keyword">this</span>.width, <span class="keyword">this</span>.height, x, y, <span class="keyword">this</span>.width, <span class="keyword">this</span>.height);
   }
 
 });

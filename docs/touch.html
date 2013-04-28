@@ -369,12 +369,12 @@ syntax: `[ {position: 1, x: 2, y:2}, {position: 5, x: 120, y:40} ]</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p><code>isSupported</code> returns true if the device/browser accepts touch events, false
+              <p><code>isAvailable</code> returns true if the device/browser accepts touch events, false
 otherwise</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  isSupported: <span class="keyword">function</span>() {
+            <div class="content"><div class='highlight'><pre>  isAvailable: <span class="keyword">function</span>() {
     <span class="keyword">return</span> window.ontouchstart !== <span class="literal">undefined</span>;
   }
 });

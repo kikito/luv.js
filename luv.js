@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-21) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-04-24) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -322,6 +322,7 @@ Luv.Class = function(name, methods) {
 Luv.Base = Base;
 
 // ## Luv.extend
+// Expose extend so that it can be used in other modules
 Luv.extend = extend;
 
 // ## initializeOptions
@@ -1343,9 +1344,9 @@ Luv.Touch = Luv.Class('Luv.Touch', {
     return result;
   },
 
-  // `isSupported` returns true if the device/browser accepts touch events, false
+  // `isAvailable` returns true if the device/browser accepts touch events, false
   // otherwise
-  isSupported: function() {
+  isAvailable: function() {
     return window.ontouchstart !== undefined;
   }
 });
@@ -1574,10 +1575,10 @@ Luv.Audio.getSupportedTypes = function() {
   return Object.keys(supportedTypes);
 };
 
-// These internal variables are the ones that really allow sound type detection
-var el = document.createElement('audio');
-var supportedTypes = {};
-var audioAvailable = !!el.canPlayType;
+// These internal variables dealing with audio support detection
+var el = document.createElement('audio'),
+    supportedTypes = {},
+    audioAvailable = !!el.canPlayType;
 if(audioAvailable) {
   supportedTypes.ogg = !!el.canPlayType('audio/ogg; codecs="vorbis"');
   supportedTypes.mp3 = !!el.canPlayType('audio/mpeg;');
@@ -2123,30 +2124,34 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   // during the next graphical operations. If you set the color to `255,0,0`
   // (pure red) and then draw a line or a rectangle, they will be red.
   //
-  // The parameters are:
-  //
-  // * r: Red component. A number between 0 and 255
-  // * g: Green component. A number between 0 and 255
-  // * b: Blue component. A number between 0 and 255
-  //
-  // The default color is white (`255, 255, 255`)
-  //
-  // In addition to being specified as 3 numbers, colors can also be specified:
-  //
-  // * As an array: `luv.graphics.setColor([255,0,120])`
-  // * As an object: `luv.graphics.setColor({r:255, g:0, b:120})`
-  // * As a string: `luv.graphics.setColor("ff0078")` (Also accepts it prefixed by a hash: `"#ff0078"`)
-  //
+  // Admits the same parameters as `parseColor` (see below)
   setColor  : function(r,g,b) { setColor(this, 'color', r,g,b); },
 
   // `getColor` returns the currently selected color. See `setColor` for details.
   // The current color is returned like a JS object whith the properties
-  // `r`, `g` & `b`
+  // `r`, `g` & `b`, similar to what parseColor returns.
   //
   //        var luv = Luv();
   //        var c = luv.graphics.getColor();
   //        console.log(c.red, c.green, c.blue, c.alpha);
   getColor  : function() { return getColor(this.color); },
+
+  // `parseColor` transforms a variety of parameters into a "standard js object" of the form
+  // `{r: 255, g: 0, b: 120}`.
+  //
+  // Types of accepted params:
+  //
+  // * Three integers: `luv.graphics.parseColor(255, 0, 120)`
+  // * Array of integers: `luv.graphics.parseColor([255, 0, 120])`
+  // * As an object: `luv.graphics.parseColor({r:255, g:0, b:120})`
+  // * Strings:
+  //   * 6-digit hex: `luv.graphics.setColor("#ff0078")`
+  //   * 3-digit hex: `luv.graphics.setColor("#f12")`
+  //   * rgb: `luv.graphics.setColor("rgb(255,0,120)")`
+  //
+  parseColor : function(r,g,b) {
+    return Luv.Graphics.parseColor(r,g,b);
+  },
 
   // `setAlpha` acceps a number from 0 (full transparency) to 1 (full opaqueness).
   // Call setAlpha before drawing things to alter how transparent they are.
@@ -2474,6 +2479,31 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
 
 });
 
+// `Luv.Graphics.parseColor` is a class method implementing `parseColor` at the instance level. See the
+// `parseColor` instance method above for details.
+Luv.Graphics.parseColor = function(r,g,b) {
+  var m, p = parseInt;
+
+  if(Array.isArray(r))      { return { r: r[0], g: r[1], b: r[2] }; }
+  if(typeof r === "object") { return { r: r.r, g: r.g, b: r.b }; }
+  if(typeof r === "string") {
+    r = r.replace(/#|\s+/g,""); // Remove all spaces and #
+
+    // `ffffff` & `#ffffff`
+    m = /^([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})/.exec(r);
+    if(m){ return { r: p(m[1], 16), g: p(m[2], 16), b: p(m[3], 16) }; }
+
+    // `fff` & `#fff`
+    m = /^([\da-fA-F])([\da-fA-F])([\da-fA-F])/.exec(r);
+    if(m){ return { r: p(m[1], 16) * 17, g: p(m[2], 16) * 17, b: p(m[3], 16) * 17 }; }
+
+    // `rgb(255,3,120)`
+    m = /^rgb\(([\d]+),([\d]+),([\d]+)\)/.exec(r);
+    if(m){ return { r: p(m[1], 10), g: p(m[2], 10), b: p(m[3], 10) }; }
+  }
+  return { r: r, g: g, b: b };
+};
+
 
 // ### Private functions and constants
 
@@ -2481,33 +2511,15 @@ var twoPI = Math.PI * 2;
 
 // Internal function used for setting the foreground and background color
 var setColor = function(self, name, r,g,b) {
-  var color = self[name];
-  if(Array.isArray(r)) {
-    color.r = r[0];
-    color.g = r[1];
-    color.b = r[2];
-  } else if(typeof r === "object") {
-    color.r = r.r;
-    color.g = r.g;
-    color.b = r.b;
-  } else if(typeof r === "string") {
-    r = r.replace("#", "");
-    color.r = parseInt(r.slice(0,2), 16);
-    color.g = parseInt(r.slice(2,4), 16);
-    color.b = parseInt(r.slice(4,6), 16);
-  } else {
-    color.r = r;
-    color.g = g;
-    color.b = b;
-  }
+  var color = self[name],
+      newColor = Luv.Graphics.parseColor(r,g,b);
+  Luv.extend(color, newColor);
   self[name + 'Style'] = "rgb(" + [color.r, color.g, color.b].join() + ")";
 };
 
 var getColor = function(color) {
   return {r: color.r, g: color.g, b: color.b};
 };
-
-
 
 // Strokes a polyline given an array of methods.
 var drawPolyLine = function(graphics, methodName, minLength, coords) {
@@ -2867,48 +2879,48 @@ Luv.Graphics.Image.include(Luv.Media.Asset);
 // ## Luv.Graphics.Sprite
 // Represents a rectangular region of an image
 // Useful for spritesheets and animations
-// FIXME: replace ltwh by left top width height
 Luv.Graphics.Sprite = Luv.Class('Luv.Graphics.Sprite', {
-  init: function(image, l,t,w,h) {
+  // The constructor expects an image and the coordinates of the sprite's Bounding box.
+  init: function(image, left,top,width,height) {
     this.image = image;
-    this.l = l;
-    this.t = t;
-    this.w = w;
-    this.h = h;
+    this.left = left;
+    this.top = top;
+    this.width = width;
+    this.height = height;
   },
 
   toString : function() {
-    return 'instance of Luv.Graphics.Sprite(' +
-            this.image + ', ' +
-            this.l + ', ' +
-            this.t + ', ' +
-            this.w + ', ' +
-            this.h + ')'  ;
+    return [
+      'instance of Luv.Graphics.Sprite(',
+      this.image, ', ',
+      this.left, ', ',  this.top, ', ', this.width, ', ', this.height, ')'
+    ].join("");
   },
 
   getImage      : function() { return this.image; },
 
-  getWidth      : function() { return this.w; },
+  getWidth      : function() { return this.width; },
 
-  getHeight     : function() { return this.h; },
+  getHeight     : function() { return this.height; },
 
   getDimensions : function() {
-    return { width: this.w, height: this.h };
+    return { width: this.width, height: this.height };
   },
 
   getCenter     : function() {
-    return { x: this.w / 2, y: this.h / 2 };
+    return { x: this.width / 2, y: this.height / 2 };
   },
 
   getBoundingBox : function() {
-    return { left: this.l, top: this.t, width: this.w, height: this.h };
+    return { left: this.left, top: this.top, width: this.width, height: this.height };
   },
 
+  // `draw` makes Sprites drawable. It draws only the parts of the image that include the sprite, and nothing else.
   draw: function(graphics, x, y) {
     if(!this.image.isLoaded()) {
       throw new Error("Attepted to draw a prite of a non loaded image: " + this);
     }
-    graphics.ctx.drawImage(this.image.source, this.l, this.t, this.w, this.h, x, y, this.w, this.h);
+    graphics.ctx.drawImage(this.image.source, this.left, this.top, this.width, this.height, x, y, this.width, this.height);
   }
 
 });

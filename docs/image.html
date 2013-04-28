@@ -162,8 +162,27 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>Luv.Graphics.Image = Luv.Class(<span class="string">'Luv.Graphics.Image'</span>, {
-  init: <span class="keyword">function</span>(media, path) {
+            <div class="content"><div class='highlight'><pre>Luv.Graphics.Image = Luv.Class(<span class="string">'Luv.Graphics.Image'</span>, {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Usually you will not instantiate images directly. Instead, you will use
+the instance method of Luv.Graphics, like this:</p>
+<pre><code>  var luv = Luv(...);
+  var image = luv.graphics.Image(&#39;face.png&#39;);</code></pre>
+<p>Notice that this constructor requires an additional parameter (an instance
+of Luv.Media), which is provided automatically by luv.graphics.Image.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  init: <span class="keyword">function</span>(media, path) {
     <span class="keyword">var</span> image = <span class="keyword">this</span>;
 
     image.path = path;
@@ -201,9 +220,22 @@
     graphics.ctx.drawImage(<span class="keyword">this</span>.source, x, y);
   }
 
-});
+});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Add methods like isLoaded, isError, isPending to image</p>
 
-Luv.Graphics.Image.include(Luv.Media.Asset);
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Luv.Graphics.Image.include(Luv.Media.Asset);
 
 }());</pre></div></div>
             

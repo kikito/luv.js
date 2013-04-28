@@ -307,13 +307,13 @@ Luv.Audio.getSupportedTypes = <span class="keyword">function</span>() {
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
-              <p>These internal variables are the ones that really allow sound type detection</p>
+              <p>These internal variables dealing with audio support detection</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> el = document.createElement(<span class="string">'audio'</span>);
-<span class="keyword">var</span> supportedTypes = {};
-<span class="keyword">var</span> audioAvailable = !!el.canPlayType;
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> el = document.createElement(<span class="string">'audio'</span>),
+    supportedTypes = {},
+    audioAvailable = !!el.canPlayType;
 <span class="keyword">if</span>(audioAvailable) {
   supportedTypes.ogg = !!el.canPlayType(<span class="string">'audio/ogg; codecs="vorbis"'</span>);
   supportedTypes.mp3 = !!el.canPlayType(<span class="string">'audio/mpeg;'</span>);
