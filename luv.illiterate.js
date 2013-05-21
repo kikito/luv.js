@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-24) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-05-21) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -1928,9 +1928,9 @@ window.Luv = function() {
         Sprite: function(x, y) {
             return Luv.Graphics.Sprite(this.image, this.left + this.width * x + this.border * (x + 1), this.top + this.height * y + this.border * (y + 1), this.width, this.height);
         },
-        Animation: function(spriteInfo, delays) {
+        Animation: function(spriteInfo, durations) {
             var sprites = this.getSprites.apply(this, spriteInfo);
-            return Luv.Graphics.Animation(sprites, delays);
+            return Luv.Graphics.Animation(sprites, durations);
         }
     });
     var parseRange = function(r) {
@@ -1956,4 +1956,13 @@ window.Luv = function() {
         }
         throw new Error("Ranges must be integers or strings of the form 'start-end'. Got " + r);
     };
+})();
+
+(function() {
+    Luv.Collider = Luv.Class("Luv.Collider", {
+        init: function(cellSize) {
+            this.cellSize = cellSize || Luv.Collider.DEFAULT_CELL_SIZE;
+        }
+    });
+    Luv.Collider.DEFAULT_CELL_SIZE = 64;
 })();
