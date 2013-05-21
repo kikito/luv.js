@@ -1967,7 +1967,7 @@ window.Luv = function() {
     Luv.Collider.DEFAULT_CELL_SIZE = 64;
 })();
 
-Luv.Collider.BBox = Luv.Class("Luv.Collider.BBox", {
+Luv.Collider.AABB = Luv.Class("Luv.Collider.AABB", {
     init: function(l, t, w, h) {
         this.t = t;
         this.l = l;
