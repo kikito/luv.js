@@ -14,6 +14,4 @@ describe("Luv.Collider", function(){
       expect(collider.cellSize).to.equal(64);
     });
   });
-
-
 });
