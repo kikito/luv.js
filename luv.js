@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-05-21) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-05-22) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -3113,9 +3113,65 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
     this.y   = t + this.h2;
   },
 
+  containsPoint: function(x,y) {
+    return x > this.l && x < this.r && y > this.t && y < this.b;
+  },
+
   isIntersecting: function(other) {
     return this.l < other.r && this.r > other.l &&
            this.t < other.b && this.b > other.t;
+  },
+
+  getMinkowskyDiff: function(other) {
+    return Luv.Collider.AABB(
+      other.l - this.r,
+      other.t - this.b,
+      other.w + this.w,
+      other.h + this.h
+    );
+  },
+
+  getLiangBarsky: function(x1,y1,x2,y2,min,max) {
+    var dx = x2-x1,
+        dy = y2-y1,
+        t0 = min || 0,
+        t1 = max || 1,
+        p, q, r;
+
+    for(var side = 0; side < 4; side++) {
+      switch(side) {
+        case 0:
+          p = -dx;
+          q = x1 - this.l;
+          break;
+        case 1:
+          p = dx;
+          q = this.r - x1;
+          break;
+        case 2:
+          p = -dy;
+          q = y1 - this.t;
+          break;
+        default:
+          p = dy;
+          q = this.b - y1;
+      }
+
+      if(p === 0){
+        if(q < 0) { return; }
+      } else {
+        r = q / p;
+        if(p < 0){
+          if(r > t1){ return; }
+          else if(r > t0){ t0 = r; }
+        } else { // p > 0
+          if(r < t0){ return; }
+          else if(r < t1){ t1 = r; }
+        }
+      }
+    }
+
+    return { t0: t0, t1: t1, dx: dx, dy: dy };
   }
 
 });
