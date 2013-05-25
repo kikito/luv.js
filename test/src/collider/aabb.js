@@ -42,8 +42,8 @@ describe('Luv.Collider.AABB', function() {
   describe('getLiangBarsky', function() {
     it("calculates the (extended) Liang-Barsky algorithm", function() {
       var aabb = AABB(10,20,100,200);
-      expect(aabb.getLiangBarsky(20,20,200,20)).to.deep.equal({t0: 0, t1: 0.5, dx: 180, dy: 0});
-      expect(aabb.getLiangBarsky(0,20,100,60)).to.deep.equal({t0: 0.1, t1: 1, dx: 100, dy: 40});
+      expect(aabb.getLiangBarsky(20,20,200,20)).to.deep.equal({t0: 0, t1: 0.45});
+      expect(aabb.getLiangBarsky(0,20,100,60)).to.deep.equal({t0: 0.1, t1: 1});
     });
   });
 

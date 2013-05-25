@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-05-22) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-05-26) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -3131,10 +3131,8 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
     );
   },
 
-  getLiangBarsky: function(x1,y1,x2,y2,min,max) {
-    var dx = x2-x1,
-        dy = y2-y1,
-        t0 = min || 0,
+  getLiangBarsky: function(x,y,dx,dy,min,max) {
+    var t0 = min || 0,
         t1 = max || 1,
         p, q, r;
 
@@ -3142,19 +3140,19 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
       switch(side) {
         case 0:
           p = -dx;
-          q = x1 - this.l;
+          q = x - this.l;
           break;
         case 1:
           p = dx;
-          q = this.r - x1;
+          q = this.r - x;
           break;
         case 2:
           p = -dy;
-          q = y1 - this.t;
+          q = y - this.t;
           break;
         default:
           p = dy;
-          q = this.b - y1;
+          q = this.b - y;
       }
 
       if(p === 0){
@@ -3171,7 +3169,7 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
       }
     }
 
-    return { t0: t0, t1: t1, dx: dx, dy: dy };
+    return { t0: t0, t1: t1 };
   }
 
 });
