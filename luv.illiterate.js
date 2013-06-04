@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-05-26) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-06-05) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -1989,8 +1989,8 @@ Luv.Collider.AABB = Luv.Class("Luv.Collider.AABB", {
     getMinkowskyDiff: function(other) {
         return Luv.Collider.AABB(other.l - this.r, other.t - this.b, other.w + this.w, other.h + this.h);
     },
-    getLiangBarsky: function(x, y, dx, dy, min, max) {
-        var t0 = min || 0, t1 = max || 1, p, q, r;
+    getLiangBarsky: function(x, y, dx, dy, minT, maxT) {
+        var t0 = minT || 0, t1 = maxT || 1, p, q, r;
         for (var side = 0; side < 4; side++) {
             switch (side) {
               case 0:
@@ -2037,5 +2037,37 @@ Luv.Collider.AABB = Luv.Class("Luv.Collider.AABB", {
             t0: t0,
             t1: t1
         };
+    },
+    getSegmentIntersection: function(x0, y0, x1, y1) {
+        return getLiangBarskyIntersections(this, x0, y0, x1 - x0, y1 - y0, 0, 1);
+    },
+    getLineIntersection: function(x, y, dx, dy) {
+        return getLiangBarskyIntersections(this, x, y, dx, dy, Number.MIN_VALUE, Number.MAX_VALUE);
+    },
+    getRayIntersection: function(x, y, dx, dy) {
+        return getLiangBarskyIntersections(this, x, y, dx, dy, 0, Number.MAX_VALUE);
+    }
+});
+
+var getLiangBarskyIntersections = function(aabb, x, y, dx, dy, minT, maxT) {
+    var lb = aabb.getLiangBarsky(x0, y0, dx, dy, minT, maxT);
+    if (lb) {
+        var t0 = lb.t0, t1 = lb.t1;
+        lb.x0 = x0 + t0 * dx;
+        lb.y0 = y0 + t0 * dy;
+        lb.x1 = x0 + t1 * dx;
+        lb.y1 = y0 + t1 * dy;
+        lb.dx = dx;
+        lb.dy = dy;
+        return lb;
+    }
+};
+
+Luv.Collider.MAABB = Luv.Class("Luv.Collider.MAABB", {
+    init: function(l, t, w, h, dx, dy) {
+        this.dx = dx;
+        this.dy = dy;
+        this.aabb0 = Luv.Collider.AABB(l, t, w, h);
+        this.aabb1 = Luv.Collider.AABB(l + dx, t + dy, w, h);
     }
 });
