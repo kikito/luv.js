@@ -2084,6 +2084,7 @@ window.Luv = function() {
         },
         update: function(l, t, w, h) {
             var c = this.current, p = this.previous, b = this.boundaries, left, right, top, bottom;
+            p.setDimensions(c.l, c.t, c.w, c.h);
             p.resize(w, h);
             c.setDimensions(l, t, w, h);
             left = min(c.l, p.l);

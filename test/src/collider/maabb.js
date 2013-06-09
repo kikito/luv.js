@@ -26,6 +26,7 @@ describe('Luv.Collider.MAABB', function() {
   });
 
   describe('update', function() {
+
     describe("when the width/height does not change", function() {
       it("moves the current AABB and boundaries, leaving previous untouched", function(){
         var m = MAABB(10,20,100,200),
@@ -45,7 +46,28 @@ describe('Luv.Collider.MAABB', function() {
           10,  20,  190, 200, 200, 220, 105,   120, 95,   100
         ]);
       });
+
+      it("overwrites previous with current", function() {
+        var m = MAABB(10,20,100,200),
+            a = m.previous,
+            b = m.current,
+            c = m.boundaries;
+
+        m.update(100,  20, 100, 200);
+        m.update(100, 200, 100, 200);
+
+        expect([
+          a.l, a.t, a.w, a.h, a.r, a.b, a.x, a.y, a.w2, a.h2,
+          b.l, b.t, b.w, b.h, b.r, b.b, b.x, b.y, b.w2, b.h2,
+          c.l, c.t, c.w, c.h, c.r, c.b, c.x, c.y, c.w2, c.h2
+        ]).to.deep.equal([
+          100,  20, 100, 200, 200, 220, 150,   120, 50,   100,
+          100, 200, 100, 200, 200, 400, 150,   300, 50,   100,
+          100,  20, 100, 380, 200, 400, 150,   210, 50,   190
+        ]);
+      });
     });
+
     describe("when the width/height changes", function() {
       it("previous gets resized", function(){
         var m = MAABB(10,20,100,200),

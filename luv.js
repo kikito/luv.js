@@ -3235,6 +3235,7 @@ Luv.Collider.MAABB = Luv.Class('Luv.Collider.MAABB', {
         b = this.boundaries,
         left, right, top, bottom;
 
+    p.setDimensions(c.l, c.t, c.w, c.h);
     p.resize(w,h);
     c.setDimensions(l,t,w,h);
 
