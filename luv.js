@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-06-05) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-06-09) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -3079,7 +3079,6 @@ var parseRange = function(r) {
 
 // # collider.js
 (function() {
-
 // ## Luv.Collider
 
 Luv.Collider = Luv.Class('Luv.Collider', {
@@ -3095,12 +3094,16 @@ Luv.Collider.DEFAULT_CELL_SIZE = 64;
 })();
 
 // # collider/aabb.js
-
+(function() {
 // ## Luv.Collider.AABB
 
 Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
 
   init: function(l,t,w,h) {
+    this.setDimensions(l,t,w,h);
+  },
+
+  setDimensions: function(l,t,w,h) {
     this.t   = t;
     this.l   = l;
     this.w   = w;
@@ -3111,6 +3114,16 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
     this.h2  = h / 2;
     this.x   = l + this.w2;
     this.y   = t + this.h2;
+  },
+
+  clone: function() {
+    return Luv.Collider.AABB(this.l, this.t, this.w, this.h);
+  },
+
+  resize: function(w,h) {
+    if(w !== this.w || h !== this.h) {
+      this.setDimensions(this.x - w/2, this.y - h/2, w, h);
+    }
   },
 
   containsPoint: function(x,y) {
@@ -3202,17 +3215,40 @@ var getLiangBarskyIntersections = function(aabb, x,y, dx,dy, minT, maxT) {
   }
 };
 
-// # collider/maabb.js
+}());
 
+// # collider/maabb.js
+(function(){
 // ## Luv.Collider.MAABB
 
 Luv.Collider.MAABB = Luv.Class('Luv.Collider.MAABB', {
 
-  init: function(l,t,w,h, dx,dy) {
-    this.dx = dx;
-    this.dy = dy;
-    this.aabb0 = Luv.Collider.AABB(l,t,w,h);
-    this.aabb1 = Luv.Collider.AABB(l+dx, t+dy, w,h);
+  init: function(l,t,w,h) {
+    this.previous   = Luv.Collider.AABB(l,t,w,h);
+    this.current    = this.previous.clone();
+    this.boundaries = this.previous.clone();
+  },
+
+  update: function(l,t,w,h) {
+    var c = this.current,
+        p = this.previous,
+        b = this.boundaries,
+        left, right, top, bottom;
+
+    p.resize(w,h);
+    c.setDimensions(l,t,w,h);
+
+    left   = min(c.l, p.l);
+    top    = min(c.t, p.t);
+    right  = max(c.r, p.r);
+    bottom = max(c.b, p.b);
+
+    b.setDimensions(left, top, right-left, bottom-top);
   }
 
 });
+
+var min = Math.min,
+    max = Math.max;
+
+}());

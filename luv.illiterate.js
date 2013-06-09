@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-06-05) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-06-09) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -1967,107 +1967,131 @@ window.Luv = function() {
     Luv.Collider.DEFAULT_CELL_SIZE = 64;
 })();
 
-Luv.Collider.AABB = Luv.Class("Luv.Collider.AABB", {
-    init: function(l, t, w, h) {
-        this.t = t;
-        this.l = l;
-        this.w = w;
-        this.h = h;
-        this.r = l + w;
-        this.b = t + h;
-        this.w2 = w / 2;
-        this.h2 = h / 2;
-        this.x = l + this.w2;
-        this.y = t + this.h2;
-    },
-    containsPoint: function(x, y) {
-        return x > this.l && x < this.r && y > this.t && y < this.b;
-    },
-    isIntersecting: function(other) {
-        return this.l < other.r && this.r > other.l && this.t < other.b && this.b > other.t;
-    },
-    getMinkowskyDiff: function(other) {
-        return Luv.Collider.AABB(other.l - this.r, other.t - this.b, other.w + this.w, other.h + this.h);
-    },
-    getLiangBarsky: function(x, y, dx, dy, minT, maxT) {
-        var t0 = minT || 0, t1 = maxT || 1, p, q, r;
-        for (var side = 0; side < 4; side++) {
-            switch (side) {
-              case 0:
-                p = -dx;
-                q = x - this.l;
-                break;
-
-              case 1:
-                p = dx;
-                q = this.r - x;
-                break;
-
-              case 2:
-                p = -dy;
-                q = y - this.t;
-                break;
-
-              default:
-                p = dy;
-                q = this.b - y;
+(function() {
+    Luv.Collider.AABB = Luv.Class("Luv.Collider.AABB", {
+        init: function(l, t, w, h) {
+            this.setDimensions(l, t, w, h);
+        },
+        setDimensions: function(l, t, w, h) {
+            this.t = t;
+            this.l = l;
+            this.w = w;
+            this.h = h;
+            this.r = l + w;
+            this.b = t + h;
+            this.w2 = w / 2;
+            this.h2 = h / 2;
+            this.x = l + this.w2;
+            this.y = t + this.h2;
+        },
+        clone: function() {
+            return Luv.Collider.AABB(this.l, this.t, this.w, this.h);
+        },
+        resize: function(w, h) {
+            if (w !== this.w || h !== this.h) {
+                this.setDimensions(this.x - w / 2, this.y - h / 2, w, h);
             }
-            if (p === 0) {
-                if (q < 0) {
-                    return;
+        },
+        containsPoint: function(x, y) {
+            return x > this.l && x < this.r && y > this.t && y < this.b;
+        },
+        isIntersecting: function(other) {
+            return this.l < other.r && this.r > other.l && this.t < other.b && this.b > other.t;
+        },
+        getMinkowskyDiff: function(other) {
+            return Luv.Collider.AABB(other.l - this.r, other.t - this.b, other.w + this.w, other.h + this.h);
+        },
+        getLiangBarsky: function(x, y, dx, dy, minT, maxT) {
+            var t0 = minT || 0, t1 = maxT || 1, p, q, r;
+            for (var side = 0; side < 4; side++) {
+                switch (side) {
+                  case 0:
+                    p = -dx;
+                    q = x - this.l;
+                    break;
+
+                  case 1:
+                    p = dx;
+                    q = this.r - x;
+                    break;
+
+                  case 2:
+                    p = -dy;
+                    q = y - this.t;
+                    break;
+
+                  default:
+                    p = dy;
+                    q = this.b - y;
                 }
-            } else {
-                r = q / p;
-                if (p < 0) {
-                    if (r > t1) {
+                if (p === 0) {
+                    if (q < 0) {
                         return;
-                    } else if (r > t0) {
-                        t0 = r;
                     }
                 } else {
-                    if (r < t0) {
-                        return;
-                    } else if (r < t1) {
-                        t1 = r;
+                    r = q / p;
+                    if (p < 0) {
+                        if (r > t1) {
+                            return;
+                        } else if (r > t0) {
+                            t0 = r;
+                        }
+                    } else {
+                        if (r < t0) {
+                            return;
+                        } else if (r < t1) {
+                            t1 = r;
+                        }
                     }
                 }
             }
+            return {
+                t0: t0,
+                t1: t1
+            };
+        },
+        getSegmentIntersection: function(x0, y0, x1, y1) {
+            return getLiangBarskyIntersections(this, x0, y0, x1 - x0, y1 - y0, 0, 1);
+        },
+        getLineIntersection: function(x, y, dx, dy) {
+            return getLiangBarskyIntersections(this, x, y, dx, dy, Number.MIN_VALUE, Number.MAX_VALUE);
+        },
+        getRayIntersection: function(x, y, dx, dy) {
+            return getLiangBarskyIntersections(this, x, y, dx, dy, 0, Number.MAX_VALUE);
         }
-        return {
-            t0: t0,
-            t1: t1
-        };
-    },
-    getSegmentIntersection: function(x0, y0, x1, y1) {
-        return getLiangBarskyIntersections(this, x0, y0, x1 - x0, y1 - y0, 0, 1);
-    },
-    getLineIntersection: function(x, y, dx, dy) {
-        return getLiangBarskyIntersections(this, x, y, dx, dy, Number.MIN_VALUE, Number.MAX_VALUE);
-    },
-    getRayIntersection: function(x, y, dx, dy) {
-        return getLiangBarskyIntersections(this, x, y, dx, dy, 0, Number.MAX_VALUE);
-    }
-});
+    });
+    var getLiangBarskyIntersections = function(aabb, x, y, dx, dy, minT, maxT) {
+        var lb = aabb.getLiangBarsky(x0, y0, dx, dy, minT, maxT);
+        if (lb) {
+            var t0 = lb.t0, t1 = lb.t1;
+            lb.x0 = x0 + t0 * dx;
+            lb.y0 = y0 + t0 * dy;
+            lb.x1 = x0 + t1 * dx;
+            lb.y1 = y0 + t1 * dy;
+            lb.dx = dx;
+            lb.dy = dy;
+            return lb;
+        }
+    };
+})();
 
-var getLiangBarskyIntersections = function(aabb, x, y, dx, dy, minT, maxT) {
-    var lb = aabb.getLiangBarsky(x0, y0, dx, dy, minT, maxT);
-    if (lb) {
-        var t0 = lb.t0, t1 = lb.t1;
-        lb.x0 = x0 + t0 * dx;
-        lb.y0 = y0 + t0 * dy;
-        lb.x1 = x0 + t1 * dx;
-        lb.y1 = y0 + t1 * dy;
-        lb.dx = dx;
-        lb.dy = dy;
-        return lb;
-    }
-};
-
-Luv.Collider.MAABB = Luv.Class("Luv.Collider.MAABB", {
-    init: function(l, t, w, h, dx, dy) {
-        this.dx = dx;
-        this.dy = dy;
-        this.aabb0 = Luv.Collider.AABB(l, t, w, h);
-        this.aabb1 = Luv.Collider.AABB(l + dx, t + dy, w, h);
-    }
-});
+(function() {
+    Luv.Collider.MAABB = Luv.Class("Luv.Collider.MAABB", {
+        init: function(l, t, w, h) {
+            this.previous = Luv.Collider.AABB(l, t, w, h);
+            this.current = this.previous.clone();
+            this.boundaries = this.previous.clone();
+        },
+        update: function(l, t, w, h) {
+            var c = this.current, p = this.previous, b = this.boundaries, left, right, top, bottom;
+            p.resize(w, h);
+            c.setDimensions(l, t, w, h);
+            left = min(c.l, p.l);
+            top = min(c.t, p.t);
+            right = max(c.r, p.r);
+            bottom = max(c.b, p.b);
+            b.setDimensions(left, top, right - left, bottom - top);
+        }
+    });
+    var min = Math.min, max = Math.max;
+})();

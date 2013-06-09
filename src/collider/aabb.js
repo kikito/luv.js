@@ -1,10 +1,14 @@
 // # collider/aabb.js
-
+(function() {
 // ## Luv.Collider.AABB
 
 Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
 
   init: function(l,t,w,h) {
+    this.setDimensions(l,t,w,h);
+  },
+
+  setDimensions: function(l,t,w,h) {
     this.t   = t;
     this.l   = l;
     this.w   = w;
@@ -15,6 +19,16 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
     this.h2  = h / 2;
     this.x   = l + this.w2;
     this.y   = t + this.h2;
+  },
+
+  clone: function() {
+    return Luv.Collider.AABB(this.l, this.t, this.w, this.h);
+  },
+
+  resize: function(w,h) {
+    if(w !== this.w || h !== this.h) {
+      this.setDimensions(this.x - w/2, this.y - h/2, w, h);
+    }
   },
 
   containsPoint: function(x,y) {
@@ -105,3 +119,5 @@ var getLiangBarskyIntersections = function(aabb, x,y, dx,dy, minT, maxT) {
     return lb;
   }
 };
+
+}());

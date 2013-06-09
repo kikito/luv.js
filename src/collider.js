@@ -1,6 +1,5 @@
 // # collider.js
 (function() {
-
 // ## Luv.Collider
 
 Luv.Collider = Luv.Class('Luv.Collider', {
