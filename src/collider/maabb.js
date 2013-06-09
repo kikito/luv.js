@@ -12,11 +12,18 @@ Luv.Collider.MAABB = Luv.Class('Luv.Collider.MAABB', {
 
   update: function(l,t,w,h) {
     var c = this.current,
+        p = this.previous;
+
+    p.setDimensions(c.l, c.t, c.w, c.h);
+    this.adjust(l,t,w,h);
+  },
+
+  adjust: function(l,t,w,h) {
+    var c = this.current,
         p = this.previous,
         b = this.boundaries,
         left, right, top, bottom;
 
-    p.setDimensions(c.l, c.t, c.w, c.h);
     p.resize(w,h);
     c.setDimensions(l,t,w,h);
 

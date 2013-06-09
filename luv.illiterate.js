@@ -2083,8 +2083,12 @@ window.Luv = function() {
             this.boundaries = this.previous.clone();
         },
         update: function(l, t, w, h) {
-            var c = this.current, p = this.previous, b = this.boundaries, left, right, top, bottom;
+            var c = this.current, p = this.previous;
             p.setDimensions(c.l, c.t, c.w, c.h);
+            this.adjust(l, t, w, h);
+        },
+        adjust: function(l, t, w, h) {
+            var c = this.current, p = this.previous, b = this.boundaries, left, right, top, bottom;
             p.resize(w, h);
             c.setDimensions(l, t, w, h);
             left = min(c.l, p.l);
