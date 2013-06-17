@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-06-09) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-06-17) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -90,6 +90,7 @@ window.Luv = function() {
             luv.touch = Luv.Touch(luv.el);
             luv.audio = Luv.Audio(luv.media);
             luv.graphics = Luv.Graphics(luv.el, luv.media);
+            luv.collider = Luv.Collider();
             if (options.fullWindow) {
                 var resize = function() {
                     luv.graphics.setDimensions(window.innerWidth, window.innerHeight);
@@ -1962,6 +1963,12 @@ window.Luv = function() {
     Luv.Collider = Luv.Class("Luv.Collider", {
         init: function(cellSize) {
             this.cellSize = cellSize || Luv.Collider.DEFAULT_CELL_SIZE;
+        },
+        AABB: function(l, t, w, h) {
+            return Luv.Collider.AABB(l, t, w, h);
+        },
+        MAABB: function(l, t, w, h) {
+            return Luv.Collider.MAABB(l, t, w, h);
         }
     });
     Luv.Collider.DEFAULT_CELL_SIZE = 64;

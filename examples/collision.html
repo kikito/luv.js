@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8" /><title>Collisions</title></head>
+<body>
+<script src="../luv.js"></script>
+<script>
+
+// This Luv.js example shows collisions in action.
+var luv = Luv({fullWindow: true});
+
+var drawAABB = function(aabb, r,g,b) {
+  luv.graphics.setColor(r,g,b);
+  luv.graphics.strokeRectangle(aabb.l, aabb.t, aabb.w, aabb.h)
+};
+
+var mbox = luv.collider.MAABB(300,200,100,150);
+
+luv.load = function() {
+  luv.timer.every(0.1, function() {
+    var m = luv.mouse.getPosition(),
+        c = mbox.current;
+
+    //mbox.adjust(m.x - c.w2, m.y - c.h2, c.w, c.h)
+    mbox.update(m.x - c.w2, m.y - c.h2, c.w, c.h)
+  });
+};
+
+luv.draw = function() {
+  drawAABB(mbox.current,      0, 255,   0)
+  drawAABB(mbox.previous,   255,   0,   0)
+  drawAABB(mbox.boundaries, 255, 255, 255)
+};
+
+// luv.run must be invoked, otherwise the game will not start
+luv.run();
+</script>
+</body>
+</html>

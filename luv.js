@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-06-09) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-06-17) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -177,6 +177,7 @@ var Luv = Base.subclass('Luv', {
     luv.touch     = Luv.Touch(luv.el);
     luv.audio     = Luv.Audio(luv.media);
     luv.graphics  = Luv.Graphics(luv.el, luv.media);
+    luv.collider  = Luv.Collider();
 
 
     // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
@@ -3085,6 +3086,14 @@ Luv.Collider = Luv.Class('Luv.Collider', {
 
   init: function(cellSize) {
     this.cellSize = cellSize || Luv.Collider.DEFAULT_CELL_SIZE;
+  },
+
+  AABB: function(l,t,w,h) {
+    return Luv.Collider.AABB(l,t,w,h);
+  },
+
+  MAABB: function(l,t,w,h) {
+    return Luv.Collider.MAABB(l,t,w,h);
   }
 
 });

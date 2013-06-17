@@ -174,6 +174,7 @@ var Luv = Base.subclass('Luv', {
     luv.touch     = Luv.Touch(luv.el);
     luv.audio     = Luv.Audio(luv.media);
     luv.graphics  = Luv.Graphics(luv.el, luv.media);
+    luv.collider  = Luv.Collider();
 
 
     // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
