@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-06-17) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-06-24) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -2088,6 +2088,8 @@ window.Luv = function() {
             this.previous = Luv.Collider.AABB(l, t, w, h);
             this.current = this.previous.clone();
             this.boundaries = this.previous.clone();
+            this.dx = 0;
+            this.dy = 0;
         },
         update: function(l, t, w, h) {
             var c = this.current, p = this.previous;
@@ -2098,6 +2100,8 @@ window.Luv = function() {
             var c = this.current, p = this.previous, b = this.boundaries, left, right, top, bottom;
             p.resize(w, h);
             c.setDimensions(l, t, w, h);
+            this.dx = c.x - p.x;
+            this.dy = c.y - p.y;
             left = min(c.l, p.l);
             top = min(c.t, p.t);
             right = max(c.r, p.r);

@@ -8,6 +8,8 @@ Luv.Collider.MAABB = Luv.Class('Luv.Collider.MAABB', {
     this.previous   = Luv.Collider.AABB(l,t,w,h);
     this.current    = this.previous.clone();
     this.boundaries = this.previous.clone();
+    this.dx = 0;
+    this.dy = 0;
   },
 
   update: function(l,t,w,h) {
@@ -26,6 +28,9 @@ Luv.Collider.MAABB = Luv.Class('Luv.Collider.MAABB', {
 
     p.resize(w,h);
     c.setDimensions(l,t,w,h);
+
+    this.dx = c.x - p.x;
+    this.dy = c.y - p.y;
 
     left   = min(c.l, p.l);
     top    = min(c.t, p.t);
