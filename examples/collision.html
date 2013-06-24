@@ -7,30 +7,47 @@
 // This Luv.js example shows collisions in action.
 var luv = Luv({fullWindow: true});
 
-var A = luv.collider.MAABB(300,200,100,150),
-    B = luv.collider.MAABB(400,500,50,50);
+var A = luv.collider.MAABB(-100,-200,100,150),
+    B = luv.collider.MAABB(200,300,50,50);
 var mode = 0;
+
+var drawAABB = function(aabb, r,g,b) {
+  luv.graphics.setColor(r,g,b);
+  luv.graphics.strokeRectangle(aabb.l, aabb.t, aabb.w, aabb.h)
+};
 
 var drawMAABB = function(maabb, r,g,b) {
   var c = maabb.current, p = maabb.previous;
 
-  luv.graphics.setColor(r,g,b);
-  luv.graphics.setAlpha(1);
-  luv.graphics.line(p.x, p.y, c.x, c.y);
-  luv.graphics.strokeRectangle(c.l, c.t, c.w, c.h)
-
   luv.graphics.setAlpha(0.5);
-  luv.graphics.strokeRectangle(p.l, p.t, p.w, p.h)
+  drawAABB(c, r,g,b);
+
+  luv.graphics.setAlpha(1);
+  drawAABB(p, r,g,b);
+  luv.graphics.line(p.x, p.y, c.x, c.y);
 };
 
 luv.draw = function() {
+  var d = luv.graphics.getDimensions();
+  luv.graphics.translate(d.width/2, d.height/2);
   drawMAABB(A, 255, 0, 0);
   drawMAABB(B, 0, 255, 0);
+
+  var m = A.current.getMinkowskyDiff(B.current);
+  drawAABB(m, 255, 255, 0);
+
+  var dx = A.dx - B.dx,
+      dy = A.dy - B.dy;
+  luv.graphics.line(0,0, dx, dy);
 };
 
 luv.update = function(dt) {
-  var m   = luv.mouse.getPosition(),
+  var d = luv.graphics.getDimensions(),
+      m = luv.mouse.getPosition(),
       c;
+
+  m.x -= d.width / 2;
+  m.y -= d.height / 2;
 
   switch(mode) {
     case 0:
