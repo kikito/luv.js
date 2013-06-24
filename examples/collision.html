@@ -7,28 +7,54 @@
 // This Luv.js example shows collisions in action.
 var luv = Luv({fullWindow: true});
 
-var drawAABB = function(aabb, r,g,b) {
+var A = luv.collider.MAABB(300,200,100,150),
+    B = luv.collider.MAABB(400,500,50,50);
+var mode = 0;
+
+var drawMAABB = function(maabb, r,g,b) {
+  var c = maabb.current, p = maabb.previous;
+
   luv.graphics.setColor(r,g,b);
-  luv.graphics.strokeRectangle(aabb.l, aabb.t, aabb.w, aabb.h)
-};
+  luv.graphics.setAlpha(1);
+  luv.graphics.line(p.x, p.y, c.x, c.y);
+  luv.graphics.strokeRectangle(c.l, c.t, c.w, c.h)
 
-var mbox = luv.collider.MAABB(300,200,100,150);
-
-luv.load = function() {
-  luv.timer.every(0.1, function() {
-    var m = luv.mouse.getPosition(),
-        c = mbox.current;
-
-    //mbox.adjust(m.x - c.w2, m.y - c.h2, c.w, c.h)
-    mbox.update(m.x - c.w2, m.y - c.h2, c.w, c.h)
-  });
+  luv.graphics.setAlpha(0.5);
+  luv.graphics.strokeRectangle(p.l, p.t, p.w, p.h)
 };
 
 luv.draw = function() {
-  drawAABB(mbox.current,      0, 255,   0)
-  drawAABB(mbox.previous,   255,   0,   0)
-  drawAABB(mbox.boundaries, 255, 255, 255)
+  drawMAABB(A, 255, 0, 0);
+  drawMAABB(B, 0, 255, 0);
 };
+
+luv.update = function(dt) {
+  var m   = luv.mouse.getPosition(),
+      c;
+
+  switch(mode) {
+    case 0:
+      c = A.current;
+      A.update(m.x - c.w2, m.y - c.h2, c.w, c.h)
+      break;
+    case 1:
+      c = A.current;
+      A.adjust(m.x - c.w2, m.y - c.h2, c.w, c.h)
+      break;
+    case 2:
+      c = B.current;
+      B.update(m.x - c.w2, m.y - c.h2, c.w, c.h)
+      break;
+    case 3:
+      c = B.current;
+      B.adjust(m.x - c.w2, m.y - c.h2, c.w, c.h)
+      break;
+    }
+};
+
+luv.mouse.onPressed = function() {
+  mode = (mode + 1) % 4;
+}
 
 // luv.run must be invoked, otherwise the game will not start
 luv.run();
