@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-06-24) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-06-25) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -2068,13 +2068,13 @@ window.Luv = function() {
         }
     });
     var getLiangBarskyIntersections = function(aabb, x, y, dx, dy, minT, maxT) {
-        var lb = aabb.getLiangBarsky(x0, y0, dx, dy, minT, maxT);
+        var lb = aabb.getLiangBarsky(x, y, dx, dy, minT, maxT);
         if (lb) {
             var t0 = lb.t0, t1 = lb.t1;
-            lb.x0 = x0 + t0 * dx;
-            lb.y0 = y0 + t0 * dy;
-            lb.x1 = x0 + t1 * dx;
-            lb.y1 = y0 + t1 * dy;
+            lb.x0 = x + t0 * dx;
+            lb.y0 = y + t0 * dy;
+            lb.x1 = x + t1 * dx;
+            lb.y1 = y + t1 * dy;
             lb.dx = dx;
             lb.dy = dy;
             return lb;

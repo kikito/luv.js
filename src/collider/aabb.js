@@ -106,14 +106,14 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
 
 
 var getLiangBarskyIntersections = function(aabb, x,y, dx,dy, minT, maxT) {
-  var lb = aabb.getLiangBarsky(x0,y0,dx,dy,minT,maxT);
+  var lb = aabb.getLiangBarsky(x,y,dx,dy,minT,maxT);
   if(lb){
     var t0 = lb.t0,
         t1 = lb.t1;
-    lb.x0 = x0 + t0 * dx;
-    lb.y0 = y0 + t0 * dy;
-    lb.x1 = x0 + t1 * dx;
-    lb.y1 = y0 + t1 * dy;
+    lb.x0 = x + t0 * dx;
+    lb.y0 = y + t0 * dy;
+    lb.x1 = x + t1 * dx;
+    lb.y1 = y + t1 * dy;
     lb.dx = dx;
     lb.dy = dy;
     return lb;
