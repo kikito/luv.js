@@ -39,6 +39,12 @@ luv.draw = function() {
   var dx = A.dx - B.dx,
       dy = A.dy - B.dy;
   luv.graphics.line(0,0, dx, dy);
+
+  var obj = m.getSegmentIntersection(0,0, dx, dy);
+  if(obj) {
+    luv.graphics.strokeCircle(obj.x0, obj.y0, 5);
+    luv.graphics.fillCircle(obj.x1, obj.y1, 5);
+  }
 };
 
 luv.update = function(dt) {
