@@ -2107,6 +2107,12 @@ window.Luv = function() {
             right = max(c.r, p.r);
             bottom = max(c.b, p.b);
             b.setDimensions(left, top, right - left, bottom - top);
+        },
+        getRelativeDisplacement: function(other) {
+            return {
+                x: this.dx - other.dx,
+                y: this.dy - other.dy
+            };
         }
     });
     var min = Math.min, max = Math.max;

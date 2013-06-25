@@ -36,11 +36,10 @@ luv.draw = function() {
   var m = A.current.getMinkowskyDiff(B.current);
   drawAABB(m, 255, 255, 0);
 
-  var dx = A.dx - B.dx,
-      dy = A.dy - B.dy;
-  luv.graphics.line(0,0, dx, dy);
+  var d = A.getRelativeDisplacement(B);
+  luv.graphics.line(0,0, d.x, d.y);
 
-  var obj = m.getSegmentIntersection(0,0, dx, dy);
+  var obj = m.getSegmentIntersection(0,0, d.x, d.y);
   if(obj) {
     luv.graphics.strokeCircle(obj.x0, obj.y0, 5);
     luv.graphics.fillCircle(obj.x1, obj.y1, 5);

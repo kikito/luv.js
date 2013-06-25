@@ -38,6 +38,10 @@ Luv.Collider.MAABB = Luv.Class('Luv.Collider.MAABB', {
     bottom = max(c.b, p.b);
 
     b.setDimensions(left, top, right-left, bottom-top);
+  },
+
+  getRelativeDisplacement: function(other) {
+    return {x: this.dx - other.dx, y: this.dy - other.dy };
   }
 
 });
