@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-24) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-11-05) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -1336,7 +1336,7 @@ window.Luv = function() {
             canvas = canvas || this.defaultCanvas;
             this.canvas = canvas;
             this.el = canvas.el;
-            this.ctx = canvas.getContext();
+            this.ctx = canvas.ctx;
             resetCanvas(this, this.ctx);
         },
         getCanvas: function() {
@@ -1769,19 +1769,26 @@ window.Luv = function() {
 (function() {
     Luv.Graphics.Canvas = Luv.Class("Luv.Graphics.Canvas", {
         init: function(width, height) {
-            var el = document.createElement("canvas");
-            el.setAttribute("width", width);
-            el.setAttribute("height", height);
+            var el;
+            if (width.getAttribute) {
+                el = width;
+                width = el.getAttribute("width");
+                height = el.getAttribute("height");
+            } else {
+                el = document.createElement("canvas");
+                el.setAttribute("width", width);
+                el.setAttribute("height", height);
+            }
             this.el = el;
-        },
-        getContext: function() {
-            return this.el.getContext("2d");
-        },
-        getWidth: function() {
-            return Number(this.el.getAttribute("width"));
-        },
-        getHeight: function() {
-            return Number(this.el.getAttribute("height"));
+            this.ctx = el.getContext("2d");
+            this.color = {};
+            this.backgroundColor = {};
+            this.setBackgroundColor(0, 0, 0);
+            this.setColor(255, 255, 255);
+            this.setLineCap("butt");
+            this.setLineWidth(1);
+            this.setImageSmoothing(true);
+            this.setAlpha(1);
         },
         getDimensions: function() {
             return {
@@ -1789,20 +1796,89 @@ window.Luv = function() {
                 height: this.getHeight()
             };
         },
+        setDimensions: function(width, height) {
+            this.el.setAttribute("width", width);
+            this.el.setAttribute("height", height);
+        },
+        getWidth: function() {
+            return Number(this.el.getAttribute("width"));
+        },
+        getHeight: function() {
+            return Number(this.el.getAttribute("height"));
+        },
         getCenter: function() {
             return {
                 x: this.getWidth() / 2,
                 y: this.getHeight() / 2
             };
         },
-        setDimensions: function(width, height) {
-            this.el.setAttribute("width", width);
-            this.el.setAttribute("height", height);
+        setColor: function(r, g, b) {
+            setColor(this, "color", r, g, b);
         },
-        draw: function(graphics, x, y) {
-            graphics.ctx.drawImage(this.el, x, y);
+        getColor: function() {
+            return getColor(this.color);
+        },
+        setBackgroundColor: function(r, g, b) {
+            setColor(this, "backgroundColor", r, g, b);
+        },
+        getBackgroundColor: function() {
+            return getColor(this.backgroundColor);
+        },
+        setAlpha: function(alpha) {
+            this.alpha = clampNumber(alpha, 0, 1);
+            this.ctx.globalAlpha = this.alpha;
+        },
+        getAlpha: function() {
+            return this.alpha;
+        },
+        setLineWidth: function(width) {
+            this.lineWidth = width;
+            this.ctx.lineWidth = width;
+        },
+        getLineWidth: function() {
+            return this.lineWidth;
+        },
+        setLineCap: function(cap) {
+            if (cap != "butt" && cap != "round" && cap != "square") {
+                throw new Error("Line cap must be either 'butt', 'round' or 'square' (was: " + cap + ")");
+            }
+            this.ctx.lineCap = cap;
+            this.lineCap = this.ctx.lineCap;
+        },
+        getLineCap: function() {
+            return this.lineCap;
+        },
+        setImageSmoothing: function(smoothing) {
+            this.imageSmoothing = smoothing = !!smoothing;
+            setImageSmoothing(this.ctx, smoothing);
+        },
+        getImageSmoothing: function() {
+            return this.imageSmoothing;
+        },
+        draw: function(canvas, x, y) {
+            canvas.ctx.drawImage(this.el, x, y);
         }
     });
+    var setColor = function(self, name, r, g, b) {
+        var color = self[name], newColor = Luv.Graphics.parseColor(r, g, b);
+        Luv.extend(color, newColor);
+        self[name + "Style"] = "rgb(" + [ color.r, color.g, color.b ].join() + ")";
+    };
+    var getColor = function(color) {
+        return {
+            r: color.r,
+            g: color.g,
+            b: color.b
+        };
+    };
+    var clampNumber = function(x, min, max) {
+        return Math.max(min, Math.min(max, Number(x)));
+    };
+    var setImageSmoothing = function(ctx, smoothing) {
+        ctx.webkitImageSmoothingEnabled = smoothing;
+        ctx.mozImageSmoothingEnabled = smoothing;
+        ctx.imageSmoothingEnabled = smoothing;
+    };
 })();
 
 (function() {
@@ -1928,9 +2004,9 @@ window.Luv = function() {
         Sprite: function(x, y) {
             return Luv.Graphics.Sprite(this.image, this.left + this.width * x + this.border * (x + 1), this.top + this.height * y + this.border * (y + 1), this.width, this.height);
         },
-        Animation: function(spriteInfo, delays) {
+        Animation: function(spriteInfo, durations) {
             var sprites = this.getSprites.apply(this, spriteInfo);
-            return Luv.Graphics.Animation(sprites, delays);
+            return Luv.Graphics.Animation(sprites, durations);
         }
     });
     var parseRange = function(r) {

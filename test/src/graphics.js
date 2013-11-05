@@ -63,7 +63,7 @@ describe("Luv.Graphics", function(){
         it("uses the new canvas in all operations", function() {
           var canvas = gr.Canvas();
           gr.setCanvas(canvas);
-          expect(gr.ctx).to.equal(canvas.getContext());
+          expect(gr.ctx).to.equal(canvas.ctx);
         });
       });
       describe("when given no canvas", function() {

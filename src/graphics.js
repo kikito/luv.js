@@ -38,7 +38,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
     canvas = canvas || this.defaultCanvas;
     this.canvas = canvas;
     this.el     = canvas.el;
-    this.ctx    = canvas.getContext();
+    this.ctx    = canvas.ctx;
     resetCanvas(this, this.ctx);
   },
 
