@@ -5,25 +5,36 @@
 
 Luv.Graphics.Canvas = Luv.Class('Luv.Graphics.Canvas', {
 
-// represents aon off-screen drawing surface, useful
+// represents a  drawing surface, useful
 // for precalculating costly drawing operations or
-// applying effects. Usage:
-
+// applying effects.
+//
+// Any Luv instance comes with a default canvas in `luv.canvas`.
+// Anything drawn into that canvas is made visible on the screen.
+//
+// In addition to that, it's possible to create canvases for off-screen
+// image manipulations. This can be done by invoking:
+//
+// * `luv.graphics.Canvas() to obtain a canvas as big as the current main canvas.
+// * `luv.graphics.Canvas(width, height) to obtain a canvas with the given dimensions.
+// * `luv.graphics.Canvas(el) to obtain a canvas attached to a given DOM element. The
+//   dimendions will be obtained from the element.
+//
 //       var luv    = Luv();
-//       var canvas = luv.graphics.Canvas();
 //
-//       // set the canvas as the new drawing surface
-//       luv.graphics.setCanvas(canvas);
-//       luv.graphics.print("This is print off-screen", 100, 100);
+//       // print on the default canvas (visible
+//       luv.canvas.print("This is print off-screen", 100, 100);
 //
-//       // go back to the default canvas
-//       luv.graphics.setCanvas();
-//       luv.graphics.print("This is print inscreen", 100, 100);
+//       // create an off-screen canvas
+//       var buffer = luv.graphics.Canvas(320,200);
 //
-//       // The canvas can be drawn in the default screen like this
-//       luv.graphics.draw(canvas, 200, 500);
-
-// The default canvas is reset at the beginning of each draw cycle, before calling luv.draw()
+//       // print on the off-screen canvas
+//       buffer.print("This is print inscreen", 100, 100);
+//
+//       // Draw the off-screen canvas on the screen
+//       luv.canvas.draw(buffer, 200, 500);
+//
+// The main canvas is cleared at the beginning of each draw cycle, before calling luv.draw()
 
   init: function(width, height) {
     var el;
@@ -178,15 +189,15 @@ Luv.Graphics.Canvas = Luv.Class('Luv.Graphics.Canvas', {
   draw : function(drawable, x, y, angle, sx, sy, ox, oy) {
     var ctx = this.ctx;
 
-    x     = getDefaultValue(x,  0);
-    y     = getDefaultValue(y,  0);
-    angle = normalizeAngle(getDefaultValue(angle, 0));
-    sx    = getDefaultValue(sx, 1);
-    sy    = getDefaultValue(sy, 1);
-    ox    = getDefaultValue(ox, 0);
-    oy    = getDefaultValue(oy, 0);
+    x     = x  || 0;
+    y     = y  || 0;
+    sx    = sx || 1;
+    sy    = sy || 1;
+    ox    = ox || 0;
+    oy    = oy || 0;
+    angle = normalizeAngle(angle || 0);
 
-    if(angle !==0 || sx !== 1 || sy !== 1 || ox !== 0 || oy !== 0) {
+    if(angle !== 0 || sx !== 1 || sy !== 1 || ox !== 0 || oy !== 0) {
       ctx.save();
 
       ctx.translate(x,y);
@@ -491,11 +502,6 @@ var circle = function(self, mode, x,y,radius) {
 var MODE = {
   STROKE: 1,
   FILL  : 2
-};
-
-// Helper function used to initialize undefined variables.
-var getDefaultValue = function(variable, defaultValue) {
-  return typeof variable === "undefined" ? defaultValue : variable;
 };
 
 // Internal function. If x < min, return min. If x > max, return max. Otherwise, return x.

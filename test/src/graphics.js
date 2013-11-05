@@ -14,9 +14,6 @@ describe("Luv.Graphics", function(){
     it("initializes parameters", function(){
       var gr = Luv.Graphics(newDOMCanvas(100, 200), Luv.Media());
 
-      expect(gr.getDimensions()).to.deep.equal({width: 100, height: 200});
-      expect(gr.getColor()).to.deep.equal({r: 255, g: 255, b: 255});
-      expect(gr.getBackgroundColor()).to.deep.equal({r: 0, g: 0, b: 0});
       expect(gr.el).to.be.ok;
       expect(gr.media).to.be.ok;
     });
@@ -37,6 +34,12 @@ describe("Luv.Graphics", function(){
       var canvas = gr.Canvas(800, 600);
       expect(canvas.getDimensions()).to.deep.equal({width: 800, height: 600});
       expect(canvas.el).to.be.ok;
+    });
+    it("creates a new canvas with the given el", function() {
+      var el = newDOMCanvas(400, 300);
+      var canvas = gr.Canvas(el);
+      expect(canvas.getDimensions()).to.deep.equal({width: 400, height: 300});
+      expect(canvas.el).to.be.equal(el);
     });
   });
 
