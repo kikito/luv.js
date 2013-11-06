@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-24) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-11-06) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -177,12 +177,13 @@ var Luv = Base.subclass('Luv', {
     luv.touch     = Luv.Touch(luv.el);
     luv.audio     = Luv.Audio(luv.media);
     luv.graphics  = Luv.Graphics(luv.el, luv.media);
+    luv.canvas    = Luv.Graphics.Canvas(luv.el);
 
 
     // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
     if(options.fullWindow) {
       var resize = function() {
-        luv.graphics.setDimensions(window.innerWidth, window.innerHeight);
+        luv.canvas.setDimensions(window.innerWidth, window.innerHeight);
         luv.onResize(window.innerWidth, window.innerHeight);
       };
       window.addEventListener('resize', resize, false);
@@ -283,8 +284,7 @@ var Luv = Base.subclass('Luv', {
       var dt = luv.timer.getDeltaTime();
       luv.update(dt);           // Execute luv.update(dt) once per frame
 
-      luv.graphics.setCanvas(); // And then invoke luv.draw()
-      luv.graphics.clear();     // And clear everything
+      luv.canvas.clear();     // And clear everything
       luv.draw();
 
       // This enqueues another call to the loop function in the next available frame
@@ -2079,62 +2079,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   init: function(el, media) {
     this.el               = el;
     this.media            = media;
-    this.color            = {};
-    this.backgroundColor  = {};
-    this.alpha            = 1;
-    this.lineCap          = "butt";
-    this.lineWidth        = 1;
-    this.imageSmoothing   = true;
-
-    var d = this.getDimensions();
-    this.defaultCanvas    = this.Canvas(d.width, d.height);
-    this.defaultCanvas.el = el;
-
-    this.setCanvas();
-
-    this.setBackgroundColor(0,0,0);
-    this.setColor(255,255,255);
-    this.setAlpha(1);
   },
-
-  setCanvas : function(canvas) {
-    canvas = canvas || this.defaultCanvas;
-    this.canvas = canvas;
-    this.el     = canvas.el;
-    this.ctx    = canvas.getContext();
-    resetCanvas(this, this.ctx);
-  },
-
-  getCanvas : function() { return this.canvas; },
-
-  // `clear` fills the whole canvas with the background color, effectively clearing
-  // up the screen. See `setBackgroundColor` for details.
-  clear : function() {
-    this.ctx.save();
-    this.ctx.setTransform(1,0,0,1,0,0);
-    this.ctx.globalAlpha = 1;
-    this.ctx.fillStyle = this.backgroundColorStyle;
-    this.ctx.fillRect(0, 0, this.getWidth(), this.getHeight());
-    this.ctx.restore();
-  },
-
-  // ### Property Setters and Getters
-
-  // `setColor` just sets an internal variable with the color to be used for
-  // during the next graphical operations. If you set the color to `255,0,0`
-  // (pure red) and then draw a line or a rectangle, they will be red.
-  //
-  // Admits the same parameters as `parseColor` (see below)
-  setColor  : function(r,g,b) { setColor(this, 'color', r,g,b); },
-
-  // `getColor` returns the currently selected color. See `setColor` for details.
-  // The current color is returned like a JS object whith the properties
-  // `r`, `g` & `b`, similar to what parseColor returns.
-  //
-  //        var luv = Luv();
-  //        var c = luv.graphics.getColor();
-  //        console.log(c.red, c.green, c.blue, c.alpha);
-  getColor  : function() { return getColor(this.color); },
 
   // `parseColor` transforms a variety of parameters into a "standard js object" of the form
   // `{r: 255, g: 0, b: 120}`.
@@ -2153,100 +2098,307 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
     return Luv.Graphics.parseColor(r,g,b);
   },
 
-  // `setAlpha` acceps a number from 0 (full transparency) to 1 (full opaqueness).
-  // Call setAlpha before drawing things to alter how transparent they are.
-  //
-  //       var luv = Luv();
-  //       luv.graphics.setAlpha(0.5);
-  //       // draw a semi-transparent line
-  //       luv.graphics.line(0,0,20,20);
-  //
-  // Alpha defaults to 1 (no transparency).
-  setAlpha: function(alpha) {
-    this.alpha = clampNumber(alpha, 0, 1);
-    this.ctx.globalAlpha = this.alpha;
+  // ### Object Constructors
+
+  // `Canvas` creates an instance of `Luv.Graphics.Canvas`; an invisible object to draw things
+  // "off the main drawing canvas". Canvases are drawable objects.
+  // The two parameters will define the dimensions of the new canvas, in pixels. If no dimensions
+  // are specified, the new canvas will have the same dimensions as the current canvas.
+  Canvas : function(width, height) {
+    width  = width  || this.el.getAttribute('width');
+    height = height || this.el.getAttribute('height');
+    return Luv.Graphics.Canvas(width, height);
   },
 
-  // `getAlpha` returns the current alpha. See `setAlpha` for details
-  getAlpha: function() { return this.alpha; },
-
-  // `setBackgroundColor` changes the color used to clear the screen at the beginning
-  // of each frame. It takes the same parameters as `setColor`.
-  // The default background color is black (`0,0,0`)
-  setBackgroundColor : function(r,g,b) { setColor(this, 'backgroundColor', r,g,b); },
-
-  // `getBackgroundColor` returns the background color the same way as
-  // `getColor` returns the foreground color. See `setBackgroundColor` and `getColor`
-  // for more info.
-  getBackgroundColor : function() { return getColor(this.backgroundColor); },
-
-  // `getWidth` returns the width of the canvas, in pixels.
-  getWidth      : function(){ return Number(this.el.getAttribute('width')); },
-
-  // `getHeight` returns the height of the canvas, in pixels.
-  getHeight     : function(){ return Number(this.el.getAttribute('height')); },
-
-  // `getDimensions` returns a JS object containing two components: `width` and `height`,
-  // with the width and height of the canvas in pixels.
-  //
-  //        var luv = Luv();
-  //        var d = luv.getDimensions();
-  //        console.log(d.width, d.height);
-  getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
-
-  // `setDimensions` sets the dimensions of the canvas. It expects a width and height, in pixels.
-  setDimensions : function(width, height) {
-    this.el.setAttribute('width', width);
-    this.el.setAttribute('height', height);
+  // `Image` creates an instance of `Luv.Graphics.Image` and the given path.
+  // The advantage of using this method instead of directly instantiating `Luv.Graphics.Image` manually
+  // is that the a default media object is passed by default by the graphics library.
+  Image : function(path) {
+    return Luv.Graphics.Image(this.media, path);
   },
 
-  // `setLineWidth` changes the width of the lines used for drawing lines with the `line` method,
-  // as well as the various stroke methods (`strokeRectangle`, `strokePolygon`, etc). It expects
-  // a number, in pixels. The number must be positive.
-  setLineWidth : function(width) {
-    this.lineWidth = width;
-    this.ctx.lineWidth = width;
+  // `Sprite` just invokes `Luv.Graphics.Sprite` with the same parameters. Please refer to that class'
+  // documentation for more details.
+  Sprite : function(image, l,t,w,h) {
+    return Luv.Graphics.Sprite(image, l,t,w,h);
   },
 
-  // `getLineWidth` returns the line width, in pixels.
-  getLineWidth : function() {
-    return this.lineWidth;
-  },
+  // `SpriteSheet` is also a simple redirect. See the documentation of `Luv.Graphics.SpriteSheet` for details.
+  SpriteSheet : function(image, w,h,l,t,b) {
+    return Luv.Graphics.SpriteSheet(image, w,h,l,t,b);
+  }
 
-  // `setLineCap` changes the line "endings" when drawing lines. It expects a string.
-  // It can have three values:
+});
+
+// `Luv.Graphics.parseColor` is a class method implementing `parseColor` at the instance level. See the
+// `parseColor` instance method above for details.
+Luv.Graphics.parseColor = function(r,g,b) {
+  var m, p = parseInt;
+
+  if(Array.isArray(r))      { return { r: r[0], g: r[1], b: r[2] }; }
+  if(typeof r === "object") { return { r: r.r, g: r.g, b: r.b }; }
+  if(typeof r === "string") {
+    r = r.replace(/#|\s+/g,""); // Remove all spaces and #
+
+    // `ffffff` & `#ffffff`
+    m = /^([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})/.exec(r);
+    if(m){ return { r: p(m[1], 16), g: p(m[2], 16), b: p(m[3], 16) }; }
+
+    // `fff` & `#fff`
+    m = /^([\da-fA-F])([\da-fA-F])([\da-fA-F])/.exec(r);
+    if(m){ return { r: p(m[1], 16) * 17, g: p(m[2], 16) * 17, b: p(m[3], 16) * 17 }; }
+
+    // `rgb(255,3,120)`
+    m = /^rgb\(([\d]+),([\d]+),([\d]+)\)/.exec(r);
+    if(m){ return { r: p(m[1], 10), g: p(m[2], 10), b: p(m[3], 10) }; }
+  }
+  return { r: r, g: g, b: b };
+};
+
+}());
+
+// # animation.js
+(function() {
+
+// ## Luv.Graphics.Animation
+// Animations are lists of sprites which are swapped as time passes.
+Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
+
+  // `init` only takes two params.
   //
-  // * `"butt"`: The lines have "no special ending". Lines behave like small oriented rectangles
-  //   connecting two coordinates.
-  // * '"round"': Adds a semicircle to the end of each line. This makes corners look "rounded".
-  // * '"square"': Adds a small square to the end of each line. Lines are "a big longer" than when
-  //   using the `"butt"` line cap. As a result, rectangles and squares' corners look "complete".
+  // Althrough you can instantiate Animation directly, you will probably want to use
+  // Luv.Graphics.SpriteSheet.Animation. Like this:
   //
-  // The default value is "butt".
-  setLineCap : function(cap) {
-    if(cap != "butt" && cap != "round" && cap != "square") {
-      throw new Error("Line cap must be either 'butt', 'round' or 'square' (was: " + cap + ")");
+  //       var image = luv.graphics.Image('player.png'),
+  //           sheet = luv.graphics.SpriteSheet(image, 32,32);
+  //           anim  = sheet.Animation([0,0, '0-5',1], 0.1);
+  //
+  // But you can instantiate Animation directly if you want. It needs two parameters.
+  //
+  // * `sprites` is an array of drawables (normally instances of Luv.Graphics.Sprite)
+  //   which will be sequentially updated as the animation rolls. Usually the output
+  //   of SpriteSheet.getSprites.
+  // * `durations` can be:
+  //   * A positive number, representing a duration in seconds. It will be used for
+  //     all frames. For example, 0.1 will mean that all frames will take 0.1s.
+  //   * An array of numbers, each one representing the duration of one frame. When
+  //     providing an array, it must have at least one number per sprite.
+  //   * A javascript object. The keys can be integers or strings of the form 'a-b',
+  //     where a and b are integers representing an interval.
+  init: function(sprites, durations) {
+    if(!Array.isArray(sprites)) {
+      throw new Error('Array of sprites needed. Got ' + sprites);
     }
-    this.ctx.lineCap = cap;
-    this.lineCap     = this.ctx.lineCap;
+    if(sprites.length === 0) {
+      throw new Error('No sprites where provided. Must provide at least one');
+    }
+    this.sprites      = sprites.slice(0);
+    this.time         = 0;
+    this.index        = 0;
+    this.durations    = parseDurations(sprites.length, durations);
+    this.intervals    = calculateIntervals(this.durations);
+    this.loopDuration = this.intervals[this.intervals.length - 1];
   },
 
-  // `getLineCap` returns the line cap as a string. See `setLineCap` for details.
-  getLineCap : function() { return this.lineCap; },
+  // `update` changes the internal counters of the animation, and updates the current
+  // sprite accordingly to the time that has passed.
+  update: function(dt) {
+    var loops;
 
-  // `setImageSmoothing` accepts either true or false. It activates or deactivates the image
-  // smoothing algorithms that browsers use in images, particularly when they are rendered in
-  // non-integer locations or with transformations like scales or rotations.
-  // It is `true` by default.
-  setImageSmoothing: function(smoothing) {
-    this.imageSmoothing = smoothing = !!smoothing;
-    setImageSmoothing(this.ctx, smoothing);
+    this.time += dt;
+    loops = Math.floor(this.time / this.loopDuration);
+    this.time -= this.loopDuration * loops;
+
+    if(loops !== 0) { this.onLoopEnded(loops); }
+
+    this.index = findSpriteIndexByTime(this.intervals, this.time);
   },
 
-  // `getImageSmoothing` returns whether the graphics have image smoothing active or not, in a boolean.
-  // See `setImageSmoothing` for a further explanation.
-  getImageSmoothing: function() {
-    return this.imageSmoothing;
+  // `gotoStprite` resets the animation to the sprite specified by `newSpriteIndex` (an integer)
+  gotoSprite: function(newSpriteIndex) {
+    this.index = newSpriteIndex;
+    this.time = this.intervals[newSpriteIndex];
+  },
+
+  // `getCurrentSprite` returns the sprite currently being shown by the animation.
+  getCurrentSprite: function() {
+    return this.sprites[this.index];
+  },
+
+  // `onLoopEnded` is invoked every time an animation loop ends. It can be reset and used for controlling purposes.
+  onLoopEnded: function(how_many) {}
+});
+
+// These methods are delegated to the current animation sprite
+"getWidth getHeight getDimensions getCenter drawInCanvas".split(" ").forEach(function(method) {
+  Luv.Graphics.Animation.methods[method] = function() {
+    var sprite = this.getCurrentSprite();
+    return sprite[method].apply(sprite, arguments);
+  };
+});
+
+// private function. It transforms the durations table into an intervals table, for faster searches
+var calculateIntervals = function(durations) {
+  var result = [0],
+      time   = 0;
+  for(var i=0; i<durations.length; i++) {
+    time += durations[i];
+    result.push(time);
+  }
+  return result;
+};
+
+// private function. Given a time, it returns the index of the sprite which should be
+// used to represent it.
+var findSpriteIndexByTime = function(frames, time) {
+  var high = frames.length - 2,
+      low = 0,
+      i = 0;
+
+  while (low <= high) {
+    i = Math.floor((low + high) / 2);
+    if (time >= frames[i+1]) { low  = i + 1; continue; }
+    if (time < frames[i])   { high = i - 1; continue; }
+    break;
+  }
+
+  return i;
+};
+
+// Parses the durations param and transforms it into a simple numbers array.
+var parseDurations = function(length, durations) {
+  var result=[], r, i, range, value;
+
+  if(Array.isArray(durations)) {
+    result = durations.slice(0);
+
+  } else if(typeof durations == "object") {
+    result.length = length;
+    for(r in durations) {
+      if(durations.hasOwnProperty(r)) {
+        range = parseRange(r);
+        value = Number(durations[r]);
+        for(i=0; i<range.length; i++) {
+          result[range[i]] = value;
+        }
+      }
+    }
+  } else {
+    durations = Number(durations);
+    for(i=0; i<length; i++) {
+      result.push(durations);
+    }
+  }
+
+  if(result.length != length) {
+    throw new Error('The durations table length should be ' + length +
+                    ', but it is ' + result.length);
+  }
+
+  for(i=0; i<result.length; i++) {
+    if(typeof result[i] === "undefined") { throw new Error('Missing delay for sprite ' + i); }
+    if(isNaN(result[i])) { throw new Error('Could not parse the delay for sprite ' + i); }
+  }
+  return result;
+};
+
+// Given the string '1-5', return the array [1,2,3,4,5]
+var parseRange = function(r) {
+  var match, result, start, end, i;
+  if(typeof r != "string") {
+    throw new Error("Unknown range type (must be integer or string in the form 'start-end'): " + r);
+  }
+  match = r.match(/^(\d+)-(\d+)$/);
+  if(match) {
+    result = [];
+    start  = Number(match[1]);
+    end    = Number(match[2]);
+    if(start < end) {
+      for(i=start; i<=end; i++) { result.push(i); }
+    } else {
+      for(i=start; i>=end; i--) { result.push(i); }
+    }
+  } else {
+    result = [Number(r)];
+  }
+
+  return result;
+};
+
+
+}());
+
+// # canvas.js
+(function() {
+
+// ## Luv.Graphics.Canvas
+
+Luv.Graphics.Canvas = Luv.Class('Luv.Graphics.Canvas', {
+
+// represents a  drawing surface, useful
+// for precalculating costly drawing operations or
+// applying effects.
+//
+// Any Luv instance comes with a default canvas in `luv.canvas`.
+// Anything drawn into that canvas is made visible on the screen.
+//
+// In addition to that, it's possible to create canvases for off-screen
+// image manipulations. This can be done by invoking:
+//
+// * `luv.graphics.Canvas() to obtain a canvas as big as the current main canvas.
+// * `luv.graphics.Canvas(width, height) to obtain a canvas with the given dimensions.
+// * `luv.graphics.Canvas(el) to obtain a canvas attached to a given DOM element. The
+//   dimendions will be obtained from the element.
+//
+//       var luv    = Luv();
+//
+//       // print on the default canvas (visible
+//       luv.canvas.print("This is print off-screen", 100, 100);
+//
+//       // create an off-screen canvas
+//       var buffer = luv.graphics.Canvas(320,200);
+//
+//       // print on the off-screen canvas
+//       buffer.print("This is print inscreen", 100, 100);
+//
+//       // Draw the off-screen canvas on the screen
+//       luv.canvas.draw(buffer, 200, 500);
+//
+// The main canvas is cleared at the beginning of each draw cycle, before calling luv.draw()
+
+  init: function(width, height) {
+    var el;
+    if(width.getAttribute) {
+      el     = width;
+      width  = el.getAttribute('width');
+      height = el.getAttribute('height');
+    } else {
+      el = document.createElement('canvas');
+      el.setAttribute('width', width);
+      el.setAttribute('height', height);
+    }
+    this.el               = el;
+    this.ctx              = el.getContext('2d');
+    this.color            = {};
+    this.backgroundColor  = {};
+
+    this.setBackgroundColor(0,0,0);
+    this.setColor(255,255,255);
+    this.setLineCap("butt");
+    this.setLineWidth(1);
+    this.setImageSmoothing(true);
+    this.setAlpha(1);
+  },
+
+  // `clear` fills the whole canvas with the background color, effectively clearing
+  // up the screen. See `setBackgroundColor` for details.
+  clear : function() {
+    this.ctx.save();
+    this.ctx.setTransform(1,0,0,1,0,0);
+    this.ctx.globalAlpha = 1;
+    this.ctx.fillStyle = this.backgroundColorStyle;
+    this.ctx.fillRect(0, 0, this.getWidth(), this.getHeight());
+    this.ctx.restore();
   },
 
   // ### Text-related functions
@@ -2353,7 +2505,7 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   //
   // You can implement other drawable objects if you want. Drawable objects must implement a `draw` method with the following signature:
   //
-  //       obj.draw(graphics, x, y)
+  //       obj.drawInCanvas(canvas, x, y)
   //
   // Where context is a js canvas 2d context, and x and y are the coordinates of the
   // object's top left corner.
@@ -2367,15 +2519,15 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
   draw : function(drawable, x, y, angle, sx, sy, ox, oy) {
     var ctx = this.ctx;
 
-    x     = getDefaultValue(x,  0);
-    y     = getDefaultValue(y,  0);
-    angle = normalizeAngle(getDefaultValue(angle, 0));
-    sx    = getDefaultValue(sx, 1);
-    sy    = getDefaultValue(sy, 1);
-    ox    = getDefaultValue(ox, 0);
-    oy    = getDefaultValue(oy, 0);
+    x     = x  || 0;
+    y     = y  || 0;
+    sx    = sx || 1;
+    sy    = sy || 1;
+    ox    = ox || 0;
+    oy    = oy || 0;
+    angle = normalizeAngle(angle || 0);
 
-    if(angle !==0 || sx !== 1 || sy !== 1 || ox !== 0 || oy !== 0) {
+    if(angle !== 0 || sx !== 1 || sy !== 1 || ox !== 0 || oy !== 0) {
       ctx.save();
 
       ctx.translate(x,y);
@@ -2384,11 +2536,11 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
       ctx.rotate(angle);
       ctx.scale(sx,sy);
       ctx.translate(-ox, -oy);
-      drawable.draw(this, 0, 0);
+      drawable.drawInCanvas(this, 0, 0);
 
       ctx.restore();
     } else {
-      drawable.draw(this, x, y);
+      drawable.drawInCanvas(this, x, y);
     }
   },
 
@@ -2412,6 +2564,11 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
     this.draw(drawable, x-c.x,y-c.y, angle, sx, sy, c.x, c.y);
   },
 
+  // `drawInCanvas` makes Canvases drawable - it allows you to be able to draw one canvas inside
+  // another canvas
+  drawInCanvas: function(canvas, x, y) {
+    canvas.ctx.drawImage(this.el, x, y);
+  },
 
   // ### Transformations
 
@@ -2449,61 +2606,123 @@ Luv.Graphics = Luv.Class('Luv.Graphics', {
     this.ctx.restore();
   },
 
-  // ### Object Constructors
 
-  // `Canvas` creates an instance of `Luv.Graphics.Canvas`; an invisible object to draw things
-  // "off the main drawing canvas". Canvases are drawable objects.
-  // The two parameters will define the dimensions of the new canvas, in pixels. If no dimensions
-  // are specified, the new canvas will have the same dimensions as the current canvas.
-  Canvas : function(width, height) {
-    return Luv.Graphics.Canvas(width || this.getWidth(), height || this.getHeight());
+  // ### Getters and setters
+
+  // `getDimensions` returns a JS object containing two components: `width` and `height`,
+  // with the width and height of the canvas in pixels.
+  //
+  //        var luv = Luv();
+  //        var d = luv.getDimensions();
+  //        console.log(d.width, d.height);
+  getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
+
+  setDimensions : function(width, height) {
+    this.el.setAttribute('width', width);
+    this.el.setAttribute('height', height);
   },
 
-  // `Image` creates an instance of `Luv.Graphics.Image` and the given path.
-  // The advantage of using this method instead of directly instantiating `Luv.Graphics.Image` manually
-  // is that the a default media object is passed by default by the graphics library.
-  Image : function(path) {
-    return Luv.Graphics.Image(this.media, path);
+  // `getWidth` returns the width of the canvas, in pixels.
+  getWidth      : function(){ return Number(this.el.getAttribute('width')); },
+
+  // `getHeight` returns the height of the canvas, in pixels.
+  getHeight     : function(){ return Number(this.el.getAttribute('height')); },
+
+  getCenter     : function(){ return { x: this.getWidth()/2, y: this.getHeight() / 2}; },
+
+  // `setColor` just sets an internal variable with the color to be used for
+  // during the next graphical operations. If you set the color to `255,0,0`
+  // (pure red) and then draw a line or a rectangle, they will be red.
+  //
+  // Admits the same parameters as `parseColor` (see below)
+  setColor  : function(r,g,b) { setColor(this, 'color', r,g,b); },
+
+  // `getColor` returns the currently selected color. See `setColor` for details.
+  // The current color is returned like a JS object whith the properties
+  // `r`, `g` & `b`, similar to what parseColor returns.
+  //
+  //        var luv = Luv();
+  //        var c = luv.graphics.getColor();
+  //        console.log(c.red, c.green, c.blue, c.alpha);
+  getColor  : function() { return getColor(this.color); },
+
+  // `setBackgroundColor` changes the color used to clear the screen at the beginning
+  // of each frame. It takes the same parameters as `setColor`.
+  // The default background color is black (`0,0,0`)
+  setBackgroundColor : function(r,g,b) { setColor(this, 'backgroundColor', r,g,b); },
+
+  // `getBackgroundColor` returns the background color the same way as
+  // `getColor` returns the foreground color. See `setBackgroundColor` and `getColor`
+  // for more info.
+  getBackgroundColor : function() { return getColor(this.backgroundColor); },
+
+  // `setAlpha` acceps a number from 0 (full transparency) to 1 (full opaqueness).
+  // Call setAlpha before drawing things to alter how transparent they are.
+  //
+  //       var luv = Luv();
+  //       luv.graphics.setAlpha(0.5);
+  //       // draw a semi-transparent line
+  //       luv.graphics.line(0,0,20,20);
+  //
+  // Alpha defaults to 1 (no transparency).
+  setAlpha: function(alpha) {
+    this.alpha = clampNumber(alpha, 0, 1);
+    this.ctx.globalAlpha = this.alpha;
   },
 
-  // `Sprite` just invokes `Luv.Graphics.Sprite` with the same parameters. Please refer to that class'
-  // documentation for more details.
-  Sprite : function(image, l,t,w,h) {
-    return Luv.Graphics.Sprite(image, l,t,w,h);
+  // `getAlpha` returns the current alpha. See `setAlpha` for details
+  getAlpha: function() { return this.alpha; },
+
+  // `setLineWidth` changes the width of the lines used for drawing lines with the `line` method,
+  // as well as the various stroke methods (`strokeRectangle`, `strokePolygon`, etc). It expects
+  // a number, in pixels. The number must be positive.
+  setLineWidth : function(width) {
+    this.lineWidth = width;
+    this.ctx.lineWidth = width;
   },
 
-  // `SpriteSheet` is also a simple redirect. See the documentation of `Luv.Graphics.SpriteSheet` for details.
-  SpriteSheet : function(image, w,h,l,t,b) {
-    return Luv.Graphics.SpriteSheet(image, w,h,l,t,b);
+  // `getLineWidth` returns the line width, in pixels.
+  getLineWidth : function() {
+    return this.lineWidth;
+  },
+
+  // `setLineCap` changes the line "endings" when drawing lines. It expects a string.
+  // It can have three values:
+  //
+  // * `"butt"`: The lines have "no special ending". Lines behave like small oriented rectangles
+  //   connecting two coordinates.
+  // * '"round"': Adds a semicircle to the end of each line. This makes corners look "rounded".
+  // * '"square"': Adds a small square to the end of each line. Lines are "a big longer" than when
+  //   using the `"butt"` line cap. As a result, rectangles and squares' corners look "complete".
+  //
+  // The default value is "butt".
+  setLineCap : function(cap) {
+    if(cap != "butt" && cap != "round" && cap != "square") {
+      throw new Error("Line cap must be either 'butt', 'round' or 'square' (was: " + cap + ")");
+    }
+    this.ctx.lineCap = cap;
+    this.lineCap     = this.ctx.lineCap;
+  },
+
+  // `getLineCap` returns the line cap as a string. See `setLineCap` for details.
+  getLineCap : function() { return this.lineCap; },
+
+  // `setImageSmoothing` accepts either true or false. It activates or deactivates the image
+  // smoothing algorithms that browsers use in images, particularly when they are rendered in
+  // non-integer locations or with transformations like scales or rotations.
+  // It is `true` by default.
+  setImageSmoothing: function(smoothing) {
+    this.imageSmoothing = smoothing = !!smoothing;
+    setImageSmoothing(this.ctx, smoothing);
+  },
+
+  // `getImageSmoothing` returns whether the graphics have image smoothing active or not, in a boolean.
+  // See `setImageSmoothing` for a further explanation.
+  getImageSmoothing: function() {
+    return this.imageSmoothing;
   }
 
 });
-
-// `Luv.Graphics.parseColor` is a class method implementing `parseColor` at the instance level. See the
-// `parseColor` instance method above for details.
-Luv.Graphics.parseColor = function(r,g,b) {
-  var m, p = parseInt;
-
-  if(Array.isArray(r))      { return { r: r[0], g: r[1], b: r[2] }; }
-  if(typeof r === "object") { return { r: r.r, g: r.g, b: r.b }; }
-  if(typeof r === "string") {
-    r = r.replace(/#|\s+/g,""); // Remove all spaces and #
-
-    // `ffffff` & `#ffffff`
-    m = /^([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})/.exec(r);
-    if(m){ return { r: p(m[1], 16), g: p(m[2], 16), b: p(m[3], 16) }; }
-
-    // `fff` & `#fff`
-    m = /^([\da-fA-F])([\da-fA-F])([\da-fA-F])/.exec(r);
-    if(m){ return { r: p(m[1], 16) * 17, g: p(m[2], 16) * 17, b: p(m[3], 16) * 17 }; }
-
-    // `rgb(255,3,120)`
-    m = /^rgb\(([\d]+),([\d]+),([\d]+)\)/.exec(r);
-    if(m){ return { r: p(m[1], 10), g: p(m[2], 10), b: p(m[3], 10) }; }
-  }
-  return { r: r, g: g, b: b };
-};
-
 
 // ### Private functions and constants
 
@@ -2522,18 +2741,18 @@ var getColor = function(color) {
 };
 
 // Strokes a polyline given an array of methods.
-var drawPolyLine = function(graphics, methodName, minLength, coords) {
+var drawPolyLine = function(self, methodName, minLength, coords) {
 
   if(coords.length < minLength) { throw new Error(methodName + " requires at least 4 parameters"); }
   if(coords.length % 2 == 1) { throw new Error(methodName + " requires an even number of parameters"); }
 
-  graphics.ctx.moveTo(coords[0], coords[1]);
+  self.ctx.moveTo(coords[0], coords[1]);
 
   for(var i=2; i<coords.length; i=i+2) {
-    graphics.ctx.lineTo(coords[i], coords[i+1]);
+    self.ctx.lineTo(coords[i], coords[i+1]);
   }
 
-  graphics.ctx.stroke();
+  self.ctx.stroke();
 };
 
 // Given an angle in radians, return an equivalent angle in the [0 - 2*PI) range.
@@ -2545,12 +2764,12 @@ var normalizeAngle = function(angle) {
 // This function makes sure that `ctx` (a 2d canvas context) is configured to have
 // the same properties as graphics. This makes sure that the graphics instance is the main
 // "authority". It's called after each canvas is used with `setCanvas`.
-var resetCanvas = function(graphics, ctx) {
+var resetCanvas = function(self, ctx) {
   ctx.setTransform(1,0,0,1,0,0);
-  setImageSmoothing(ctx, graphics.getImageSmoothing());
-  ctx.lineWidth    = graphics.getLineWidth();
-  ctx.lineCap      = graphics.getLineCap();
-  ctx.globalAlpha  = graphics.getAlpha();
+  setImageSmoothing(ctx, self.getImageSmoothing());
+  ctx.lineWidth    = self.getLineWidth();
+  ctx.lineCap      = self.getLineCap();
+  ctx.globalAlpha  = self.getAlpha();
 };
 
 // Image smoothing helper function
@@ -2562,15 +2781,15 @@ var setImageSmoothing = function(ctx, smoothing) {
 
 // Internal function by all the primitive drawing functions. It fills or strokes the current path
 // in the current canvas 2d context.
-var drawPath = function(graphics, mode) {
+var drawPath = function(self, mode) {
   switch(mode){
   case MODE.FILL:
-    graphics.ctx.fillStyle = graphics.colorStyle;
-    graphics.ctx.fill();
+    self.ctx.fillStyle = self.colorStyle;
+    self.ctx.fill();
     break;
   case MODE.STROKE:
-    graphics.ctx.strokeStyle = graphics.colorStyle;
-    graphics.ctx.stroke();
+    self.ctx.strokeStyle = self.colorStyle;
+    self.ctx.stroke();
     break;
   default:
     throw new Error('Invalid mode: [' + mode + ']. Should be "fill" or "line"');
@@ -2578,46 +2797,41 @@ var drawPath = function(graphics, mode) {
 };
 
 // Rectangle drawing implementation
-var rectangle = function(graphics, mode, left, top, width, height) {
-  graphics.ctx.beginPath();
-  graphics.ctx.rect(left, top, width, height);
-  drawPath(graphics, mode);
-  graphics.ctx.closePath();
+var rectangle = function(self, mode, left, top, width, height) {
+  self.ctx.beginPath();
+  self.ctx.rect(left, top, width, height);
+  drawPath(self, mode);
+  self.ctx.closePath();
 };
 
 // Polygon drawing implementation
-var polygon = function(graphics, mode, args) {
+var polygon = function(self, mode, args) {
   var coordinates = Array.isArray(args[0]) ? args[0] : Array.prototype.slice.call(args, 0);
-  graphics.ctx.beginPath();
+  self.ctx.beginPath();
 
-  drawPolyLine(graphics, 'luv.graphics.polygon', 6, coordinates);
-  drawPath(graphics, mode);
+  drawPolyLine(self, 'luv.Graphics.Canvas.polygon', 6, coordinates);
+  drawPath(self, mode);
 
-  graphics.ctx.closePath();
+  self.ctx.closePath();
 };
 
 // Arc drawing implementation
-var arc = function(graphics, mode, x,y,radius, startAngle, endAngle) {
-  graphics.ctx.beginPath();
-  graphics.ctx.arc(x,y,radius, startAngle, endAngle, false);
-  drawPath(graphics, mode);
+var arc = function(self, mode, x,y,radius, startAngle, endAngle) {
+  self.ctx.beginPath();
+  self.ctx.arc(x,y,radius, startAngle, endAngle, false);
+  drawPath(self, mode);
 };
 
 // Circle implementation (mainly it invokes `arc`)
-var circle = function(graphics, mode, x,y,radius) {
-  arc(graphics, mode, x, y, radius, 0, twoPI);
-  graphics.ctx.closePath();
+var circle = function(self, mode, x,y,radius) {
+  arc(self, mode, x, y, radius, 0, twoPI);
+  self.ctx.closePath();
 };
 
 // Private "constant" for magic numbers
 var MODE = {
   STROKE: 1,
   FILL  : 2
-};
-
-// Helper function used to initialize undefined variables.
-var getDefaultValue = function(variable, defaultValue) {
-  return typeof variable === "undefined" ? defaultValue : variable;
 };
 
 // Internal function. If x < min, return min. If x > max, return max. Otherwise, return x.
@@ -2628,207 +2842,21 @@ var clampNumber = function(x, min, max) {
 
 }());
 
-// # animation.js
-(function() {
-
-// ## Luv.Graphics.Animation
-Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
-  init: function(sprites, durations) {
-    if(!Array.isArray(sprites)) {
-      throw new Error('Array of sprites needed. Got ' + sprites);
-    }
-    if(sprites.length === 0) {
-      throw new Error('No sprites where provided. Must provide at least one');
-    }
-    this.sprites      = sprites.slice(0);
-    this.time         = 0;
-    this.index        = 0;
-    this.durations    = parseDurations(sprites.length, durations);
-    this.intervals    = calculateIntervals(this.durations);
-    this.loopDuration = this.intervals[this.intervals.length - 1];
-  },
-
-  update: function(dt) {
-    var loops;
-
-    this.time += dt;
-    loops = Math.floor(this.time / this.loopDuration);
-    this.time -= this.loopDuration * loops;
-
-    if(loops !== 0) { this.onLoopEnded(loops); }
-
-    this.index = findSpriteIndexByTime(this.intervals, this.time);
-  },
-
-  gotoSprite: function(newSpriteIndex) {
-    this.index = newSpriteIndex;
-    this.time = this.intervals[newSpriteIndex];
-  },
-
-  getCurrentSprite: function() {
-    return this.sprites[this.index];
-  },
-
-  onLoopEnded: function(how_many) {}
-});
-
-"getWidth getHeight getDimensions getCenter draw".split(" ").forEach(function(method) {
-  Luv.Graphics.Animation.methods[method] = function() {
-    var sprite = this.getCurrentSprite();
-    return sprite[method].apply(sprite, arguments);
-  };
-});
-
-
-var calculateIntervals = function(durations) {
-  var result = [0],
-      time   = 0;
-  for(var i=0; i<durations.length; i++) {
-    time += durations[i];
-    result.push(time);
-  }
-  return result;
-};
-
-var findSpriteIndexByTime = function(frames, time) {
-  var high = frames.length - 2,
-      low = 0,
-      i = 0;
-
-  while (low <= high) {
-    i = Math.floor((low + high) / 2);
-    if (time >= frames[i+1]) { low  = i + 1; continue; }
-    if (time < frames[i])   { high = i - 1; continue; }
-    break;
-  }
-
-  return i;
-};
-
-var parseDurations = function(length, durations) {
-  var result=[], r, i, range, value;
-
-  if(Array.isArray(durations)) {
-    result = durations.slice(0);
-
-  } else if(typeof durations == "object") {
-    result.length = length;
-    for(r in durations) {
-      if(durations.hasOwnProperty(r)) {
-        range = parseRange(r);
-        value = Number(durations[r]);
-        for(i=0; i<range.length; i++) {
-          result[range[i]] = value;
-        }
-      }
-    }
-  } else {
-    durations = Number(durations);
-    for(i=0; i<length; i++) {
-      result.push(durations);
-    }
-  }
-
-  if(result.length != length) {
-    throw new Error('The durations table length should be ' + length +
-                    ', but it is ' + result.length);
-  }
-
-  for(i=0; i<result.length; i++) {
-    if(typeof result[i] === "undefined") { throw new Error('Missing delay for sprite ' + i); }
-    if(isNaN(result[i])) { throw new Error('Could not parse the delay for sprite ' + i); }
-  }
-  return result;
-};
-
-var parseRange = function(r) {
-  var match, result, start, end, i;
-  if(typeof r != "string") {
-    throw new Error("Unknown range type (must be integer or string in the form 'start-end'): " + r);
-  }
-  match = r.match(/^(\d+)-(\d+)$/);
-  if(match) {
-    result = [];
-    start  = Number(match[1]);
-    end    = Number(match[2]);
-    if(start < end) {
-      for(i=start; i<=end; i++) { result.push(i); }
-    } else {
-      for(i=start; i>=end; i--) { result.push(i); }
-    }
-  } else {
-    result = [Number(r)];
-  }
-
-  return result;
-};
-
-
-}());
-
-// # canvas.js
-(function() {
-
-// ## Luv.Graphics.Canvas
-
-Luv.Graphics.Canvas = Luv.Class('Luv.Graphics.Canvas', {
-
-// represents aon off-screen drawing surface, useful
-// for precalculating costly drawing operations or
-// applying effects. Usage:
-
-//       var luv    = Luv();
-//       var canvas = luv.graphics.Canvas();
-//
-//       // set the canvas as the new drawing surface
-//       luv.graphics.setCanvas(canvas);
-//       luv.graphics.print("This is print off-screen", 100, 100);
-//
-//       // go back to the default canvas
-//       luv.graphics.setCanvas();
-//       luv.graphics.print("This is print inscreen", 100, 100);
-//
-//       // The canvas can be drawn in the default screen like this
-//       luv.graphics.draw(canvas, 200, 500);
-
-// The default canvas is reset at the beginning of each draw cycle, before calling luv.draw()
-
-  init: function(width, height) {
-    var el = document.createElement('canvas');
-    el.setAttribute('width', width);
-    el.setAttribute('height', height);
-
-    this.el = el;
-  },
-
-  getContext    : function(){ return this.el.getContext('2d'); },
-
-  getWidth      : function(){ return Number(this.el.getAttribute('width')); },
-
-  getHeight     : function(){ return Number(this.el.getAttribute('height')); },
-
-  getDimensions : function(){ return { width: this.getWidth(), height: this.getHeight() }; },
-
-  getCenter     : function(){ return { x: this.getWidth()/2, y: this.getHeight() / 2}; },
-
-  setDimensions : function(width, height) {
-    this.el.setAttribute('width', width);
-    this.el.setAttribute('height', height);
-  },
-
-  draw: function(graphics, x, y) {
-    graphics.ctx.drawImage(this.el, x, y);
-  }
-});
-
-}());
-
 // # image.js
 (function() {
 
 // ## Luv.Graphics.Image
 // This class encapsulates images loaded from the internet
 Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
+
+  // Usually you will not instantiate images directly. Instead, you will use
+  // the instance method of Luv.Graphics, like this:
+  //
+  //       var luv = Luv(...);
+  //       var image = luv.graphics.Image('face.png');
+  //
+  // Notice that this constructor requires an additional parameter (an instance
+  // of Luv.Media), which is provided automatically by luv.graphics.Image.
   init: function(media, path) {
     var image = this;
 
@@ -2860,7 +2888,7 @@ Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
     return { x: this.source.width / 2, y: this.source.height / 2 };
   },
 
-  draw: function(graphics, x, y) {
+  drawInCanvas: function(graphics, x, y) {
     if(!this.isLoaded()) {
       throw new Error("Attepted to draw a non loaded image: " + this);
     }
@@ -2869,6 +2897,7 @@ Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
 
 });
 
+// Add methods like isLoaded, isError, isPending to image
 Luv.Graphics.Image.include(Luv.Media.Asset);
 
 }());
@@ -2915,8 +2944,8 @@ Luv.Graphics.Sprite = Luv.Class('Luv.Graphics.Sprite', {
     return { left: this.left, top: this.top, width: this.width, height: this.height };
   },
 
-  // `draw` makes Sprites drawable. It draws only the parts of the image that include the sprite, and nothing else.
-  draw: function(graphics, x, y) {
+  // `drawInCanvas` makes Sprites drawable. It draws only the parts of the image that include the sprite, and nothing else.
+  drawInCanvas: function(graphics, x, y) {
     if(!this.image.isLoaded()) {
       throw new Error("Attepted to draw a prite of a non loaded image: " + this);
     }
@@ -2932,8 +2961,17 @@ Luv.Graphics.Sprite = Luv.Class('Luv.Graphics.Sprite', {
 
 // ## Luv.Graphics.SpriteSheet
 // A Spritesheet is used to easily divide an image in rectangular blocks (sprites)
-// These can later on be used for other means (like animations)
+// Their most important use is animations (see Luv.Graphics.Animation for details)
 Luv.Graphics.SpriteSheet = Luv.Class('Luv.Graphics.SpriteSheet', {
+
+  // `init` has the following parameters:
+  //
+  // * `image` is the image from which the spriteSheet takes its sprites. It's mandatory.
+  // * `width` and `height` are the dimensions (in pixels) of all the sprites that the
+  //   spriteSheet will generate. They are mandatory.
+  // * `left` and `top` are the coordinates where the spritesheet starts inside the image;
+  //   an "offset" (they default to 0,0)
+  // * `border` is the distance in pixels between each sprite and its neighbors. Defaults to 0.
   init: function(image, width, height, left, top, border) {
     this.image   = image;
     this.width   = width;
@@ -2943,6 +2981,24 @@ Luv.Graphics.SpriteSheet = Luv.Class('Luv.Graphics.SpriteSheet', {
     this.border  = border || 0;
   },
 
+  // `getSprites` accepts a variable number of parameters and returns an array of sprites (instances of
+  // `Luv.Graphics.Sprite`). The parameters can be either integers or strings of the form 'A-B', where A and
+  // B are integers, too. It's parsed as follows:
+  //
+  // * Two integers reference one sprite. For example `sheet.getSprites(1,1)` will return the sprite on the
+  //   second row and second column of the spritesheet in one array. `sheet.getSprites(0,0, 0,1)` will return
+  //   the first two sprites of the first column of the spritesheet.
+  // * An integer and a string will "iterate" over the string, between A and B. For example,
+  //   `sheet.getSprites('0-9', 0)` will return the first 9 sprites of the first row of the sheet (y remains fixed
+  //   at 0, and x iterates from 0 to 9). You can also iterate over columns: `sheet.getSprites(0, '0-9')`. If you
+  //   want to iterate backwards (from right to left or from bottom to top) just switch the numbers of the string:
+  //   `sheet.getSprites('9-0', 0)`.
+  // * Two strings will iterate over a set of rows and columns (rows will get iterated over first). This means that
+  //   `sheet.getSprites('5-10', '2-3')` will return the sprites in [5,2], [5,3], [6,2], [6,3] ... [10,2], [10,3].
+  //
+  // Finally, take into accont that you can get as many rows/columns as you want
+  // in a single call, and even add individual spritesheets. For example, this call will get the 10 first sprites
+  // of the first two rows, and then the sprite in 10,10: `sheet.getSprites('0-9',0, '0-9',1, 10,10)`.
   getSprites: function() {
     var result = [], xCoords, yCoords;
 
@@ -2958,6 +3014,7 @@ Luv.Graphics.SpriteSheet = Luv.Class('Luv.Graphics.SpriteSheet', {
     return result;
   },
 
+  // `Sprite` returns the instance of Luv.Graphics.Sprite which is on column x, row y of the SpriteSheet.
   Sprite: function(x,y) {
     return Luv.Graphics.Sprite(
       this.image,
@@ -2968,13 +3025,19 @@ Luv.Graphics.SpriteSheet = Luv.Class('Luv.Graphics.SpriteSheet', {
     );
   },
 
-  Animation: function(spriteInfo, delays) {
+  // `Animation` returns an instance of Luv.Graphics.Animation.
+  //
+  // * `spriteInfo` is an array of indexes for sprites, following the same rules as the parameters of getSprites.
+  // * `durations` follows the same rules as it does in Luv.Graphics.Animation.init. See Luv.Graphics.Animation.init
+  //   for details
+  Animation: function(spriteInfo, durations) {
     var sprites = this.getSprites.apply(this, spriteInfo);
-    return Luv.Graphics.Animation(sprites, delays);
+    return Luv.Graphics.Animation(sprites, durations);
   }
 
 });
 
+// Transform a string of type '2-5' in an array of type [2,3,4,5].
 var parseRange = function(r) {
   if(typeof r == "number") { return [r]; }
   if(typeof r == "string") {

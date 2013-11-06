@@ -6,9 +6,12 @@ describe("Luv", function(){
     describe("when invoked with no params", function() {
       it("creates a Luv instance with default attributes", function() {
         var luv = Luv();
+        expect(luv.graphics).to.be.ok;
         expect(luv.graphics.el).to.be.ok;
-        expect(luv.graphics.getWidth()).to.equal(800);
-        expect(luv.graphics.getHeight()).to.equal(600);
+
+        expect(luv.canvas).to.be.ok;
+        expect(luv.canvas.getWidth()).to.equal(800);
+        expect(luv.canvas.getHeight()).to.equal(600);
 
         expect(luv.load).to.be.a('function');
         expect(luv.draw).to.be.a('function');
@@ -46,7 +49,7 @@ describe("Luv", function(){
         el.setAttribute('height', 200);
 
         var luv = Luv({el: el});
-        expect(luv.graphics.getDimensions()).to.deep.equal({width: 320, height: 200});
+        expect(luv.canvas.getDimensions()).to.deep.equal({width: 320, height: 200});
       });
 
       it("reads the width and height from options", function() {
@@ -55,7 +58,7 @@ describe("Luv", function(){
         el.setAttribute('height', 200);
 
         var luv = Luv({el: el, width: 500, height: 300});
-        expect(luv.graphics.getDimensions()).to.deep.equal({width: 500, height: 300});
+        expect(luv.canvas.getDimensions()).to.deep.equal({width: 500, height: 300});
       });
 
       it("reads the load, update, draw and run functions from options", function() {
@@ -144,11 +147,11 @@ describe("Luv", function(){
 
       var luv = Luv();
 
-      var load         = sinon.spy(luv,'load'),
-          update       = sinon.spy(luv, 'update'),
-          nativeUpdate = sinon.spy(luv.timer, 'nativeUpdate'),
-          clear        = sinon.spy(luv.graphics, 'clear'),
-          draw         = sinon.spy(luv, 'draw');
+      var load         = sinon.spy(luv,        'load'),
+          update       = sinon.spy(luv,        'update'),
+          nativeUpdate = sinon.spy(luv.timer,  'nativeUpdate'),
+          clear        = sinon.spy(luv.canvas, 'clear'),
+          draw         = sinon.spy(luv,        'draw');
 
       var counter = 0;
       var nextFrame = sinon.stub(luv.timer, 'nextFrame', function(f) {

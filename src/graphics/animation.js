@@ -71,7 +71,7 @@ Luv.Graphics.Animation = Luv.Class('Luv.Graphics.Animation', {
 });
 
 // These methods are delegated to the current animation sprite
-"getWidth getHeight getDimensions getCenter draw".split(" ").forEach(function(method) {
+"getWidth getHeight getDimensions getCenter drawInCanvas".split(" ").forEach(function(method) {
   Luv.Graphics.Animation.methods[method] = function() {
     var sprite = this.getCurrentSprite();
     return sprite[method].apply(sprite, arguments);

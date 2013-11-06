@@ -17,7 +17,7 @@ var rand = function(min, max) {
 
 // newBubble returns a js object representing a bubble
 var newBubble = function() {
-  var sd = luv.graphics.getDimensions();
+  var sd = luv.canvas.getDimensions();
   return {
     x : rand(25, sd.width - 25),
     y : sd.height + rand(50, 100),
@@ -32,7 +32,7 @@ luv.load = function() {
   for(var i=1; i<100; i++) {
     bubbles.push(newBubble());
   }
-  luv.graphics.setBackgroundColor(255,0,30);
+  luv.canvas.setBackgroundColor(255,0,30);
 };
 
 // luv.update just moves bubbles up until they exit the screen. Then, it replaces
@@ -52,27 +52,27 @@ luv.update = function(dt) {
 
 // luv.draw draws the bubbles, as a series of circles. Try changing the colors
 luv.draw = function() {
-  var sd = luv.graphics.getDimensions();
+  var sd = luv.canvas.getDimensions();
   var bubble;
 
   for(var i=0; i < bubbles.length; i++) {
     bubble = bubbles[i];
-    luv.graphics.setColor(255,98,0);
-    luv.graphics.fillCircle(bubble.x, bubble.y, bubble.r);
+    luv.canvas.setColor(255,98,0);
+    luv.canvas.fillCircle(bubble.x, bubble.y, bubble.r);
 
-    luv.graphics.setLineWidth(bubble.r/7.0);
-    luv.graphics.setColor(255,225,200);
-    luv.graphics.strokeCircle(bubble.x, bubble.y, bubble.r);
+    luv.canvas.setLineWidth(bubble.r/7.0);
+    luv.canvas.setColor(255,225,200);
+    luv.canvas.strokeCircle(bubble.x, bubble.y, bubble.r);
 
-    luv.graphics.fillCircle(
+    luv.canvas.fillCircle(
       bubble.x - bubble.r/2,
       bubble.y - bubble.r/2.5,
       bubble.r / 3);
   }
 
-  luv.graphics.setColor(255,225,255);
+  luv.canvas.setColor(255,225,255);
   var fps = Math.round(luv.timer.getFPS());
-  luv.graphics.print("FPS: " + fps, sd.width - 40, 10);
+  luv.canvas.print("FPS: " + fps, sd.width - 40, 10);
 };
 
 // Don't forget to execute luv.run, or the game will not start.

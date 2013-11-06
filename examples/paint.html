@@ -10,48 +10,51 @@
 var luv = Luv({fullWindow: true});
 
 // Some global variables
-var canvas = luv.graphics.Canvas(),
+var buffer  = luv.graphics.Canvas(),
+    pos     = null,
     prevPos = null,
-    radius = 2,
-    color  = 0;
+    radius  = 2,
+    hue     = 0;
 
 // luv.load in this case does very little; just sets the line cap and background color
 luv.load = function() {
-  luv.graphics.setBackgroundColor(255, 255, 255);
-  luv.graphics.setLineCap('round');
+  luv.canvas.setColor(150,0,0); // the default canvas will draw a redish circle
+
+  buffer.setLineCap('round');
+  buffer.setBackgroundColor(255, 255, 255);
+  buffer.clear(); // makes the buffer all white
 };
 
-// luv.update is interesting, because it actually draws things... to the internal canvas.
+// luv.update is interesting, because it actually draws things... to the internal buffer.
 luv.update = function(dt) {
+  pos = luv.mouse.getPosition();
+  buffer.setLineWidth(radius * 2);
+  if(hue > 255) {
+    buffer.setColor(hue-255, hue-255, 255);
+  } else {
+    buffer.setColor(0,0,hue);
+  }
+
   if(luv.mouse.isPressed("l")) {
-    var pos = luv.mouse.getPosition()
-    luv.graphics.setCanvas(canvas);
     if(prevPos.x === pos.x && prevPos.y === pos.y) {
-      luv.graphics.fillCircle(pos.x, pos.y, radius);
+      buffer.fillCircle(pos.x, pos.y, radius);
     } else {
-      luv.graphics.line(prevPos.x, prevPos.y, pos.x, pos.y);
+      buffer.line(prevPos.x, prevPos.y, pos.x, pos.y);
     }
   }
-};
-
-// luv.graphics basically just draws the back canvas and the brush on the screen
-luv.draw = function() {
-  luv.graphics.setLineWidth(radius * 2);
-  if(color > 255) {
-    luv.graphics.setColor(color-255, color-255, 255);
-  } else {
-    luv.graphics.setColor(0,0,color);
-  }
-  luv.graphics.draw(canvas, 0, 0);
-  var pos = luv.mouse.getPosition();
-  luv.graphics.fillCircle(pos.x, pos.y, radius);
   prevPos = pos;
 };
 
+// luv.draw basically just draws the back canvas and the brush on the screen
+luv.draw = function() {
+  luv.canvas.draw(buffer, 0, 0);
+  luv.canvas.fillCircle(pos.x, pos.y, radius);
+};
+
 // luv.onResize is called when the window changes size. On this case, I use it to resize
-// the internal canvas
+// the internal buffer
 luv.onResize = function(width, height) {
-  canvas.setDimensions(width, height);
+  buffer.setDimensions(width, height);
 };
 
 // luv.mouse.onPressed handles both mouse presses (start drawing) and wheel (change brush)
@@ -62,11 +65,11 @@ luv.mouse.onPressed = function(x,y,button) {
       break;
     case "wu":
       radius = Math.min(64, radius + 1);
-      color  = Math.min(510, color + 8);
+      hue    = Math.min(510, hue + 8);
       break;
     case "wd":
       radius = Math.max(2, radius - 1);
-      color  = Math.max(0, color - 8);
+      hue    = Math.max(0, hue - 8);
       break;
   }
 };

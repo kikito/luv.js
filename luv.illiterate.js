@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-04-24) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-11-06) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -90,9 +90,10 @@ window.Luv = function() {
             luv.touch = Luv.Touch(luv.el);
             luv.audio = Luv.Audio(luv.media);
             luv.graphics = Luv.Graphics(luv.el, luv.media);
+            luv.canvas = Luv.Graphics.Canvas(luv.el);
             if (options.fullWindow) {
                 var resize = function() {
-                    luv.graphics.setDimensions(window.innerWidth, window.innerHeight);
+                    luv.canvas.setDimensions(window.innerWidth, window.innerHeight);
                     luv.onResize(window.innerWidth, window.innerHeight);
                 };
                 window.addEventListener("resize", resize, false);
@@ -116,8 +117,7 @@ window.Luv = function() {
                 luv.timer.nativeUpdate(luv.el);
                 var dt = luv.timer.getDeltaTime();
                 luv.update(dt);
-                luv.graphics.setCanvas();
-                luv.graphics.clear();
+                luv.canvas.clear();
                 luv.draw();
                 luv.timer.nextFrame(loop);
             };
@@ -1318,177 +1318,14 @@ window.Luv = function() {
         init: function(el, media) {
             this.el = el;
             this.media = media;
-            this.color = {};
-            this.backgroundColor = {};
-            this.alpha = 1;
-            this.lineCap = "butt";
-            this.lineWidth = 1;
-            this.imageSmoothing = true;
-            var d = this.getDimensions();
-            this.defaultCanvas = this.Canvas(d.width, d.height);
-            this.defaultCanvas.el = el;
-            this.setCanvas();
-            this.setBackgroundColor(0, 0, 0);
-            this.setColor(255, 255, 255);
-            this.setAlpha(1);
-        },
-        setCanvas: function(canvas) {
-            canvas = canvas || this.defaultCanvas;
-            this.canvas = canvas;
-            this.el = canvas.el;
-            this.ctx = canvas.getContext();
-            resetCanvas(this, this.ctx);
-        },
-        getCanvas: function() {
-            return this.canvas;
-        },
-        clear: function() {
-            this.ctx.save();
-            this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-            this.ctx.globalAlpha = 1;
-            this.ctx.fillStyle = this.backgroundColorStyle;
-            this.ctx.fillRect(0, 0, this.getWidth(), this.getHeight());
-            this.ctx.restore();
-        },
-        setColor: function(r, g, b) {
-            setColor(this, "color", r, g, b);
-        },
-        getColor: function() {
-            return getColor(this.color);
         },
         parseColor: function(r, g, b) {
             return Luv.Graphics.parseColor(r, g, b);
         },
-        setAlpha: function(alpha) {
-            this.alpha = clampNumber(alpha, 0, 1);
-            this.ctx.globalAlpha = this.alpha;
-        },
-        getAlpha: function() {
-            return this.alpha;
-        },
-        setBackgroundColor: function(r, g, b) {
-            setColor(this, "backgroundColor", r, g, b);
-        },
-        getBackgroundColor: function() {
-            return getColor(this.backgroundColor);
-        },
-        getWidth: function() {
-            return Number(this.el.getAttribute("width"));
-        },
-        getHeight: function() {
-            return Number(this.el.getAttribute("height"));
-        },
-        getDimensions: function() {
-            return {
-                width: this.getWidth(),
-                height: this.getHeight()
-            };
-        },
-        setDimensions: function(width, height) {
-            this.el.setAttribute("width", width);
-            this.el.setAttribute("height", height);
-        },
-        setLineWidth: function(width) {
-            this.lineWidth = width;
-            this.ctx.lineWidth = width;
-        },
-        getLineWidth: function() {
-            return this.lineWidth;
-        },
-        setLineCap: function(cap) {
-            if (cap != "butt" && cap != "round" && cap != "square") {
-                throw new Error("Line cap must be either 'butt', 'round' or 'square' (was: " + cap + ")");
-            }
-            this.ctx.lineCap = cap;
-            this.lineCap = this.ctx.lineCap;
-        },
-        getLineCap: function() {
-            return this.lineCap;
-        },
-        setImageSmoothing: function(smoothing) {
-            this.imageSmoothing = smoothing = !!smoothing;
-            setImageSmoothing(this.ctx, smoothing);
-        },
-        getImageSmoothing: function() {
-            return this.imageSmoothing;
-        },
-        print: function(str, x, y) {
-            this.ctx.fillStyle = this.colorStyle;
-            this.ctx.fillText(str, x, y);
-        },
-        line: function() {
-            var coords = Array.isArray(arguments[0]) ? arguments[0] : arguments;
-            this.ctx.beginPath();
-            drawPolyLine(this, "luv.graphics.line", 4, coords);
-            drawPath(this, MODE.STROKE);
-        },
-        strokeRectangle: function(left, top, width, height) {
-            rectangle(this, MODE.STROKE, left, top, width, height);
-        },
-        fillRectangle: function(left, top, width, height) {
-            rectangle(this, MODE.FILL, left, top, width, height);
-        },
-        strokePolygon: function() {
-            polygon(this, MODE.STROKE, arguments);
-        },
-        fillPolygon: function() {
-            polygon(this, MODE.FILL, arguments);
-        },
-        strokeCircle: function(x, y, radius) {
-            circle(this, MODE.STROKE, x, y, radius);
-        },
-        fillCircle: function(x, y, radius) {
-            circle(this, MODE.FILL, x, y, radius);
-        },
-        strokeArc: function(x, y, radius, startAngle, endAngle) {
-            arc(this, MODE.STROKE, x, y, radius, startAngle, endAngle);
-        },
-        fillArc: function(x, y, radius, startAngle, endAngle) {
-            arc(this, MODE.FILL, x, y, radius, startAngle, endAngle);
-        },
-        draw: function(drawable, x, y, angle, sx, sy, ox, oy) {
-            var ctx = this.ctx;
-            x = getDefaultValue(x, 0);
-            y = getDefaultValue(y, 0);
-            angle = normalizeAngle(getDefaultValue(angle, 0));
-            sx = getDefaultValue(sx, 1);
-            sy = getDefaultValue(sy, 1);
-            ox = getDefaultValue(ox, 0);
-            oy = getDefaultValue(oy, 0);
-            if (angle !== 0 || sx !== 1 || sy !== 1 || ox !== 0 || oy !== 0) {
-                ctx.save();
-                ctx.translate(x, y);
-                ctx.translate(ox, oy);
-                ctx.rotate(angle);
-                ctx.scale(sx, sy);
-                ctx.translate(-ox, -oy);
-                drawable.draw(this, 0, 0);
-                ctx.restore();
-            } else {
-                drawable.draw(this, x, y);
-            }
-        },
-        drawCentered: function(drawable, x, y, angle, sx, sy) {
-            var c = drawable.getCenter();
-            this.draw(drawable, x - c.x, y - c.y, angle, sx, sy, c.x, c.y);
-        },
-        translate: function(x, y) {
-            this.ctx.translate(x, y);
-        },
-        scale: function(sx, sy) {
-            this.ctx.scale(sx, sy);
-        },
-        rotate: function(angle) {
-            this.ctx.rotate(angle);
-        },
-        push: function() {
-            this.ctx.save();
-        },
-        pop: function() {
-            this.ctx.restore();
-        },
         Canvas: function(width, height) {
-            return Luv.Graphics.Canvas(width || this.getWidth(), height || this.getHeight());
+            width = width || this.el.getAttribute("width");
+            height = height || this.el.getAttribute("height");
+            return Luv.Graphics.Canvas(width, height);
         },
         Image: function(path) {
             return Luv.Graphics.Image(this.media, path);
@@ -1549,96 +1386,6 @@ window.Luv = function() {
             b: b
         };
     };
-    var twoPI = Math.PI * 2;
-    var setColor = function(self, name, r, g, b) {
-        var color = self[name], newColor = Luv.Graphics.parseColor(r, g, b);
-        Luv.extend(color, newColor);
-        self[name + "Style"] = "rgb(" + [ color.r, color.g, color.b ].join() + ")";
-    };
-    var getColor = function(color) {
-        return {
-            r: color.r,
-            g: color.g,
-            b: color.b
-        };
-    };
-    var drawPolyLine = function(graphics, methodName, minLength, coords) {
-        if (coords.length < minLength) {
-            throw new Error(methodName + " requires at least 4 parameters");
-        }
-        if (coords.length % 2 == 1) {
-            throw new Error(methodName + " requires an even number of parameters");
-        }
-        graphics.ctx.moveTo(coords[0], coords[1]);
-        for (var i = 2; i < coords.length; i = i + 2) {
-            graphics.ctx.lineTo(coords[i], coords[i + 1]);
-        }
-        graphics.ctx.stroke();
-    };
-    var normalizeAngle = function(angle) {
-        angle = angle % twoPI;
-        return angle < 0 ? angle + twoPI : angle;
-    };
-    var resetCanvas = function(graphics, ctx) {
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        setImageSmoothing(ctx, graphics.getImageSmoothing());
-        ctx.lineWidth = graphics.getLineWidth();
-        ctx.lineCap = graphics.getLineCap();
-        ctx.globalAlpha = graphics.getAlpha();
-    };
-    var setImageSmoothing = function(ctx, smoothing) {
-        ctx.webkitImageSmoothingEnabled = smoothing;
-        ctx.mozImageSmoothingEnabled = smoothing;
-        ctx.imageSmoothingEnabled = smoothing;
-    };
-    var drawPath = function(graphics, mode) {
-        switch (mode) {
-          case MODE.FILL:
-            graphics.ctx.fillStyle = graphics.colorStyle;
-            graphics.ctx.fill();
-            break;
-
-          case MODE.STROKE:
-            graphics.ctx.strokeStyle = graphics.colorStyle;
-            graphics.ctx.stroke();
-            break;
-
-          default:
-            throw new Error("Invalid mode: [" + mode + ']. Should be "fill" or "line"');
-        }
-    };
-    var rectangle = function(graphics, mode, left, top, width, height) {
-        graphics.ctx.beginPath();
-        graphics.ctx.rect(left, top, width, height);
-        drawPath(graphics, mode);
-        graphics.ctx.closePath();
-    };
-    var polygon = function(graphics, mode, args) {
-        var coordinates = Array.isArray(args[0]) ? args[0] : Array.prototype.slice.call(args, 0);
-        graphics.ctx.beginPath();
-        drawPolyLine(graphics, "luv.graphics.polygon", 6, coordinates);
-        drawPath(graphics, mode);
-        graphics.ctx.closePath();
-    };
-    var arc = function(graphics, mode, x, y, radius, startAngle, endAngle) {
-        graphics.ctx.beginPath();
-        graphics.ctx.arc(x, y, radius, startAngle, endAngle, false);
-        drawPath(graphics, mode);
-    };
-    var circle = function(graphics, mode, x, y, radius) {
-        arc(graphics, mode, x, y, radius, 0, twoPI);
-        graphics.ctx.closePath();
-    };
-    var MODE = {
-        STROKE: 1,
-        FILL: 2
-    };
-    var getDefaultValue = function(variable, defaultValue) {
-        return typeof variable === "undefined" ? defaultValue : variable;
-    };
-    var clampNumber = function(x, min, max) {
-        return Math.max(min, Math.min(max, Number(x)));
-    };
 })();
 
 (function() {
@@ -1676,7 +1423,7 @@ window.Luv = function() {
         },
         onLoopEnded: function(how_many) {}
     });
-    "getWidth getHeight getDimensions getCenter draw".split(" ").forEach(function(method) {
+    "getWidth getHeight getDimensions getCenter drawInCanvas".split(" ").forEach(function(method) {
         Luv.Graphics.Animation.methods[method] = function() {
             var sprite = this.getCurrentSprite();
             return sprite[method].apply(sprite, arguments);
@@ -1769,19 +1516,112 @@ window.Luv = function() {
 (function() {
     Luv.Graphics.Canvas = Luv.Class("Luv.Graphics.Canvas", {
         init: function(width, height) {
-            var el = document.createElement("canvas");
-            el.setAttribute("width", width);
-            el.setAttribute("height", height);
+            var el;
+            if (width.getAttribute) {
+                el = width;
+                width = el.getAttribute("width");
+                height = el.getAttribute("height");
+            } else {
+                el = document.createElement("canvas");
+                el.setAttribute("width", width);
+                el.setAttribute("height", height);
+            }
             this.el = el;
+            this.ctx = el.getContext("2d");
+            this.color = {};
+            this.backgroundColor = {};
+            this.setBackgroundColor(0, 0, 0);
+            this.setColor(255, 255, 255);
+            this.setLineCap("butt");
+            this.setLineWidth(1);
+            this.setImageSmoothing(true);
+            this.setAlpha(1);
         },
-        getContext: function() {
-            return this.el.getContext("2d");
+        clear: function() {
+            this.ctx.save();
+            this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            this.ctx.globalAlpha = 1;
+            this.ctx.fillStyle = this.backgroundColorStyle;
+            this.ctx.fillRect(0, 0, this.getWidth(), this.getHeight());
+            this.ctx.restore();
         },
-        getWidth: function() {
-            return Number(this.el.getAttribute("width"));
+        print: function(str, x, y) {
+            this.ctx.fillStyle = this.colorStyle;
+            this.ctx.fillText(str, x, y);
         },
-        getHeight: function() {
-            return Number(this.el.getAttribute("height"));
+        line: function() {
+            var coords = Array.isArray(arguments[0]) ? arguments[0] : arguments;
+            this.ctx.beginPath();
+            drawPolyLine(this, "luv.graphics.line", 4, coords);
+            drawPath(this, MODE.STROKE);
+        },
+        strokeRectangle: function(left, top, width, height) {
+            rectangle(this, MODE.STROKE, left, top, width, height);
+        },
+        fillRectangle: function(left, top, width, height) {
+            rectangle(this, MODE.FILL, left, top, width, height);
+        },
+        strokePolygon: function() {
+            polygon(this, MODE.STROKE, arguments);
+        },
+        fillPolygon: function() {
+            polygon(this, MODE.FILL, arguments);
+        },
+        strokeCircle: function(x, y, radius) {
+            circle(this, MODE.STROKE, x, y, radius);
+        },
+        fillCircle: function(x, y, radius) {
+            circle(this, MODE.FILL, x, y, radius);
+        },
+        strokeArc: function(x, y, radius, startAngle, endAngle) {
+            arc(this, MODE.STROKE, x, y, radius, startAngle, endAngle);
+        },
+        fillArc: function(x, y, radius, startAngle, endAngle) {
+            arc(this, MODE.FILL, x, y, radius, startAngle, endAngle);
+        },
+        draw: function(drawable, x, y, angle, sx, sy, ox, oy) {
+            var ctx = this.ctx;
+            x = x || 0;
+            y = y || 0;
+            sx = sx || 1;
+            sy = sy || 1;
+            ox = ox || 0;
+            oy = oy || 0;
+            angle = normalizeAngle(angle || 0);
+            if (angle !== 0 || sx !== 1 || sy !== 1 || ox !== 0 || oy !== 0) {
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.translate(ox, oy);
+                ctx.rotate(angle);
+                ctx.scale(sx, sy);
+                ctx.translate(-ox, -oy);
+                drawable.drawInCanvas(this, 0, 0);
+                ctx.restore();
+            } else {
+                drawable.drawInCanvas(this, x, y);
+            }
+        },
+        drawCentered: function(drawable, x, y, angle, sx, sy) {
+            var c = drawable.getCenter();
+            this.draw(drawable, x - c.x, y - c.y, angle, sx, sy, c.x, c.y);
+        },
+        drawInCanvas: function(canvas, x, y) {
+            canvas.ctx.drawImage(this.el, x, y);
+        },
+        translate: function(x, y) {
+            this.ctx.translate(x, y);
+        },
+        scale: function(sx, sy) {
+            this.ctx.scale(sx, sy);
+        },
+        rotate: function(angle) {
+            this.ctx.rotate(angle);
+        },
+        push: function() {
+            this.ctx.save();
+        },
+        pop: function() {
+            this.ctx.restore();
         },
         getDimensions: function() {
             return {
@@ -1789,20 +1629,153 @@ window.Luv = function() {
                 height: this.getHeight()
             };
         },
+        setDimensions: function(width, height) {
+            this.el.setAttribute("width", width);
+            this.el.setAttribute("height", height);
+        },
+        getWidth: function() {
+            return Number(this.el.getAttribute("width"));
+        },
+        getHeight: function() {
+            return Number(this.el.getAttribute("height"));
+        },
         getCenter: function() {
             return {
                 x: this.getWidth() / 2,
                 y: this.getHeight() / 2
             };
         },
-        setDimensions: function(width, height) {
-            this.el.setAttribute("width", width);
-            this.el.setAttribute("height", height);
+        setColor: function(r, g, b) {
+            setColor(this, "color", r, g, b);
         },
-        draw: function(graphics, x, y) {
-            graphics.ctx.drawImage(this.el, x, y);
+        getColor: function() {
+            return getColor(this.color);
+        },
+        setBackgroundColor: function(r, g, b) {
+            setColor(this, "backgroundColor", r, g, b);
+        },
+        getBackgroundColor: function() {
+            return getColor(this.backgroundColor);
+        },
+        setAlpha: function(alpha) {
+            this.alpha = clampNumber(alpha, 0, 1);
+            this.ctx.globalAlpha = this.alpha;
+        },
+        getAlpha: function() {
+            return this.alpha;
+        },
+        setLineWidth: function(width) {
+            this.lineWidth = width;
+            this.ctx.lineWidth = width;
+        },
+        getLineWidth: function() {
+            return this.lineWidth;
+        },
+        setLineCap: function(cap) {
+            if (cap != "butt" && cap != "round" && cap != "square") {
+                throw new Error("Line cap must be either 'butt', 'round' or 'square' (was: " + cap + ")");
+            }
+            this.ctx.lineCap = cap;
+            this.lineCap = this.ctx.lineCap;
+        },
+        getLineCap: function() {
+            return this.lineCap;
+        },
+        setImageSmoothing: function(smoothing) {
+            this.imageSmoothing = smoothing = !!smoothing;
+            setImageSmoothing(this.ctx, smoothing);
+        },
+        getImageSmoothing: function() {
+            return this.imageSmoothing;
         }
     });
+    var twoPI = Math.PI * 2;
+    var setColor = function(self, name, r, g, b) {
+        var color = self[name], newColor = Luv.Graphics.parseColor(r, g, b);
+        Luv.extend(color, newColor);
+        self[name + "Style"] = "rgb(" + [ color.r, color.g, color.b ].join() + ")";
+    };
+    var getColor = function(color) {
+        return {
+            r: color.r,
+            g: color.g,
+            b: color.b
+        };
+    };
+    var drawPolyLine = function(self, methodName, minLength, coords) {
+        if (coords.length < minLength) {
+            throw new Error(methodName + " requires at least 4 parameters");
+        }
+        if (coords.length % 2 == 1) {
+            throw new Error(methodName + " requires an even number of parameters");
+        }
+        self.ctx.moveTo(coords[0], coords[1]);
+        for (var i = 2; i < coords.length; i = i + 2) {
+            self.ctx.lineTo(coords[i], coords[i + 1]);
+        }
+        self.ctx.stroke();
+    };
+    var normalizeAngle = function(angle) {
+        angle = angle % twoPI;
+        return angle < 0 ? angle + twoPI : angle;
+    };
+    var resetCanvas = function(self, ctx) {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        setImageSmoothing(ctx, self.getImageSmoothing());
+        ctx.lineWidth = self.getLineWidth();
+        ctx.lineCap = self.getLineCap();
+        ctx.globalAlpha = self.getAlpha();
+    };
+    var setImageSmoothing = function(ctx, smoothing) {
+        ctx.webkitImageSmoothingEnabled = smoothing;
+        ctx.mozImageSmoothingEnabled = smoothing;
+        ctx.imageSmoothingEnabled = smoothing;
+    };
+    var drawPath = function(self, mode) {
+        switch (mode) {
+          case MODE.FILL:
+            self.ctx.fillStyle = self.colorStyle;
+            self.ctx.fill();
+            break;
+
+          case MODE.STROKE:
+            self.ctx.strokeStyle = self.colorStyle;
+            self.ctx.stroke();
+            break;
+
+          default:
+            throw new Error("Invalid mode: [" + mode + ']. Should be "fill" or "line"');
+        }
+    };
+    var rectangle = function(self, mode, left, top, width, height) {
+        self.ctx.beginPath();
+        self.ctx.rect(left, top, width, height);
+        drawPath(self, mode);
+        self.ctx.closePath();
+    };
+    var polygon = function(self, mode, args) {
+        var coordinates = Array.isArray(args[0]) ? args[0] : Array.prototype.slice.call(args, 0);
+        self.ctx.beginPath();
+        drawPolyLine(self, "luv.Graphics.Canvas.polygon", 6, coordinates);
+        drawPath(self, mode);
+        self.ctx.closePath();
+    };
+    var arc = function(self, mode, x, y, radius, startAngle, endAngle) {
+        self.ctx.beginPath();
+        self.ctx.arc(x, y, radius, startAngle, endAngle, false);
+        drawPath(self, mode);
+    };
+    var circle = function(self, mode, x, y, radius) {
+        arc(self, mode, x, y, radius, 0, twoPI);
+        self.ctx.closePath();
+    };
+    var MODE = {
+        STROKE: 1,
+        FILL: 2
+    };
+    var clampNumber = function(x, min, max) {
+        return Math.max(min, Math.min(max, Number(x)));
+    };
 })();
 
 (function() {
@@ -1842,7 +1815,7 @@ window.Luv = function() {
                 y: this.source.height / 2
             };
         },
-        draw: function(graphics, x, y) {
+        drawInCanvas: function(graphics, x, y) {
             if (!this.isLoaded()) {
                 throw new Error("Attepted to draw a non loaded image: " + this);
             }
@@ -1893,7 +1866,7 @@ window.Luv = function() {
                 height: this.height
             };
         },
-        draw: function(graphics, x, y) {
+        drawInCanvas: function(graphics, x, y) {
             if (!this.image.isLoaded()) {
                 throw new Error("Attepted to draw a prite of a non loaded image: " + this);
             }
@@ -1928,9 +1901,9 @@ window.Luv = function() {
         Sprite: function(x, y) {
             return Luv.Graphics.Sprite(this.image, this.left + this.width * x + this.border * (x + 1), this.top + this.height * y + this.border * (y + 1), this.width, this.height);
         },
-        Animation: function(spriteInfo, delays) {
+        Animation: function(spriteInfo, durations) {
             var sprites = this.getSprites.apply(this, spriteInfo);
-            return Luv.Graphics.Animation(sprites, delays);
+            return Luv.Graphics.Animation(sprites, durations);
         }
     });
     var parseRange = function(r) {
