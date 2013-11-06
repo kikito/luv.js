@@ -32,14 +32,14 @@
     Luv({
       id: "canvas",
       load: function() {
-        this.graphics.setColor(247, 0, 119);
-        this.graphics.setBackgroundColor(255,192,203);
+        this.canvas.setColor(247, 0, 119);
+        this.canvas.setBackgroundColor(255,192,203);
       },
       draw: function() {
-        this.graphics.fillCircle(x,y,r);
+        this.canvas.fillCircle(x,y,r);
       },
       update: function(dt) {
-        var d = this.graphics.getDimensions();
+        var d = this.canvas.getDimensions();
         x += vx * dt;
         y += vy * dt;
         if((vx < 0 && x < r) || (vx > 0 && x > d.width - r)){ vx *= -1; }

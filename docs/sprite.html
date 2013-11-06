@@ -221,11 +221,11 @@ Useful for spritesheets and animations</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p><code>draw</code> makes Sprites drawable. It draws only the parts of the image that include the sprite, and nothing else.</p>
+              <p><code>drawInCanvas</code> makes Sprites drawable. It draws only the parts of the image that include the sprite, and nothing else.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  draw: <span class="keyword">function</span>(graphics, x, y) {
+            <div class="content"><div class='highlight'><pre>  drawInCanvas: <span class="keyword">function</span>(graphics, x, y) {
     <span class="keyword">if</span>(!<span class="keyword">this</span>.image.isLoaded()) {
       <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Attepted to draw a prite of a non loaded image: "</span> + <span class="keyword">this</span>);
     }

@@ -184,33 +184,7 @@ that call will have a <code>graphics</code> attribute which you can use.</p>
             <div class="content"><div class='highlight'><pre>  init: <span class="keyword">function</span>(el, media) {
     <span class="keyword">this</span>.el               = el;
     <span class="keyword">this</span>.media            = media;
-    <span class="keyword">this</span>.color            = {};
-    <span class="keyword">this</span>.backgroundColor  = {};
-    <span class="keyword">this</span>.alpha            = <span class="number">1</span>;
-    <span class="keyword">this</span>.lineCap          = <span class="string">"butt"</span>;
-    <span class="keyword">this</span>.lineWidth        = <span class="number">1</span>;
-    <span class="keyword">this</span>.imageSmoothing   = <span class="literal">true</span>;
-
-    <span class="keyword">var</span> d = <span class="keyword">this</span>.getDimensions();
-    <span class="keyword">this</span>.defaultCanvas    = <span class="keyword">this</span>.Canvas(d.width, d.height);
-    <span class="keyword">this</span>.defaultCanvas.el = el;
-
-    <span class="keyword">this</span>.setCanvas();
-
-    <span class="keyword">this</span>.setBackgroundColor(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>);
-    <span class="keyword">this</span>.setColor(<span class="number">255</span>,<span class="number">255</span>,<span class="number">255</span>);
-    <span class="keyword">this</span>.setAlpha(<span class="number">1</span>);
-  },
-
-  setCanvas : <span class="keyword">function</span>(canvas) {
-    canvas = canvas || <span class="keyword">this</span>.defaultCanvas;
-    <span class="keyword">this</span>.canvas = canvas;
-    <span class="keyword">this</span>.el     = canvas.el;
-    <span class="keyword">this</span>.ctx    = canvas.getContext();
-    resetCanvas(<span class="keyword">this</span>, <span class="keyword">this</span>.ctx);
-  },
-
-  getCanvas : <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.canvas; },</pre></div></div>
+  },</pre></div></div>
             
         </li>
         
@@ -220,68 +194,6 @@ that call will have a <code>graphics</code> attribute which you can use.</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
-              </div>
-              <p><code>clear</code> fills the whole canvas with the background color, effectively clearing
-up the screen. See <code>setBackgroundColor</code> for details.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  clear : <span class="keyword">function</span>() {
-    <span class="keyword">this</span>.ctx.save();
-    <span class="keyword">this</span>.ctx.setTransform(<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>);
-    <span class="keyword">this</span>.ctx.globalAlpha = <span class="number">1</span>;
-    <span class="keyword">this</span>.ctx.fillStyle = <span class="keyword">this</span>.backgroundColorStyle;
-    <span class="keyword">this</span>.ctx.fillRect(<span class="number">0</span>, <span class="number">0</span>, <span class="keyword">this</span>.getWidth(), <span class="keyword">this</span>.getHeight());
-    <span class="keyword">this</span>.ctx.restore();
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-5">
-            <div class="annotation">
-              
-              <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-5">&#182;</a>
-              </div>
-              <h3>Property Setters and Getters</h3>
-<p><code>setColor</code> just sets an internal variable with the color to be used for
-during the next graphical operations. If you set the color to <code>255,0,0</code>
-(pure red) and then draw a line or a rectangle, they will be red.</p>
-<p>Admits the same parameters as <code>parseColor</code> (see below)</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  setColor  : <span class="keyword">function</span>(r,g,b) { setColor(<span class="keyword">this</span>, <span class="string">'color'</span>, r,g,b); },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-6">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
-              </div>
-              <p><code>getColor</code> returns the currently selected color. See <code>setColor</code> for details.
-The current color is returned like a JS object whith the properties
-<code>r</code>, <code>g</code> &amp; <code>b</code>, similar to what parseColor returns.</p>
-<pre><code>   var luv = Luv();
-   var c = luv.graphics.getColor();
-   console.log(c.red, c.green, c.blue, c.alpha);</code></pre>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  getColor  : <span class="keyword">function</span>() { <span class="keyword">return</span> getColor(<span class="keyword">this</span>.color); },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-7">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
               <p><code>parseColor</code> transforms a variety of parameters into a &quot;standard js object&quot; of the form
 <code>{r: 255, g: 0, b: 120}</code>.</p>
@@ -307,655 +219,11 @@ The current color is returned like a JS object whith the properties
         </li>
         
         
-        <li id="section-8">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-8">&#182;</a>
-              </div>
-              <p><code>setAlpha</code> acceps a number from 0 (full transparency) to 1 (full opaqueness).
-Call setAlpha before drawing things to alter how transparent they are.</p>
-<pre><code>  var luv = Luv();
-  luv.graphics.setAlpha(0.5);
-  // draw a semi-transparent line
-  luv.graphics.line(0,0,20,20);</code></pre>
-<p>Alpha defaults to 1 (no transparency).</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  setAlpha: <span class="keyword">function</span>(alpha) {
-    <span class="keyword">this</span>.alpha = clampNumber(alpha, <span class="number">0</span>, <span class="number">1</span>);
-    <span class="keyword">this</span>.ctx.globalAlpha = <span class="keyword">this</span>.alpha;
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-9">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
-              </div>
-              <p><code>getAlpha</code> returns the current alpha. See <code>setAlpha</code> for details</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  getAlpha: <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.alpha; },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-10">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
-              </div>
-              <p><code>setBackgroundColor</code> changes the color used to clear the screen at the beginning
-of each frame. It takes the same parameters as <code>setColor</code>.
-The default background color is black (<code>0,0,0</code>)</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  setBackgroundColor : <span class="keyword">function</span>(r,g,b) { setColor(<span class="keyword">this</span>, <span class="string">'backgroundColor'</span>, r,g,b); },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-11">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
-              </div>
-              <p><code>getBackgroundColor</code> returns the background color the same way as
-<code>getColor</code> returns the foreground color. See <code>setBackgroundColor</code> and <code>getColor</code>
-for more info.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  getBackgroundColor : <span class="keyword">function</span>() { <span class="keyword">return</span> getColor(<span class="keyword">this</span>.backgroundColor); },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-12">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
-              </div>
-              <p><code>getWidth</code> returns the width of the canvas, in pixels.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  getWidth      : <span class="keyword">function</span>(){ <span class="keyword">return</span> Number(<span class="keyword">this</span>.el.getAttribute(<span class="string">'width'</span>)); },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-13">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
-              </div>
-              <p><code>getHeight</code> returns the height of the canvas, in pixels.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  getHeight     : <span class="keyword">function</span>(){ <span class="keyword">return</span> Number(<span class="keyword">this</span>.el.getAttribute(<span class="string">'height'</span>)); },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-14">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
-              </div>
-              <p><code>getDimensions</code> returns a JS object containing two components: <code>width</code> and <code>height</code>,
-with the width and height of the canvas in pixels.</p>
-<pre><code>   var luv = Luv();
-   var d = luv.getDimensions();
-   console.log(d.width, d.height);</code></pre>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  getDimensions : <span class="keyword">function</span>(){ <span class="keyword">return</span> { width: <span class="keyword">this</span>.getWidth(), height: <span class="keyword">this</span>.getHeight() }; },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-15">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
-              </div>
-              <p><code>setDimensions</code> sets the dimensions of the canvas. It expects a width and height, in pixels.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  setDimensions : <span class="keyword">function</span>(width, height) {
-    <span class="keyword">this</span>.el.setAttribute(<span class="string">'width'</span>, width);
-    <span class="keyword">this</span>.el.setAttribute(<span class="string">'height'</span>, height);
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-16">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
-              </div>
-              <p><code>setLineWidth</code> changes the width of the lines used for drawing lines with the <code>line</code> method,
-as well as the various stroke methods (<code>strokeRectangle</code>, <code>strokePolygon</code>, etc). It expects
-a number, in pixels. The number must be positive.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  setLineWidth : <span class="keyword">function</span>(width) {
-    <span class="keyword">this</span>.lineWidth = width;
-    <span class="keyword">this</span>.ctx.lineWidth = width;
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-17">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
-              </div>
-              <p><code>getLineWidth</code> returns the line width, in pixels.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  getLineWidth : <span class="keyword">function</span>() {
-    <span class="keyword">return</span> <span class="keyword">this</span>.lineWidth;
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-18">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-18">&#182;</a>
-              </div>
-              <p><code>setLineCap</code> changes the line &quot;endings&quot; when drawing lines. It expects a string.
-It can have three values:</p>
-<ul>
-<li><code>&quot;butt&quot;</code>: The lines have &quot;no special ending&quot;. Lines behave like small oriented rectangles
-connecting two coordinates.</li>
-<li>&#39;&quot;round&quot;&#39;: Adds a semicircle to the end of each line. This makes corners look &quot;rounded&quot;.</li>
-<li>&#39;&quot;square&quot;&#39;: Adds a small square to the end of each line. Lines are &quot;a big longer&quot; than when
-using the <code>&quot;butt&quot;</code> line cap. As a result, rectangles and squares&#39; corners look &quot;complete&quot;.</li>
-</ul>
-<p>The default value is &quot;butt&quot;.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  setLineCap : <span class="keyword">function</span>(cap) {
-    <span class="keyword">if</span>(cap != <span class="string">"butt"</span> &amp;&amp; cap != <span class="string">"round"</span> &amp;&amp; cap != <span class="string">"square"</span>) {
-      <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Line cap must be either 'butt', 'round' or 'square' (was: "</span> + cap + <span class="string">")"</span>);
-    }
-    <span class="keyword">this</span>.ctx.lineCap = cap;
-    <span class="keyword">this</span>.lineCap     = <span class="keyword">this</span>.ctx.lineCap;
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-19">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-19">&#182;</a>
-              </div>
-              <p><code>getLineCap</code> returns the line cap as a string. See <code>setLineCap</code> for details.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  getLineCap : <span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.lineCap; },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-20">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
-              </div>
-              <p><code>setImageSmoothing</code> accepts either true or false. It activates or deactivates the image
-smoothing algorithms that browsers use in images, particularly when they are rendered in
-non-integer locations or with transformations like scales or rotations.
-It is <code>true</code> by default.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  setImageSmoothing: <span class="keyword">function</span>(smoothing) {
-    <span class="keyword">this</span>.imageSmoothing = smoothing = !!smoothing;
-    setImageSmoothing(<span class="keyword">this</span>.ctx, smoothing);
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-21">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
-              </div>
-              <p><code>getImageSmoothing</code> returns whether the graphics have image smoothing active or not, in a boolean.
-See <code>setImageSmoothing</code> for a further explanation.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  getImageSmoothing: <span class="keyword">function</span>() {
-    <span class="keyword">return</span> <span class="keyword">this</span>.imageSmoothing;
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-22">
+        <li id="section-5">
             <div class="annotation">
               
               <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-22">&#182;</a>
-              </div>
-              <h3>Text-related functions</h3>
-<p><code>print</code> is the function that prints text on the screen. It expects a string
-and the two coordinates of the upper-left corner from which the text will
-be written.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  print : <span class="keyword">function</span>(str,x,y) {
-    <span class="keyword">this</span>.ctx.fillStyle = <span class="keyword">this</span>.colorStyle;
-    <span class="keyword">this</span>.ctx.fillText(str, x, y);
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-23">
-            <div class="annotation">
-              
-              <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-23">&#182;</a>
-              </div>
-              <h3>Primitive drawing</h3>
-<p><code>line</code> draws a line using the currently selected color, line width and line cap
-(see <code>setColor</code>, <code>setLineWidth</code> and <code>setLineCap</code> for details about those).</p>
-<p>On it simplest form, it expects 4 numbers in the form <code>x1,y1,x2,y2</code>. It draws
-a line between the points <code>x1,y1</code> and <code>x2,y2</code>.</p>
-<p>It&#39;s possible to add more points (<code>x1,y1,x2,y2,x3,y3 ...</code>), in which case <code>line</code>
-will draw a line between <code>x1,y1</code> and <code>x2,y2</code>, then a line between <code>x2,y2</code> and <code>x3,y3</code>,
-and so on.</p>
-<p>The coordinate list must be all numbers, and have an even number of elements. It
-can also be passed as a JS array (<code>luv.graphics.line(10,20,30,40)</code> draws the same as
-<code>luv.graphics.line([10,20,30,40])</code></p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  line : <span class="keyword">function</span>() {
-    <span class="keyword">var</span> coords = Array.isArray(arguments[<span class="number">0</span>]) ? arguments[<span class="number">0</span>] : arguments;
-
-    <span class="keyword">this</span>.ctx.beginPath();
-    drawPolyLine(<span class="keyword">this</span>, <span class="string">'luv.graphics.line'</span>, <span class="number">4</span>, coords);
-    drawPath(<span class="keyword">this</span>, MODE.STROKE);
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-24">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
-              </div>
-              <p><code>strokeRectangle</code> draws a the perimeter of a rectangle using the specified
-coordinates in pixels, using the current color, line width and line cap.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  strokeRectangle : <span class="keyword">function</span>(left, top, width, height) { rectangle(<span class="keyword">this</span>, MODE.STROKE, left, top, width, height); },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-25">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
-              </div>
-              <p><code>fillRectangle</code> draws a rectangle filled with the currently selected color.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  fillRectangle   : <span class="keyword">function</span>(left, top, width, height) { rectangle(<span class="keyword">this</span>, MODE.FILL, left, top, width, height); },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-26">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
-              </div>
-              <p><code>strokePolygon</code> draws a the perimeter of a polygon using the specified
-coordinates in pixels, using the current color, line width and line cap.
-The polygon coordinates must be an even number of numbers, in the form
-<code>x1,y1,x2,y2,x3,y3...</code>.</p>
-<pre><code>   var luv = Luv();
-   luv.strokePolygon(0,0, 10,20, 20,0);</code></pre>
-<p>You must specify at least three points (6 coordinates) or else the function
-will fail.</p>
-<p>The point coordinates can be specified as plain arguments (as above) or
-inside an array. This would print the same as in the previous example:</p>
-<pre><code>   var luv = Luv();
-   luv.strokePolygon([0,0, 10,20, 20,0]);</code></pre>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  strokePolygon   : <span class="keyword">function</span>() { polygon(<span class="keyword">this</span>, MODE.STROKE, arguments); },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-27">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
-              </div>
-              <p><code>fillPolygon</code> takes the same parameters as <code>strokePolygon</code>, but it fills the
-polygon with the current color instead of drawing its perimeter.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  fillPolygon     : <span class="keyword">function</span>() { polygon(<span class="keyword">this</span>, MODE.FILL, arguments); },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-28">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
-              </div>
-              <p><code>strokeCircle</code> draws the perimeter of a circle using the current line width and color.
-It expects the coordinates of the circle&#39;s center in pixels, and its radius.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  strokeCircle    : <span class="keyword">function</span>(x,y,radius)  { circle(<span class="keyword">this</span>, MODE.STROKE, x,y, radius); },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-29">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
-              </div>
-              <p><code>fillCircle</code> works the same way as <code>strokeCircle</code>, but draws a circle filled with
-the current color instead of drawing its perimeter.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  fillCircle      : <span class="keyword">function</span>(x,y,radius)  { circle(<span class="keyword">this</span>, MODE.FILL, x,y, radius); },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-30">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
-              </div>
-              <p><code>strokeArc</code> draws a section of the perimeter of a circle. Takes the same
-parameter as <code>strokeCircle</code>, plus the start and end of the angles of the arc,
-in radians.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  strokeArc       : <span class="keyword">function</span>(x,y,radius, startAngle, endAngle)  { arc(<span class="keyword">this</span>, MODE.STROKE, x,y, radius, startAngle, endAngle); },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-31">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-31">&#182;</a>
-              </div>
-              <p><code>fillArc</code> draws an &quot;applepie&quot; or a &quot;pacman&quot; filled with the currently selected
-color. Takes the same parameters as <code>strokeArc</code>.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  fillArc         : <span class="keyword">function</span>(x,y,radius, startAngle, endAngle)  { arc(<span class="keyword">this</span>, MODE.FILL, x,y, radius, startAngle, endAngle); },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-32">
-            <div class="annotation">
-              
-              <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-32">&#182;</a>
-              </div>
-              <h3>Drawables</h3>
-<p><code>draw</code> can be used to draw what Luv calls &quot;drawable&quot; objects.</p>
-<p>Currently, the following objects are drawable:</p>
-<ul>
-<li>Images</li>
-<li>Sprites</li>
-<li>Animations</li>
-<li>Canvases</li>
-</ul>
-<p>Parameters:</p>
-<ul>
-<li><code>drawable</code> is an object implementing the drawable interface (see below). It is the only required param.</li>
-<li><code>x</code> and <code>y</code> are the coordinates of the top-left corner where the drawable will be drawn. They default to 0,0.</li>
-<li><code>angle</code> is the angle at which the drawable wil be turned, in radians. Defaults to 0.</li>
-<li><code>sx and sy</code> are the horizontal and vertical scales. They default to 1,1 (no scale). If you set them to <code>2,2</code>, then
-the drawable will be drawn &quot;double sized&quot;. If you set them to <code>0.5,1</code>, it will have its default height but its width will
-be halved.</li>
-<li><code>ox and oy</code> are the coordinates of the point used as center of rotation when an angle is specified. By default they are
-0,0. The center of rotation is relative to the top-left corner (specified by the x,y params). So if <code>x,y</code> = <code>10,10</code> ,
-and <code>ox,oy</code> = <code>5,5</code>, then the rotation will occur around the point in 15,15.</li>
-</ul>
-<p>You can implement other drawable objects if you want. Drawable objects must implement a <code>draw</code> method with the following signature:</p>
-<pre><code>  obj.draw(graphics, x, y)</code></pre>
-<p>Where context is a js canvas 2d context, and x and y are the coordinates of the
-object&#39;s top left corner.</p>
-<p>It is also recommended that your drawable objects implement a <code>getCenter</code> function, so they can be used by <code>drawCentered</code> (see
-details below)</p>
-<p>Note that javascript canvases try to &quot;minimize the amount of pixellation&quot; when doing transformations in images, so they
-apply an &quot;image smoothing&quot; algorithm to rotated/translated images. See
-<code>setImageSmoothing</code> for more details.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  draw : <span class="keyword">function</span>(drawable, x, y, angle, sx, sy, ox, oy) {
-    <span class="keyword">var</span> ctx = <span class="keyword">this</span>.ctx;
-
-    x     = getDefaultValue(x,  <span class="number">0</span>);
-    y     = getDefaultValue(y,  <span class="number">0</span>);
-    angle = normalizeAngle(getDefaultValue(angle, <span class="number">0</span>));
-    sx    = getDefaultValue(sx, <span class="number">1</span>);
-    sy    = getDefaultValue(sy, <span class="number">1</span>);
-    ox    = getDefaultValue(ox, <span class="number">0</span>);
-    oy    = getDefaultValue(oy, <span class="number">0</span>);
-
-    <span class="keyword">if</span>(angle !==<span class="number">0</span> || sx !== <span class="number">1</span> || sy !== <span class="number">1</span> || ox !== <span class="number">0</span> || oy !== <span class="number">0</span>) {
-      ctx.save();
-
-      ctx.translate(x,y);
-
-      ctx.translate(ox, oy);
-      ctx.rotate(angle);
-      ctx.scale(sx,sy);
-      ctx.translate(-ox, -oy);
-      drawable.draw(<span class="keyword">this</span>, <span class="number">0</span>, <span class="number">0</span>);
-
-      ctx.restore();
-    } <span class="keyword">else</span> {
-      drawable.draw(<span class="keyword">this</span>, x, y);
-    }
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-33">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-33">&#182;</a>
-              </div>
-              <p><code>drawCentered</code> draws a drawable object (images, sprites, animations, canvases ...
-see the <code>draw</code> method for more info) but centering it on its center instead of
-using the top-left coordinates.</p>
-<p>The drawables must implement a method called <code>getCenter()</code> that should return
-a JS object with two properties called <code>x</code> and <code>y</code>, representing the geometrical
-center of the object.</p>
-<pre><code>  var c = obj.getCenter();
-  console.log(c.x, c.y);</code></pre>
-<p>Note that the center must be expressed relatively to the top-left corner of the object,
-not the origin of coordinates.</p>
-<p>All drawable objects in Luv also implement a getCenter function.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  drawCentered : <span class="keyword">function</span>(drawable, x,y, angle, sx, sy) {
-    <span class="keyword">var</span> c = drawable.getCenter();
-    <span class="keyword">this</span>.draw(drawable, x-c.x,y-c.y, angle, sx, sy, c.x, c.y);
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-34">
-            <div class="annotation">
-              
-              <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-34">&#182;</a>
-              </div>
-              <h3>Transformations</h3>
-<p><code>translate</code> displaces the origin of coordinates <code>x</code> pixels to the right and <code>y</code> down.
-This means that it can be used to simulate things like scrolling or camera.
-The origin of coordinates is in 0,0 by default.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  translate : <span class="keyword">function</span>(x,y) {
-    <span class="keyword">this</span>.ctx.translate(x,y);
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-35">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-35">&#182;</a>
-              </div>
-              <p><code>scale</code> sets the world scale on both the x and y axes. 2,2 will make everything look
-bigger, and 0.5,0.5 will make everything look half its size; so it can be used for
-zooming in an out.
-The default scale is 1 in both axes. That means no scale.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  scale : <span class="keyword">function</span>(sx,sy) {
-    <span class="keyword">this</span>.ctx.scale(sx,sy);
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-36">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-36">&#182;</a>
-              </div>
-              <p><code>rotate</code> transforms the origin of coordinates with an angle (specified in radians).</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  rotate : <span class="keyword">function</span>(angle) {
-    <span class="keyword">this</span>.ctx.rotate(angle);
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-37">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-37">&#182;</a>
-              </div>
-              <p><code>push</code> inserts the current state of the transformation matrix (things like translate, rotate
-and scale configuration) in a stack. This means you can add further transformations later on, and
-then &quot;come back to the current state&quot; by invoking <code>pop</code></p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  push : <span class="keyword">function</span>() {
-    <span class="keyword">this</span>.ctx.save();
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-38">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-38">&#182;</a>
-              </div>
-              <p><code>pop</code> is the opposite of <code>push</code>: it removes the current transformation settings from the
-graphics canvas and replaces it with the one at the top of the stack, which is &quot;popped&quot; out.
-<code>pop</code> can be invoked several times, as long as there are transformations left on the stack.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  pop : <span class="keyword">function</span>() {
-    <span class="keyword">this</span>.ctx.restore();
-  },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-39">
-            <div class="annotation">
-              
-              <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-39">&#182;</a>
+                <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
               <h3>Object Constructors</h3>
 <p><code>Canvas</code> creates an instance of <code>Luv.Graphics.Canvas</code>; an invisible object to draw things
@@ -966,17 +234,19 @@ are specified, the new canvas will have the same dimensions as the current canva
             </div>
             
             <div class="content"><div class='highlight'><pre>  Canvas : <span class="keyword">function</span>(width, height) {
-    <span class="keyword">return</span> Luv.Graphics.Canvas(width || <span class="keyword">this</span>.getWidth(), height || <span class="keyword">this</span>.getHeight());
+    width  = width  || <span class="keyword">this</span>.el.getAttribute(<span class="string">'width'</span>);
+    height = height || <span class="keyword">this</span>.el.getAttribute(<span class="string">'height'</span>);
+    <span class="keyword">return</span> Luv.Graphics.Canvas(width, height);
   },</pre></div></div>
             
         </li>
         
         
-        <li id="section-40">
+        <li id="section-6">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-40">&#182;</a>
+                <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
               <p><code>Image</code> creates an instance of <code>Luv.Graphics.Image</code> and the given path.
 The advantage of using this method instead of directly instantiating <code>Luv.Graphics.Image</code> manually
@@ -991,11 +261,11 @@ is that the a default media object is passed by default by the graphics library.
         </li>
         
         
-        <li id="section-41">
+        <li id="section-7">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-41">&#182;</a>
+                <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
               <p><code>Sprite</code> just invokes <code>Luv.Graphics.Sprite</code> with the same parameters. Please refer to that class&#39;
 documentation for more details.</p>
@@ -1009,11 +279,11 @@ documentation for more details.</p>
         </li>
         
         
-        <li id="section-42">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-42">&#182;</a>
+                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p><code>SpriteSheet</code> is also a simple redirect. See the documentation of <code>Luv.Graphics.SpriteSheet</code> for details.</p>
 
@@ -1028,11 +298,11 @@ documentation for more details.</p>
         </li>
         
         
-        <li id="section-43">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-43">&#182;</a>
+                <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
               <p><code>Luv.Graphics.parseColor</code> is a class method implementing <code>parseColor</code> at the instance level. See the
 <code>parseColor</code> instance method above for details.</p>
@@ -1050,11 +320,11 @@ documentation for more details.</p>
         </li>
         
         
-        <li id="section-44">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-44">&#182;</a>
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
               <p><code>ffffff</code> &amp; <code>#ffffff</code></p>
 
@@ -1066,11 +336,11 @@ documentation for more details.</p>
         </li>
         
         
-        <li id="section-45">
+        <li id="section-11">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-45">&#182;</a>
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p><code>fff</code> &amp; <code>#fff</code></p>
 
@@ -1082,11 +352,11 @@ documentation for more details.</p>
         </li>
         
         
-        <li id="section-46">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-46">&#182;</a>
+                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <p><code>rgb(255,3,120)</code></p>
 
@@ -1096,295 +366,7 @@ documentation for more details.</p>
     <span class="keyword">if</span>(m){ <span class="keyword">return</span> { r: p(m[<span class="number">1</span>], <span class="number">10</span>), g: p(m[<span class="number">2</span>], <span class="number">10</span>), b: p(m[<span class="number">3</span>], <span class="number">10</span>) }; }
   }
   <span class="keyword">return</span> { r: r, g: g, b: b };
-};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-47">
-            <div class="annotation">
-              
-              <div class="pilwrap for-h3">
-                <a class="pilcrow" href="#section-47">&#182;</a>
-              </div>
-              <h3>Private functions and constants</h3>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> twoPI = Math.PI * <span class="number">2</span>;</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-48">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-48">&#182;</a>
-              </div>
-              <p>Internal function used for setting the foreground and background color</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> setColor = <span class="keyword">function</span>(self, name, r,g,b) {
-  <span class="keyword">var</span> color = self[name],
-      newColor = Luv.Graphics.parseColor(r,g,b);
-  Luv.extend(color, newColor);
-  self[name + <span class="string">'Style'</span>] = <span class="string">"rgb("</span> + [color.r, color.g, color.b].join() + <span class="string">")"</span>;
 };
-
-<span class="keyword">var</span> getColor = <span class="keyword">function</span>(color) {
-  <span class="keyword">return</span> {r: color.r, g: color.g, b: color.b};
-};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-49">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-49">&#182;</a>
-              </div>
-              <p>Strokes a polyline given an array of methods.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> drawPolyLine = <span class="keyword">function</span>(graphics, methodName, minLength, coords) {
-
-  <span class="keyword">if</span>(coords.length &lt; minLength) { <span class="keyword">throw</span> <span class="keyword">new</span> Error(methodName + <span class="string">" requires at least 4 parameters"</span>); }
-  <span class="keyword">if</span>(coords.length % <span class="number">2</span> == <span class="number">1</span>) { <span class="keyword">throw</span> <span class="keyword">new</span> Error(methodName + <span class="string">" requires an even number of parameters"</span>); }
-
-  graphics.ctx.moveTo(coords[<span class="number">0</span>], coords[<span class="number">1</span>]);
-
-  <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">2</span>; i&lt;coords.length; i=i+<span class="number">2</span>) {
-    graphics.ctx.lineTo(coords[i], coords[i+<span class="number">1</span>]);
-  }
-
-  graphics.ctx.stroke();
-};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-50">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-50">&#182;</a>
-              </div>
-              <p>Given an angle in radians, return an equivalent angle in the [0 - 2*PI) range.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> normalizeAngle = <span class="keyword">function</span>(angle) {
-  angle = angle % twoPI;
-  <span class="keyword">return</span> angle &lt; <span class="number">0</span> ? angle + twoPI : angle;
-};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-51">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-51">&#182;</a>
-              </div>
-              <p>This function makes sure that <code>ctx</code> (a 2d canvas context) is configured to have
-the same properties as graphics. This makes sure that the graphics instance is the main
-&quot;authority&quot;. It&#39;s called after each canvas is used with <code>setCanvas</code>.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> resetCanvas = <span class="keyword">function</span>(graphics, ctx) {
-  ctx.setTransform(<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>);
-  setImageSmoothing(ctx, graphics.getImageSmoothing());
-  ctx.lineWidth    = graphics.getLineWidth();
-  ctx.lineCap      = graphics.getLineCap();
-  ctx.globalAlpha  = graphics.getAlpha();
-};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-52">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-52">&#182;</a>
-              </div>
-              <p>Image smoothing helper function</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> setImageSmoothing = <span class="keyword">function</span>(ctx, smoothing) {
-  ctx.webkitImageSmoothingEnabled = smoothing;
-  ctx.mozImageSmoothingEnabled    = smoothing;
-  ctx.imageSmoothingEnabled       = smoothing;
-};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-53">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-53">&#182;</a>
-              </div>
-              <p>Internal function by all the primitive drawing functions. It fills or strokes the current path
-in the current canvas 2d context.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> drawPath = <span class="keyword">function</span>(graphics, mode) {
-  <span class="keyword">switch</span>(mode){
-  <span class="keyword">case</span> MODE.FILL:
-    graphics.ctx.fillStyle = graphics.colorStyle;
-    graphics.ctx.fill();
-    <span class="keyword">break</span>;
-  <span class="keyword">case</span> MODE.STROKE:
-    graphics.ctx.strokeStyle = graphics.colorStyle;
-    graphics.ctx.stroke();
-    <span class="keyword">break</span>;
-  <span class="keyword">default</span>:
-    <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Invalid mode: ['</span> + mode + <span class="string">']. Should be "fill" or "line"'</span>);
-  }
-};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-54">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-54">&#182;</a>
-              </div>
-              <p>Rectangle drawing implementation</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> rectangle = <span class="keyword">function</span>(graphics, mode, left, top, width, height) {
-  graphics.ctx.beginPath();
-  graphics.ctx.rect(left, top, width, height);
-  drawPath(graphics, mode);
-  graphics.ctx.closePath();
-};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-55">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-55">&#182;</a>
-              </div>
-              <p>Polygon drawing implementation</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> polygon = <span class="keyword">function</span>(graphics, mode, args) {
-  <span class="keyword">var</span> coordinates = Array.isArray(args[<span class="number">0</span>]) ? args[<span class="number">0</span>] : Array.prototype.slice.call(args, <span class="number">0</span>);
-  graphics.ctx.beginPath();
-
-  drawPolyLine(graphics, <span class="string">'luv.graphics.polygon'</span>, <span class="number">6</span>, coordinates);
-  drawPath(graphics, mode);
-
-  graphics.ctx.closePath();
-};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-56">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-56">&#182;</a>
-              </div>
-              <p>Arc drawing implementation</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> arc = <span class="keyword">function</span>(graphics, mode, x,y,radius, startAngle, endAngle) {
-  graphics.ctx.beginPath();
-  graphics.ctx.arc(x,y,radius, startAngle, endAngle, <span class="literal">false</span>);
-  drawPath(graphics, mode);
-};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-57">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-57">&#182;</a>
-              </div>
-              <p>Circle implementation (mainly it invokes <code>arc</code>)</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> circle = <span class="keyword">function</span>(graphics, mode, x,y,radius) {
-  arc(graphics, mode, x, y, radius, <span class="number">0</span>, twoPI);
-  graphics.ctx.closePath();
-};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-58">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-58">&#182;</a>
-              </div>
-              <p>Private &quot;constant&quot; for magic numbers</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> MODE = {
-  STROKE: <span class="number">1</span>,
-  FILL  : <span class="number">2</span>
-};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-59">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-59">&#182;</a>
-              </div>
-              <p>Helper function used to initialize undefined variables.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> getDefaultValue = <span class="keyword">function</span>(variable, defaultValue) {
-  <span class="keyword">return</span> <span class="keyword">typeof</span> variable === <span class="string">"undefined"</span> ? defaultValue : variable;
-};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-60">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-60">&#182;</a>
-              </div>
-              <p>Internal function. If x &lt; min, return min. If x &gt; max, return max. Otherwise, return x.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> clampNumber = <span class="keyword">function</span>(x, min, max) {
-  <span class="keyword">return</span> Math.max(min, Math.min(max, Number(x)));
-};
-
 
 }());</pre></div></div>
             

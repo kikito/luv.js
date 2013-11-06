@@ -302,7 +302,7 @@ sprite accordingly to the time that has passed.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="string">"getWidth getHeight getDimensions getCenter draw"</span>.split(<span class="string">" "</span>).forEach(<span class="keyword">function</span>(method) {
+            <div class="content"><div class='highlight'><pre><span class="string">"getWidth getHeight getDimensions getCenter drawInCanvas"</span>.split(<span class="string">" "</span>).forEach(<span class="keyword">function</span>(method) {
   Luv.Graphics.Animation.methods[method] = <span class="keyword">function</span>() {
     <span class="keyword">var</span> sprite = <span class="keyword">this</span>.getCurrentSprite();
     <span class="keyword">return</span> sprite[method].apply(sprite, arguments);

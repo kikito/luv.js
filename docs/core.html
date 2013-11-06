@@ -446,7 +446,8 @@ and inserted into the document&#39;s body.</p>
     luv.mouse     = Luv.Mouse(luv.el);
     luv.touch     = Luv.Touch(luv.el);
     luv.audio     = Luv.Audio(luv.media);
-    luv.graphics  = Luv.Graphics(luv.el, luv.media);</pre></div></div>
+    luv.graphics  = Luv.Graphics(luv.el, luv.media);
+    luv.canvas    = Luv.Graphics.Canvas(luv.el);</pre></div></div>
             
         </li>
         
@@ -463,7 +464,7 @@ and inserted into the document&#39;s body.</p>
             
             <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span>(options.fullWindow) {
       <span class="keyword">var</span> resize = <span class="keyword">function</span>() {
-        luv.graphics.setDimensions(window.innerWidth, window.innerHeight);
+        luv.canvas.setDimensions(window.innerWidth, window.innerHeight);
         luv.onResize(window.innerWidth, window.innerHeight);
       };
       window.addEventListener(<span class="string">'resize'</span>, resize, <span class="literal">false</span>);
@@ -635,8 +636,7 @@ to luv.update</p>
             <div class="content"><div class='highlight'><pre>      <span class="keyword">var</span> dt = luv.timer.getDeltaTime();
       luv.update(dt);           <span class="comment">// Execute luv.update(dt) once per frame</span>
 
-      luv.graphics.setCanvas(); <span class="comment">// And then invoke luv.draw()</span>
-      luv.graphics.clear();     <span class="comment">// And clear everything</span>
+      luv.canvas.clear();     <span class="comment">// And clear everything</span>
       luv.draw();</pre></div></div>
             
         </li>

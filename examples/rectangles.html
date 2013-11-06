@@ -17,7 +17,7 @@ var rectangles = [];
 // luv.load creates several rectangles and inserts them into the "rectangles"
 // variable at the beginning of the game
 luv.load = function() {
-  var d = luv.graphics.getDimensions();
+  var d = luv.canvas.getDimensions();
   for(var i=0; i<200; i++) {
     rectangles.push({
       l: rand(0,d.width - 50), t: rand(0, d.height - 50),
@@ -32,7 +32,7 @@ luv.load = function() {
 // luv.update moves the rectangles around, making them "bounce" with the screen borders
 // Try removing this function (the rectangles will stop moving)
 luv.update = function(dt) {
-  var d = luv.graphics.getDimensions();
+  var d = luv.canvas.getDimensions();
   for(var i=0; i<rectangles.length; i++) {
     var r = rectangles[i];
     r.l += r.vx * dt;
@@ -49,12 +49,12 @@ luv.draw = function() {
   var rect = null;
   for(var i=0; i<rectangles.length; i++) {
     rect = rectangles[i];
-    luv.graphics.setColor(rect.r, rect.g, rect.b);
+    luv.canvas.setColor(rect.r, rect.g, rect.b);
 
     if(rect.type == 'fill') {
-      luv.graphics.fillRectangle(rect.l, rect.t, rect.w, rect.h);
+      luv.canvas.fillRectangle(rect.l, rect.t, rect.w, rect.h);
     } else {
-      luv.graphics.strokeRectangle(rect.l, rect.t, rect.w, rect.h);
+      luv.canvas.strokeRectangle(rect.l, rect.t, rect.w, rect.h);
     }
   }
 };
