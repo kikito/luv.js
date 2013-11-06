@@ -44,18 +44,18 @@ luv.keyboard.onReleased = function(key, code) {
 // This big function draws bob as a series of circles, squares and arcs
 // Try changing some of the colors
 luv.draw = function() {
-  luv.graphics.setColor(255,255,0);
+  luv.canvas.setColor(255,255,0);
   var l = bob.x - bob.w/2,
       t = bob.y - bob.h/2,
       w = bob.w,
       h = bob.h;
-  luv.graphics.fillRectangle(l,t,w,h);
+  luv.canvas.fillRectangle(l,t,w,h);
 
-  luv.graphics.setColor(128,128,0);
-  luv.graphics.setLineWidth(3);
-  luv.graphics.strokeRectangle(l,t,w,h);
+  luv.canvas.setColor(128,128,0);
+  luv.canvas.setLineWidth(3);
+  luv.canvas.strokeRectangle(l,t,w,h);
 
-  luv.graphics.setColor(255,255,255);
+  luv.canvas.setColor(255,255,255);
 
   var r  = w/5,
       r2 = w/13;
@@ -64,18 +64,18 @@ luv.draw = function() {
       y = t + r + r2,
       x2 = l + w - r - r2;
 
-  luv.graphics.fillCircle(x1, y, r);
-  luv.graphics.fillCircle(x2, y, r);
+  luv.canvas.fillCircle(x1, y, r);
+  luv.canvas.fillCircle(x2, y, r);
 
-  luv.graphics.setColor(0,0,0);
-  luv.graphics.setLineWidth(1);
-  luv.graphics.strokeCircle(x1,y,r);
-  luv.graphics.fillCircle(x1 + bob.dx * r2,y + bob.dy * r2,r2);
-  luv.graphics.strokeCircle(x2,y,r);
-  luv.graphics.fillCircle(x2 + bob.dx * r2,y + bob.dy * r2,r2);
+  luv.canvas.setColor(0,0,0);
+  luv.canvas.setLineWidth(1);
+  luv.canvas.strokeCircle(x1,y,r);
+  luv.canvas.fillCircle(x1 + bob.dx * r2,y + bob.dy * r2,r2);
+  luv.canvas.strokeCircle(x2,y,r);
+  luv.canvas.fillCircle(x2 + bob.dx * r2,y + bob.dy * r2,r2);
 
-  luv.graphics.strokeCircle(bob.x, bob.y, r2);
-  luv.graphics.strokeArc(bob.x, bob.y, 2*r, 0, Math.PI);
+  luv.canvas.strokeCircle(bob.x, bob.y, r2);
+  luv.canvas.strokeArc(bob.x, bob.y, 2*r, 0, Math.PI);
 };
 
 // luv.run starts the game. If this line is removed, the game doesn't start

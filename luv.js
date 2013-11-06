@@ -2944,8 +2944,8 @@ Luv.Graphics.Sprite = Luv.Class('Luv.Graphics.Sprite', {
     return { left: this.left, top: this.top, width: this.width, height: this.height };
   },
 
-  // `draw` makes Sprites drawable. It draws only the parts of the image that include the sprite, and nothing else.
-  draw: function(graphics, x, y) {
+  // `drawInCanvas` makes Sprites drawable. It draws only the parts of the image that include the sprite, and nothing else.
+  drawInCanvas: function(graphics, x, y) {
     if(!this.image.isLoaded()) {
       throw new Error("Attepted to draw a prite of a non loaded image: " + this);
     }

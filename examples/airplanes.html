@@ -13,7 +13,7 @@ var mustangs, lockHeed, hydro, lockHeedAngle, hydroAngle, submarine;
 // luv.load is normally where the game gets initialized, and where resources are loaded
 luv.load = function() {
   // Uncomment to deactivate image aliasing on the two big planes
-  // luv.graphics.setImageSmoothing(false);
+  // luv.canvas.setImageSmoothing(false);
 
   var img = luv.graphics.Image('img/1945.png');
 
@@ -72,15 +72,15 @@ luv.draw = function() {
 
   // Draw the small planes
   for(var i=0; i < mustangs.length; i++) {
-    luv.graphics.draw(mustangs[i], (i+1)*75, (i+1)*50);
+    luv.canvas.draw(mustangs[i], (i+1)*75, (i+1)*50);
   }
 
   // Draw the big planes, spinning
-  luv.graphics.drawCentered(lockHeed, 100, 432, lockHeedAngle);
-  luv.graphics.drawCentered(hydro,    250, 432, hydroAngle);
+  luv.canvas.drawCentered(lockHeed, 100, 432, lockHeedAngle);
+  luv.canvas.drawCentered(hydro,    250, 432, hydroAngle);
 
   // Draw the submarine. Try changing these coordinates
-  luv.graphics.draw(submarine, 500, 100);
+  luv.canvas.draw(submarine, 500, 100);
 };
 
 luv.run();

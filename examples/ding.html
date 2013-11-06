@@ -29,8 +29,8 @@ luv.keyboard.onPressed = luv.mouse.onPressed = function() {
 
 // luv.draw is used to display two simple text lines
 luv.draw = function() {
-  luv.graphics.print("Total Instances: " + dingSound.countInstances(), 100, 100);
-  luv.graphics.print("Playing Instances: " + dingSound.countPlayingInstances(), 100, 150);
+  luv.canvas.print("Total Instances: " + dingSound.countInstances(), 100, 100);
+  luv.canvas.print("Playing Instances: " + dingSound.countPlayingInstances(), 100, 150);
 };
 
 // As always, don't forget to invoke luv.run to start the game

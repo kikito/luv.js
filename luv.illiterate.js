@@ -1866,7 +1866,7 @@ window.Luv = function() {
                 height: this.height
             };
         },
-        draw: function(graphics, x, y) {
+        drawInCanvas: function(graphics, x, y) {
             if (!this.image.isLoaded()) {
                 throw new Error("Attepted to draw a prite of a non loaded image: " + this);
             }
