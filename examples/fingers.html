@@ -25,7 +25,7 @@ var removeCircle = function(circle) {
 
 // Load is here used for basic setup only (line width, for the animated circles)
 luv.load = function() {
-  luv.graphics.setLineWidth(3);
+  luv.canvas.setLineWidth(3);
 };
 
 luv.draw = function() {
@@ -34,20 +34,20 @@ luv.draw = function() {
   // screen
   var fingers = luv.touch.getFingers(),
       finger, i;
-  luv.graphics.setAlpha(1);
+  luv.canvas.setAlpha(1);
   for(i=0; i<fingers.length; i++) {
     finger = fingers[i];
-    luv.graphics.setColor(colors[finger.position]);
-    luv.graphics.fillCircle(finger.x, finger.y, Radius);
+    luv.canvas.setColor(colors[finger.position]);
+    luv.canvas.fillCircle(finger.x, finger.y, Radius);
   }
 
   // Then draw all the animated (shrinking/expanding) circles.
   var circle;
   for(i=0; i<circles.length; i++) {
     circle = circles[i];
-    luv.graphics.setAlpha(circle.alpha);
-    luv.graphics.setColor(circle.color);
-    luv.graphics.strokeCircle(circle.x, circle.y, circle.radius);
+    luv.canvas.setAlpha(circle.alpha);
+    luv.canvas.setColor(circle.color);
+    luv.canvas.strokeCircle(circle.x, circle.y, circle.radius);
   }
 };
 

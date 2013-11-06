@@ -174,13 +174,13 @@ var Luv = Base.subclass('Luv', {
     luv.touch     = Luv.Touch(luv.el);
     luv.audio     = Luv.Audio(luv.media);
     luv.graphics  = Luv.Graphics(luv.el, luv.media);
+    luv.canvas    = Luv.Graphics.Canvas(luv.el);
     luv.collider  = Luv.Collider();
-
 
     // Attach listeners to the window, if the game is in fullWindow mode, to resize the canvas accordingly
     if(options.fullWindow) {
       var resize = function() {
-        luv.graphics.setDimensions(window.innerWidth, window.innerHeight);
+        luv.canvas.setDimensions(window.innerWidth, window.innerHeight);
         luv.onResize(window.innerWidth, window.innerHeight);
       };
       window.addEventListener('resize', resize, false);
@@ -281,8 +281,7 @@ var Luv = Base.subclass('Luv', {
       var dt = luv.timer.getDeltaTime();
       luv.update(dt);           // Execute luv.update(dt) once per frame
 
-      luv.graphics.setCanvas(); // And then invoke luv.draw()
-      luv.graphics.clear();     // And clear everything
+      luv.canvas.clear();     // And clear everything
       luv.draw();
 
       // This enqueues another call to the loop function in the next available frame

@@ -44,7 +44,7 @@ Luv.Graphics.Image = Luv.Class('Luv.Graphics.Image', {
     return { x: this.source.width / 2, y: this.source.height / 2 };
   },
 
-  draw: function(graphics, x, y) {
+  drawInCanvas: function(graphics, x, y) {
     if(!this.isLoaded()) {
       throw new Error("Attepted to draw a non loaded image: " + this);
     }
