@@ -4,16 +4,12 @@
 
 Luv.Collider = Luv.Class('Luv.Collider', {
 
-  init: function(cellSize) {
-    this.cellSize = cellSize || Luv.Collider.DEFAULT_CELL_SIZE;
+  World: function(cellSize) {
+    return Luv.Collider.World(cellSize);
   },
 
   AABB: function(l,t,w,h) {
     return Luv.Collider.AABB(l,t,w,h);
-  },
-
-  MAABB: function(l,t,w,h) {
-    return Luv.Collider.MAABB(l,t,w,h);
   }
 
 });

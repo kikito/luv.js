@@ -18,7 +18,8 @@ module.exports = function(grunt) {
     "src/graphics.js",
     "src/graphics/*",
     "src/collider.js",
-    "src/collider/*"
+    "src/collider/aabb.js",
+    "src/collider/world.js"
   ];
   var testFiles = "test/**/*.js";
   var docFiles = ['README.js.md', 'MIT-LICENSE.md', 'CONTRIBUTING.md'].concat(srcFiles);
