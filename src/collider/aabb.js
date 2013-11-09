@@ -26,7 +26,7 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
   },
 
   containsPoint: function(x,y) {
-    return x > this.l && y > this.t && x < this.r && y < this.b;
+    return x > this.l && x < this.r && y > this.t && y < this.b;
   },
 
   isIntersecting: function(other) {

@@ -18,7 +18,7 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
     this.itemsKey   = '_' + this.id + '_id';
   },
 
-  getaabb: function(item) {
+  getAABB: function(item) {
     var key = this.itemsKey;
     if(!item[key]) {
       throw new Error('item must have the property ' + key + ' in order to obtain its aabb');
@@ -141,7 +141,7 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
     if(!id) {
       throw new Error('item must have property ' + this.itemsKey + ' in order to be removed from the world');
     }
-    var aabb = world.aabbs[id];
+    var aabb = this.aabbs[id];
     if(!aabb) {
       throw new Error('item ' + id + ' is not in the world. Add it to the world before trying to remove it');
     }
@@ -163,10 +163,10 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
 });
 
 var addItemToCells = function(world, id, aabb) {
-  var c   = aabb.toGrid(this.cellSize);
+  var c   = aabb.toGrid(world.cellSize);
 
   for(var cy = c.t; cy <= c.b; cy++) {
-    var row  = this.rows[cy] = this.rows[cy] || {};
+    var row  = world.rows[cy] = world.rows[cy] || {};
     for(var cx = c.l; cx <= c.r; cx++) {
       var cell = row[cx] = row[cx] || {itemCount: 0, x: cx, y: cy, ids: {}};
       if(!cell.ids[id]) {
