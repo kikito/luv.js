@@ -94,7 +94,7 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
 
     if(m.containsPoint(0,0)) { // pastThis was intersecting with other
       p         = m.getNearestPointInPerimeter(0,0);
-      collision = {dx: p.x-vx, dy: p.y-vy, ti: 0, tunnelling: false };
+      collision = {dx: p.x-vx, dy: p.y-vy, ti: 0, tunneling: false };
     } else {
       lbi = getLiangBarskyIndices(m, 0,0, vx,vy, 0,1);
       if(lbi) {
@@ -104,12 +104,12 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
         else if(0 < t1 && t1 < 1) { ti = t1; }
 
         if(ti) { // this tunnels into other
-          collision = {dx: vx*ti, dy: vy*ti, ti: ti, tunnelling: true};
+          collision = {dx: vx*ti, dy: vy*ti, ti: ti, tunneling: true};
         } else {
           m = this.getMinkowskyDiff(other);
           if(m.containsPoint(0,0)) {
             p         = m.getNearestPointInPerimeter(0,0);
-            collision = {dx: p.x-vx, dy: p.y-vy, ti: 0, tunnelling: false };
+            collision = {dx: p.x-vx, dy: p.y-vy, ti: 0, tunneling: false };
           }
         }
       }

@@ -3179,7 +3179,7 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
 
     if(m.containsPoint(0,0)) { // pastThis was intersecting with other
       p         = m.getNearestPointInPerimeter(0,0);
-      collision = {dx: p.x-vx, dy: p.y-vy, ti: 0, tunnelling: false };
+      collision = {dx: p.x-vx, dy: p.y-vy, ti: 0, tunneling: false };
     } else {
       lbi = getLiangBarskyIndices(m, 0,0, vx,vy, 0,1);
       if(lbi) {
@@ -3189,12 +3189,12 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
         else if(0 < t1 && t1 < 1) { ti = t1; }
 
         if(ti) { // this tunnels into other
-          collision = {dx: vx*ti, dy: vy*ti, ti: ti, tunnelling: true};
+          collision = {dx: vx*ti, dy: vy*ti, ti: ti, tunneling: true};
         } else {
           m = this.getMinkowskyDiff(other);
           if(m.containsPoint(0,0)) {
             p         = m.getNearestPointInPerimeter(0,0);
-            collision = {dx: p.x-vx, dy: p.y-vy, ti: 0, tunnelling: false };
+            collision = {dx: p.x-vx, dy: p.y-vy, ti: 0, tunneling: false };
           }
         }
       }
@@ -3302,22 +3302,16 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
       throw new Error('item must not have the property ' + key + ' when inserting it in the world');
     }
 
-    this.itemCount++;
-    var id  = item[key]      = ++this.maxId,
-        box = this.boxes[id] = AABB(l,t,w,h),
-        c   = box.toCellBox(this.cellSize);
-    this.items[id] = item;
+    var id  = ++this.maxId;
 
-    for(var cy = c.t; cy <= c.b; cy++) {
-      var row  = this.rows[cy] = this.rows[cy] || {};
-      for(var cx = c.l; cx <= c.r; cx++) {
-        var cell = row[cx] = row[cx] || {itemCount: 0, x: cx, y: cy, ids: {}};
-        if(!cell.ids[id]) {
-          cell.ids[id] = true;
-          cell.itemCount++;
-        }
-      }
-    }
+    item[key] = id;
+
+    this.boxes[id] = AABB(l,t,w,h);
+    this.items[id] = item;
+    this.itemCount++;
+
+    addItemToCells(this, id, this.boxes[id]);
+
     return this.check(item);
   },
 
@@ -3332,6 +3326,10 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
     }
     var prev_l = box.l,
         prev_t = box.t;
+
+    w = (typeof w === 'undefined' ? 0 : box.w);
+    h = (typeof h === 'undefined' ? 0 : box.h);
+
     if(box.w != w || box.h != h) {
       var prev_c = box.getCenter();
       prev_l = prev_c.x - w/2;
@@ -3339,8 +3337,9 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
     }
 
     if(box.w != w || box.h != h || box.l != l || box.t != t) {
-      this.remove(item);
-      this.add(item);
+      removeItemFromCells(this, id, box);
+      box.setDimensions(l,t,w,h);
+      addItemToCells(this, id, box);
     }
 
     return this.check(item, prev_l, prev_t);
@@ -3406,30 +3405,57 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
     if(!id) {
       throw new Error('item must have property ' + this.itemsKey + ' in order to be removed from the world');
     }
-    var box = this.boxes[id];
+    var box = world.boxes[id];
     if(!box) {
       throw new Error('item ' + id + ' is not in the world. Add it to the world before trying to remove it');
     }
 
-    var c = box.toCellBox(this.cellSize);
-
-    for(var cy = c.t; cy <= c.b; cy++) {
-      var row = this.rows[cy];
-      if(!row) { continue; }
-      for(var cx = c.l; cx <= c.r; cx++) {
-        var cell = row[cx];
-        if(cell && cell.ids[id]) {
-          delete cell.ids[id];
-          cell.itemCount--;
-        }
-      }
-    }
+    removeItemFromCells(this, id, box);
 
     delete this.boxes[id];
     delete this.items[id];
     this.itemCount--;
+  },
+
+  toGrid: function(x,y) {
+    return {x: Math.floor(x / this.cellSize), y: Math.floor(y / this.cellSize)};
+  },
+
+  fromGrid: function(gx, gy) {
+    return {x: gx * this.cellSize, y: gy * this.cellSize};
   }
 });
+
+var addItemToCells = function(world, id, box) {
+  var c   = box.toCellBox(this.cellSize);
+
+  for(var cy = c.t; cy <= c.b; cy++) {
+    var row  = this.rows[cy] = this.rows[cy] || {};
+    for(var cx = c.l; cx <= c.r; cx++) {
+      var cell = row[cx] = row[cx] || {itemCount: 0, x: cx, y: cy, ids: {}};
+      if(!cell.ids[id]) {
+        cell.ids[id] = true;
+        cell.itemCount++;
+      }
+    }
+  }
+};
+
+var removeItemFromCells = function(world, id, box) {
+  var c = box.toCellBox(world.cellSize);
+
+  for(var cy = c.t; cy <= c.b; cy++) {
+    var row = world.rows[cy];
+    if(!row) { continue; }
+    for(var cx = c.l; cx <= c.r; cx++) {
+      var cell = row[cx];
+      if(cell && cell.ids[id]) {
+        delete cell.ids[id];
+        cell.itemCount--;
+      }
+    }
+  }
+};
 
 var sortByTi = function(a,b) {
   var diff = a.ti - b.ti;

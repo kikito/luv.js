@@ -44,8 +44,8 @@ describe("Luv.Collider.World", function(){
     describe("when the world is not empty", function() {
       it("returns a list with the collisions", function(){
         var w = Luv.Collider.World(),
-            a = ['a'],
-            b = ['b'];
+            a = {n:'a'},
+            b = {n:'b'};
 
         w.add(a, 0,0,10,10);
         var cols = w.add(b, 4,6,10,10);
@@ -61,7 +61,7 @@ describe("Luv.Collider.World", function(){
     describe('when the object is not there', function() {
       it('throws an error', function() {
         var world = Luv.Collider.World();
-        expect(function(){ world.move({}, 0,0,10,10);}).to.Trow(Error);
+        expect(function(){ world.move({}, 0,0,10,10);}).to.Throw(Error);
       });
     });
 
@@ -75,8 +75,8 @@ describe("Luv.Collider.World", function(){
     describe('when the world is not empty', function() {
       it('returns a list of collisions', function() {
         var world = Luv.Collider.World(),
-            a     = ['a'],
-            b     = ['b'];
+            a     = {n:'a'},
+            b     = {n:'b'};
 
         world.add(a, 0,0,10,10);
         expect(world.add(b, 4,6,10,10)).to.deep.equal([
@@ -88,7 +88,7 @@ describe("Luv.Collider.World", function(){
     describe('when no width or height is given', function() {
       it('takes width and height from its previous value', function() {
         var world = Luv.Collider.World(),
-            a     = ['a'];
+            a     = {n:'a'};
         world.add(a, 0,0, 10,10);
         world.move(a, 5,5);
         expect(world.getBox(a)).to.deep.equal({l:5, t:5, w:10, h:10, r:15, b:15});
@@ -115,8 +115,8 @@ describe("Luv.Collider.World", function(){
     describe('when the world is not empty', function() {
       it('returns a list of collisions', function() {
         var world = Luv.Collider.World(),
-            a     = ['a'],
-            b     = ['b'];
+            a     = {n:'a'},
+            b     = {n:'b'};
 
         world.add(a, 0,0,10,10);
         world.add(b, 4,6,10,10);
@@ -129,8 +129,8 @@ describe("Luv.Collider.World", function(){
       describe('when previous l,t is passed', function() {
         it('still handles intersections as before', function() {
           var world = Luv.Collider.World(),
-              a     = ['a'],
-              b     = ['b'];
+              a     = {n:'a'},
+              b     = {n:'b'};
 
           world.add(a, 0,0, 2,2);
           world.add(b, 1,1, 2,2);
@@ -140,8 +140,8 @@ describe("Luv.Collider.World", function(){
         });
         it('detects and tags tunneling correctly', function() {
           var world = Luv.Collider.World(),
-              a     = ['a'],
-              b     = ['b'];
+              a     = {n:'a'},
+              b     = {n:'b'};
 
           world.add(a, 1,0, 2,1);
           world.add(b, 5,0, 4,1);
@@ -151,8 +151,8 @@ describe("Luv.Collider.World", function(){
         });
         it('detects the case where an object was touching another without intersecting, and then penetrates', function() {
           var world = Luv.Collider.World(),
-              a     = ['a'],
-              b     = ['b'];
+              a     = {n:'a'},
+              b     = {n:'b'};
 
           world.add(a, 30,50,20,20);
           world.add(b, 0,0,32,100);
@@ -164,8 +164,8 @@ describe("Luv.Collider.World", function(){
 
         it('returns a list of collisions sorted by ti', function() {
           var world = Luv.Collider.World(),
-              a     = ['a'],
-              b     = ['b'],
+              a     = {n:'a'},
+              b     = {n:'b'},
               c     = ['c'],
               d     = ['d'];
 
@@ -191,8 +191,8 @@ describe("Luv.Collider.World", function(){
     });
     it('makes the item disappear from the world', function() {
       var world = Luv.Collider.World(),
-          a     = ['a'],
-          b     = ['b'];
+          a     = {n:'a'},
+          b     = {n:'b'};
 
       world.add(a, 0,0, 10,10);
       world.add(b, 5,0, 1,1);
@@ -204,24 +204,22 @@ describe("Luv.Collider.World", function(){
     });
   });
 
-  describe(':toCell', function() {
+  describe(':toGrid', function() {
     it('returns the coordinates of the cell containing a point', function() {
       var w = Luv.Collider.World();
-      expect(w.toCell(0,0)).to.deep.equal({x:0, y:0});
-      expect(w.toCell(63.9,63.9)).to.deep.equal({x:0, y:0});
-      expect(w.toCell(64,64)).to.deep.equal({x:1, y:1});
-      expect(w.toCell(-1,-1)).to.deep.equal({x:-1, y:-1});
+      expect(w.toGrid(0,0)).to.deep.equal({x:0, y:0});
+      expect(w.toGrid(63.9,63.9)).to.deep.equal({x:0, y:0});
+      expect(w.toGrid(64,64)).to.deep.equal({x:1, y:1});
+      expect(w.toGrid(-1,-1)).to.deep.equal({x:-1, y:-1});
     });
   });
 
-
-
-  describe(':toWorld', function() {
+  describe(':fromGrid', function() {
     it('returns the world left,top corner of the given cell', function() {
       var w = Luv.Collider.World();
-      expect(w.toWorld(1,1)).to.deep.equal({x: 0, y:0});
-      expect(w.toWorld(2,2)).to.deep.equal({x:64, y:64});
-      expect(w.toWorld(-1,1)).to.deep.equal({x:-128, y:0});
+      expect(w.fromGrid(0,0)).to.deep.equal({x: 0, y:0});
+      expect(w.fromGrid(1,1)).to.deep.equal({x:64, y:64});
+      expect(w.fromGrid(-1,1)).to.deep.equal({x:-64, y:64});
     });
   });
 });
