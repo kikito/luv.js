@@ -1984,7 +1984,7 @@ window.Luv = function() {
         getRayIntersection: function(x, y, dx, dy) {
             return getLiangBarskyIntersections(this, x, y, dx, dy, 0, Number.MAX_VALUE);
         },
-        toCellBox: function(cellSize) {
+        toGrid: function(cellSize) {
             var l = Math.floor(this.l / cellSize), t = Math.floor(this.t / cellSize), r = Math.ceil(this.r / cellSize), b = Math.ceil(this.b / cellSize);
             return Luv.Collider.AABB(l, t, r - l, b - t);
         },
@@ -2118,20 +2118,20 @@ window.Luv = function() {
         init: function(cellSize, id) {
             this.cellSize = cellSize || DEFAULT_CELLSIZE;
             this.items = {};
-            this.boxes = {};
+            this.aabbs = {};
             this.rows = {};
             this.itemCount = 0;
             this.maxId = 0;
             this.id = id || "world";
             this.itemsKey = "_" + this.id + "_id";
         },
-        getBox: function(item) {
+        getaabb: function(item) {
             var key = this.itemsKey;
             if (!item[key]) {
-                throw new Error("item must have the property " + key + " in order to obtain its box");
+                throw new Error("item must have the property " + key + " in order to obtain its aabb");
             }
             var id = item[key];
-            return this.boxes[id];
+            return this.aabbs[id];
         },
         count: function() {
             return this.itemCount;
@@ -2143,10 +2143,10 @@ window.Luv = function() {
             }
             var id = ++this.maxId;
             item[key] = id;
-            this.boxes[id] = AABB(l, t, w, h);
+            this.aabbs[id] = AABB(l, t, w, h);
             this.items[id] = item;
             this.itemCount++;
-            addItemToCells(this, id, this.boxes[id]);
+            addItemToCells(this, id, this.aabbs[id]);
             return this.check(item);
         },
         move: function(item, l, t, w, h) {
@@ -2154,22 +2154,22 @@ window.Luv = function() {
             if (!id) {
                 throw new Error("item must have the property " + this.itemsKey + " in order to be moved");
             }
-            var box = this.boxes[id];
-            if (!box) {
+            var aabb = this.aabbs[id];
+            if (!aabb) {
                 throw new Error("item " + id + " is not in the world. Add it to the world before trying to move it");
             }
-            var prev_l = box.l, prev_t = box.t;
-            w = typeof w === "undefined" ? 0 : box.w;
-            h = typeof h === "undefined" ? 0 : box.h;
-            if (box.w != w || box.h != h) {
-                var prev_c = box.getCenter();
+            var prev_l = aabb.l, prev_t = aabb.t;
+            w = typeof w === "undefined" ? 0 : aabb.w;
+            h = typeof h === "undefined" ? 0 : aabb.h;
+            if (aabb.w != w || aabb.h != h) {
+                var prev_c = aabb.getCenter();
                 prev_l = prev_c.x - w / 2;
                 prev_t = prev_c.y - h / 2;
             }
-            if (box.w != w || box.h != h || box.l != l || box.t != t) {
-                removeItemFromCells(this, id, box);
-                box.setDimensions(l, t, w, h);
-                addItemToCells(this, id, box);
+            if (aabb.w != w || aabb.h != h || aabb.l != l || aabb.t != t) {
+                removeItemFromCells(this, id, aabb);
+                aabb.setDimensions(l, t, w, h);
+                addItemToCells(this, id, aabb);
             }
             return this.check(item, prev_l, prev_t);
         },
@@ -2178,20 +2178,20 @@ window.Luv = function() {
             if (!id) {
                 throw new Error("item was not inserted into the world before being checked");
             }
-            var box = this.boxes[id];
-            if (!box) {
+            var aabb = this.aabbs[id];
+            if (!aabb) {
                 throw new Error("item with id " + id + " was not inserted in the world");
             }
-            var l = box.l, t = box.t;
+            var l = aabb.l, t = aabb.t;
             prev_l = prev_l || l;
             prev_t = prev_t || t;
             var vx = l - prev_l, vy = t - prev_t, collisions = [], len = 0, visited = {};
-            var swipedBox = box;
+            var swipedaabb = aabb;
             if (prev_l != l || prev_t != t) {
-                var prevBox = AABB(prev_l, prev_t, box.w, box.h);
-                swipedBox = box.getCoveringAABB(prevBox);
+                var prevaabb = AABB(prev_l, prev_t, aabb.w, aabb.h);
+                swipedaabb = aabb.getCoveringAABB(prevaabb);
             }
-            var b = swipedBox.toCellBox(this.cellSize);
+            var b = swipedaabb.toGrid(this.cellSize);
             visited[id] = true;
             for (var cy = b.t; cy <= b.b; cy++) {
                 var row = this.rows[cy];
@@ -2208,7 +2208,7 @@ window.Luv = function() {
                             continue;
                         }
                         visited[other_id] = true;
-                        var oBox = this.boxes[other_id], col = box.collide(oBox, vx, vy);
+                        var oaabb = this.aabbs[other_id], col = aabb.collide(oaabb, vx, vy);
                         if (col) {
                             col.item = this.items[other_id];
                             collisions.push(col);
@@ -2223,12 +2223,12 @@ window.Luv = function() {
             if (!id) {
                 throw new Error("item must have property " + this.itemsKey + " in order to be removed from the world");
             }
-            var box = world.boxes[id];
-            if (!box) {
+            var aabb = world.aabbs[id];
+            if (!aabb) {
                 throw new Error("item " + id + " is not in the world. Add it to the world before trying to remove it");
             }
-            removeItemFromCells(this, id, box);
-            delete this.boxes[id];
+            removeItemFromCells(this, id, aabb);
+            delete this.aabbs[id];
             delete this.items[id];
             this.itemCount--;
         },
@@ -2245,8 +2245,8 @@ window.Luv = function() {
             };
         }
     });
-    var addItemToCells = function(world, id, box) {
-        var c = box.toCellBox(this.cellSize);
+    var addItemToCells = function(world, id, aabb) {
+        var c = aabb.toGrid(this.cellSize);
         for (var cy = c.t; cy <= c.b; cy++) {
             var row = this.rows[cy] = this.rows[cy] || {};
             for (var cx = c.l; cx <= c.r; cx++) {
@@ -2263,8 +2263,8 @@ window.Luv = function() {
             }
         }
     };
-    var removeItemFromCells = function(world, id, box) {
-        var c = box.toCellBox(world.cellSize);
+    var removeItemFromCells = function(world, id, aabb) {
+        var c = aabb.toGrid(world.cellSize);
         for (var cy = c.t; cy <= c.b; cy++) {
             var row = world.rows[cy];
             if (!row) {

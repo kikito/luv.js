@@ -3128,8 +3128,6 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
     );
   },
 
-
-
   getSegmentIntersection: function(x0,y0,x1,y1) {
     return getLiangBarskyIntersections(this, x0,y0,x1-x0,y1-y0, 0, 1);
   },
@@ -3142,7 +3140,7 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
     return getLiangBarskyIntersections(this, x,y,dx,dy, 0, Number.MAX_VALUE);
   },
 
-  toCellBox: function(cellSize) {
+  toGrid: function(cellSize) {
     var l = Math.floor(this.l/cellSize),
         t = Math.floor(this.t/cellSize),
         r = Math.ceil(this.r/cellSize),
@@ -3274,7 +3272,7 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
   init: function(cellSize, id) {
     this.cellSize = cellSize || DEFAULT_CELLSIZE;
     this.items      = {};
-    this.boxes      = {};
+    this.aabbs      = {};
     this.rows       = {};
     this.itemCount  = 0;
     this.maxId      = 0;
@@ -3282,13 +3280,13 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
     this.itemsKey   = '_' + this.id + '_id';
   },
 
-  getBox: function(item) {
+  getaabb: function(item) {
     var key = this.itemsKey;
     if(!item[key]) {
-      throw new Error('item must have the property ' + key + ' in order to obtain its box');
+      throw new Error('item must have the property ' + key + ' in order to obtain its aabb');
     }
     var id = item[key];
-    return this.boxes[id];
+    return this.aabbs[id];
   },
 
   count: function() {
@@ -3306,11 +3304,11 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
 
     item[key] = id;
 
-    this.boxes[id] = AABB(l,t,w,h);
+    this.aabbs[id] = AABB(l,t,w,h);
     this.items[id] = item;
     this.itemCount++;
 
-    addItemToCells(this, id, this.boxes[id]);
+    addItemToCells(this, id, this.aabbs[id]);
 
     return this.check(item);
   },
@@ -3320,26 +3318,26 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
     if(!id) {
       throw new Error('item must have the property ' + this.itemsKey + ' in order to be moved');
     }
-    var box = this.boxes[id];
-    if(!box) {
+    var aabb = this.aabbs[id];
+    if(!aabb) {
       throw new Error('item ' + id + ' is not in the world. Add it to the world before trying to move it');
     }
-    var prev_l = box.l,
-        prev_t = box.t;
+    var prev_l = aabb.l,
+        prev_t = aabb.t;
 
-    w = (typeof w === 'undefined' ? 0 : box.w);
-    h = (typeof h === 'undefined' ? 0 : box.h);
+    w = (typeof w === 'undefined' ? 0 : aabb.w);
+    h = (typeof h === 'undefined' ? 0 : aabb.h);
 
-    if(box.w != w || box.h != h) {
-      var prev_c = box.getCenter();
+    if(aabb.w != w || aabb.h != h) {
+      var prev_c = aabb.getCenter();
       prev_l = prev_c.x - w/2;
       prev_t = prev_c.y - h/2;
     }
 
-    if(box.w != w || box.h != h || box.l != l || box.t != t) {
-      removeItemFromCells(this, id, box);
-      box.setDimensions(l,t,w,h);
-      addItemToCells(this, id, box);
+    if(aabb.w != w || aabb.h != h || aabb.l != l || aabb.t != t) {
+      removeItemFromCells(this, id, aabb);
+      aabb.setDimensions(l,t,w,h);
+      addItemToCells(this, id, aabb);
     }
 
     return this.check(item, prev_l, prev_t);
@@ -3350,12 +3348,12 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
 
     if(!id) { throw new Error('item was not inserted into the world before being checked'); }
 
-    var box = this.boxes[id];
+    var aabb = this.aabbs[id];
 
-    if(!box) { throw new Error('item with id ' + id + ' was not inserted in the world'); }
+    if(!aabb) { throw new Error('item with id ' + id + ' was not inserted in the world'); }
 
-    var l = box.l,
-        t = box.t;
+    var l = aabb.l,
+        t = aabb.t;
 
     prev_l = prev_l || l;
     prev_t = prev_t || t;
@@ -3366,13 +3364,13 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
         len         = 0,
         visited     = {};
 
-    var swipedBox = box;
+    var swipedaabb = aabb;
     if(prev_l != l || prev_t != t) {
-      var prevBox = AABB(prev_l, prev_t, box.w, box.h);
-      swipedBox = box.getCoveringAABB(prevBox);
+      var prevaabb = AABB(prev_l, prev_t, aabb.w, aabb.h);
+      swipedaabb = aabb.getCoveringAABB(prevaabb);
     }
 
-    var b = swipedBox.toCellBox(this.cellSize);
+    var b = swipedaabb.toGrid(this.cellSize);
 
     visited[id] = true;
 
@@ -3387,8 +3385,8 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
             continue;
           }
           visited[other_id] = true;
-          var oBox = this.boxes[other_id],
-              col  = box.collide(oBox, vx, vy);
+          var oaabb = this.aabbs[other_id],
+              col  = aabb.collide(oaabb, vx, vy);
           if(col) {
             col.item = this.items[other_id];
             collisions.push(col);
@@ -3405,14 +3403,14 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
     if(!id) {
       throw new Error('item must have property ' + this.itemsKey + ' in order to be removed from the world');
     }
-    var box = world.boxes[id];
-    if(!box) {
+    var aabb = world.aabbs[id];
+    if(!aabb) {
       throw new Error('item ' + id + ' is not in the world. Add it to the world before trying to remove it');
     }
 
-    removeItemFromCells(this, id, box);
+    removeItemFromCells(this, id, aabb);
 
-    delete this.boxes[id];
+    delete this.aabbs[id];
     delete this.items[id];
     this.itemCount--;
   },
@@ -3426,8 +3424,8 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
   }
 });
 
-var addItemToCells = function(world, id, box) {
-  var c   = box.toCellBox(this.cellSize);
+var addItemToCells = function(world, id, aabb) {
+  var c   = aabb.toGrid(this.cellSize);
 
   for(var cy = c.t; cy <= c.b; cy++) {
     var row  = this.rows[cy] = this.rows[cy] || {};
@@ -3441,8 +3439,8 @@ var addItemToCells = function(world, id, box) {
   }
 };
 
-var removeItemFromCells = function(world, id, box) {
-  var c = box.toCellBox(world.cellSize);
+var removeItemFromCells = function(world, id, aabb) {
+  var c = aabb.toGrid(world.cellSize);
 
   for(var cy = c.t; cy <= c.b; cy++) {
     var row = world.rows[cy];

@@ -43,8 +43,6 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
     );
   },
 
-
-
   getSegmentIntersection: function(x0,y0,x1,y1) {
     return getLiangBarskyIntersections(this, x0,y0,x1-x0,y1-y0, 0, 1);
   },
@@ -57,7 +55,7 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
     return getLiangBarskyIntersections(this, x,y,dx,dy, 0, Number.MAX_VALUE);
   },
 
-  toCellBox: function(cellSize) {
+  toGrid: function(cellSize) {
     var l = Math.floor(this.l/cellSize),
         t = Math.floor(this.t/cellSize),
         r = Math.ceil(this.r/cellSize),
