@@ -112,10 +112,10 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
 
     visited[id] = true;
 
-    for(var cy = b.t; cy <= b.b; cy++) {
+    for(var cy = b.t; cy < b.b; cy++) {
       var row = this.rows[cy];
       if(!row) { continue; }
-      for(var cx = b.l; cx <= b.r; cx++) {
+      for(var cx = b.l; cx < b.r; cx++) {
         var cell = row[cx];
         if(!cell || cell.itemCount === 0) { continue; }
         for(var other_id in cell.ids) {
@@ -159,15 +159,34 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
 
   fromGrid: function(gx, gy) {
     return {x: gx * this.cellSize, y: gy * this.cellSize};
+  },
+
+  drawInCanvas: function(canvas) {
+    for(var y in this.rows) {
+      if(!this.rows.hasOwnProperty(y)) { continue; }
+      var row = this.rows[y];
+      for(var x in row) {
+        if(!row.hasOwnProperty(x)) { continue; }
+        var corner = this.fromGrid(x,y);
+        canvas.strokeRectangle(corner.x, corner.y, this.cellSize, this.cellSize);
+      }
+    }
+
+    for(var id in this.aabbs) {
+      if(!this.aabbs.hasOwnProperty(id)) { continue; }
+      var aabb = this.aabbs[id];
+      canvas.strokeRectangle(aabb.l, aabb.t, aabb.w, aabb.h);
+    }
+
   }
 });
 
 var addItemToCells = function(world, id, aabb) {
   var c   = aabb.toGrid(world.cellSize);
 
-  for(var cy = c.t; cy <= c.b; cy++) {
+  for(var cy = c.t; cy < c.b; cy++) {
     var row  = world.rows[cy] = world.rows[cy] || {};
-    for(var cx = c.l; cx <= c.r; cx++) {
+    for(var cx = c.l; cx < c.r; cx++) {
       var cell = row[cx] = row[cx] || {itemCount: 0, x: cx, y: cy, ids: {}};
       if(!cell.ids[id]) {
         cell.ids[id] = true;
@@ -180,10 +199,10 @@ var addItemToCells = function(world, id, aabb) {
 var removeItemFromCells = function(world, id, aabb) {
   var c = aabb.toGrid(world.cellSize);
 
-  for(var cy = c.t; cy <= c.b; cy++) {
+  for(var cy = c.t; cy < c.b; cy++) {
     var row = world.rows[cy];
     if(!row) { continue; }
-    for(var cx = c.l; cx <= c.r; cx++) {
+    for(var cx = c.l; cx < c.r; cx++) {
       var cell = row[cx];
       if(cell && cell.ids[id]) {
         delete cell.ids[id];
