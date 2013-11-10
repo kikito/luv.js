@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-11-09) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-11-10) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -3325,8 +3325,8 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
     var prev_l = aabb.l,
         prev_t = aabb.t;
 
-    w = (typeof w === 'undefined' ? 0 : aabb.w);
-    h = (typeof h === 'undefined' ? 0 : aabb.h);
+    w = (typeof w === 'undefined' ? aabb.w : w);
+    h = (typeof h === 'undefined' ? aabb.h : h);
 
     if(aabb.w != w || aabb.h != h) {
       var prev_c = aabb.getCenter();
@@ -3355,8 +3355,8 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
     var l = aabb.l,
         t = aabb.t;
 
-    prev_l = prev_l || l;
-    prev_t = prev_t || t;
+    prev_l = typeof prev_l === 'undefined' ? l : prev_l;
+    prev_t = typeof prev_t === 'undefined' ? t : prev_t;
 
     var vx          = l - prev_l,
         vy          = t - prev_t,
@@ -3376,10 +3376,9 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
 
     for(var cy = b.t; cy <= b.b; cy++) {
       var row = this.rows[cy];
-      if(!row) { continue; }
       for(var cx = b.l; cx <= b.r; cx++) {
         var cell = row[cx];
-        if(!cell || cell.itemCount === 0) { continue; }
+        if(cell.itemCount <= 1) { continue; }
         for(var other_id in cell.ids) {
           if(visited[other_id] || !cell.ids.hasOwnProperty(other_id)) {
             continue;

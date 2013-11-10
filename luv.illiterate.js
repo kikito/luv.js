@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-11-09) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-11-10) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 window.Luv = function() {
@@ -2159,8 +2159,8 @@ window.Luv = function() {
                 throw new Error("item " + id + " is not in the world. Add it to the world before trying to move it");
             }
             var prev_l = aabb.l, prev_t = aabb.t;
-            w = typeof w === "undefined" ? 0 : aabb.w;
-            h = typeof h === "undefined" ? 0 : aabb.h;
+            w = typeof w === "undefined" ? aabb.w : w;
+            h = typeof h === "undefined" ? aabb.h : h;
             if (aabb.w != w || aabb.h != h) {
                 var prev_c = aabb.getCenter();
                 prev_l = prev_c.x - w / 2;
@@ -2183,8 +2183,8 @@ window.Luv = function() {
                 throw new Error("item with id " + id + " was not inserted in the world");
             }
             var l = aabb.l, t = aabb.t;
-            prev_l = prev_l || l;
-            prev_t = prev_t || t;
+            prev_l = typeof prev_l === "undefined" ? l : prev_l;
+            prev_t = typeof prev_t === "undefined" ? t : prev_t;
             var vx = l - prev_l, vy = t - prev_t, collisions = [], len = 0, visited = {};
             var swipedaabb = aabb;
             if (prev_l != l || prev_t != t) {
@@ -2195,12 +2195,9 @@ window.Luv = function() {
             visited[id] = true;
             for (var cy = b.t; cy <= b.b; cy++) {
                 var row = this.rows[cy];
-                if (!row) {
-                    continue;
-                }
                 for (var cx = b.l; cx <= b.r; cx++) {
                     var cell = row[cx];
-                    if (!cell || cell.itemCount === 0) {
+                    if (cell.itemCount <= 1) {
                         continue;
                     }
                     for (var other_id in cell.ids) {
