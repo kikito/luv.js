@@ -102,21 +102,22 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
         len         = 0,
         visited     = {};
 
-    var swipedaabb = aabb;
-    if(prev_l != l || prev_t != t) {
+    var taabb = aabb;
+    if(prev_l !== l || prev_t !== t) {
       var prevaabb = AABB(prev_l, prev_t, aabb.w, aabb.h);
-      swipedaabb = aabb.getCoveringAABB(prevaabb);
+      taabb = aabb.getCoveringAABB(prevaabb);
     }
 
-    var b = swipedaabb.toGrid(this.cellSize);
+    var b = taabb.toGrid(this.cellSize);
 
     visited[id] = true;
 
     for(var cy = b.t; cy <= b.b; cy++) {
       var row = this.rows[cy];
+      if(!row) { continue; }
       for(var cx = b.l; cx <= b.r; cx++) {
         var cell = row[cx];
-        if(!cell || cell.itemCount <= 1) { continue; }
+        if(!cell || cell.itemCount === 0) { continue; }
         for(var other_id in cell.ids) {
           if(visited[other_id] || !cell.ids.hasOwnProperty(other_id)) {
             continue;

@@ -3170,7 +3170,7 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
     var pastThis = this;
 
     if(vx !== 0 || vy !== 0) {
-      pastThis = Luv.Collider.AABB(this.l - vx, this.l - vy, this.w, this.h);
+      pastThis = Luv.Collider.AABB(this.l - vx, this.t - vy, this.w, this.h);
     }
 
     m = pastThis.getMinkowskyDiff(other);
@@ -3183,11 +3183,12 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
       if(lbi) {
         t0 = lbi.t0;
         t1 = lbi.t1;
+        console.log(t0,t1);
         if     (0 < t0 && t0 < 1) { ti = t0; }
         else if(0 < t1 && t1 < 1) { ti = t1; }
 
         if(ti) { // this tunnels into other
-          collision = {dx: vx*ti, dy: vy*ti, ti: ti, tunneling: true};
+          collision = {dx: vx*ti-vx, dy: vy*ti-vy, ti: ti, tunneling: true};
         } else {
           m = this.getMinkowskyDiff(other);
           if(m.containsPoint(0,0)) {
@@ -3364,21 +3365,22 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
         len         = 0,
         visited     = {};
 
-    var swipedaabb = aabb;
-    if(prev_l != l || prev_t != t) {
+    var taabb = aabb;
+    if(prev_l !== l || prev_t !== t) {
       var prevaabb = AABB(prev_l, prev_t, aabb.w, aabb.h);
-      swipedaabb = aabb.getCoveringAABB(prevaabb);
+      taabb = aabb.getCoveringAABB(prevaabb);
     }
 
-    var b = swipedaabb.toGrid(this.cellSize);
+    var b = taabb.toGrid(this.cellSize);
 
     visited[id] = true;
 
     for(var cy = b.t; cy <= b.b; cy++) {
       var row = this.rows[cy];
+      if(!row) { continue; }
       for(var cx = b.l; cx <= b.r; cx++) {
         var cell = row[cx];
-        if(!cell || cell.itemCount <= 1) { continue; }
+        if(!cell || cell.itemCount === 0) { continue; }
         for(var other_id in cell.ids) {
           if(visited[other_id] || !cell.ids.hasOwnProperty(other_id)) {
             continue;

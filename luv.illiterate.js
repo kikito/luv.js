@@ -2002,7 +2002,7 @@ window.Luv = function() {
             var collision, m, p, ti, lbi, t0, t1;
             var pastThis = this;
             if (vx !== 0 || vy !== 0) {
-                pastThis = Luv.Collider.AABB(this.l - vx, this.l - vy, this.w, this.h);
+                pastThis = Luv.Collider.AABB(this.l - vx, this.t - vy, this.w, this.h);
             }
             m = pastThis.getMinkowskyDiff(other);
             if (m.containsPoint(0, 0)) {
@@ -2018,6 +2018,7 @@ window.Luv = function() {
                 if (lbi) {
                     t0 = lbi.t0;
                     t1 = lbi.t1;
+                    console.log(t0, t1);
                     if (0 < t0 && t0 < 1) {
                         ti = t0;
                     } else if (0 < t1 && t1 < 1) {
@@ -2025,8 +2026,8 @@ window.Luv = function() {
                     }
                     if (ti) {
                         collision = {
-                            dx: vx * ti,
-                            dy: vy * ti,
+                            dx: vx * ti - vx,
+                            dy: vy * ti - vy,
                             ti: ti,
                             tunneling: true
                         };
@@ -2186,18 +2187,21 @@ window.Luv = function() {
             prev_l = typeof prev_l === "undefined" ? l : prev_l;
             prev_t = typeof prev_t === "undefined" ? t : prev_t;
             var vx = l - prev_l, vy = t - prev_t, collisions = [], len = 0, visited = {};
-            var swipedaabb = aabb;
-            if (prev_l != l || prev_t != t) {
+            var taabb = aabb;
+            if (prev_l !== l || prev_t !== t) {
                 var prevaabb = AABB(prev_l, prev_t, aabb.w, aabb.h);
-                swipedaabb = aabb.getCoveringAABB(prevaabb);
+                taabb = aabb.getCoveringAABB(prevaabb);
             }
-            var b = swipedaabb.toGrid(this.cellSize);
+            var b = taabb.toGrid(this.cellSize);
             visited[id] = true;
             for (var cy = b.t; cy <= b.b; cy++) {
                 var row = this.rows[cy];
+                if (!row) {
+                    continue;
+                }
                 for (var cx = b.l; cx <= b.r; cx++) {
                     var cell = row[cx];
-                    if (!cell || cell.itemCount <= 1) {
+                    if (!cell || cell.itemCount === 0) {
                         continue;
                     }
                     for (var other_id in cell.ids) {

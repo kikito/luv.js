@@ -85,7 +85,7 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
     var pastThis = this;
 
     if(vx !== 0 || vy !== 0) {
-      pastThis = Luv.Collider.AABB(this.l - vx, this.l - vy, this.w, this.h);
+      pastThis = Luv.Collider.AABB(this.l - vx, this.t - vy, this.w, this.h);
     }
 
     m = pastThis.getMinkowskyDiff(other);
@@ -98,11 +98,12 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
       if(lbi) {
         t0 = lbi.t0;
         t1 = lbi.t1;
+        console.log(t0,t1);
         if     (0 < t0 && t0 < 1) { ti = t0; }
         else if(0 < t1 && t1 < 1) { ti = t1; }
 
         if(ti) { // this tunnels into other
-          collision = {dx: vx*ti, dy: vy*ti, ti: ti, tunneling: true};
+          collision = {dx: vx*ti-vx, dy: vy*ti-vy, ti: ti, tunneling: true};
         } else {
           m = this.getMinkowskyDiff(other);
           if(m.containsPoint(0,0)) {
