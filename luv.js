@@ -3183,7 +3183,6 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
       if(lbi) {
         t0 = lbi.t0;
         t1 = lbi.t1;
-        console.log(t0,t1);
         if     (0 < t0 && t0 < 1) { ti = t0; }
         else if(0 < t1 && t1 < 1) { ti = t1; }
 
@@ -3193,7 +3192,7 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
           m = this.getMinkowskyDiff(other);
           if(m.containsPoint(0,0)) {
             p         = m.getNearestPointInPerimeter(0,0);
-            collision = {dx: p.x-vx, dy: p.y-vy, ti: 0, tunneling: false };
+            collision = {dx: p.x, dy: p.y, ti: 1, tunneling: false };
           }
         }
       }
