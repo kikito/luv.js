@@ -2197,7 +2197,7 @@ window.Luv = function() {
                 var row = this.rows[cy];
                 for (var cx = b.l; cx <= b.r; cx++) {
                     var cell = row[cx];
-                    if (cell.itemCount <= 1) {
+                    if (!cell || cell.itemCount <= 1) {
                         continue;
                     }
                     for (var other_id in cell.ids) {

@@ -91,7 +91,11 @@ describe("Luv.Collider.World", function(){
             a     = {n:'a'};
         world.add(a, 0,0, 10,10);
         world.move(a, 5,5);
-        expect(world.getAABB(a)).to.deep.equal({l:5, t:5, w:10, h:10, r:15, b:15});
+        var aabb = world.getAABB(a);
+        expect(aabb.l).to.equal(5);
+        expect(aabb.t).to.equal(5);
+        expect(aabb.w).to.equal(10);
+        expect(aabb.h).to.equal(10);
       });
     });
   });

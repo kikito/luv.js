@@ -3378,7 +3378,7 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
       var row = this.rows[cy];
       for(var cx = b.l; cx <= b.r; cx++) {
         var cell = row[cx];
-        if(cell.itemCount <= 1) { continue; }
+        if(!cell || cell.itemCount <= 1) { continue; }
         for(var other_id in cell.ids) {
           if(visited[other_id] || !cell.ids.hasOwnProperty(other_id)) {
             continue;
