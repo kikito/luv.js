@@ -1,4 +1,4 @@
-/*! luv 0.0.1 (2013-11-11) - https://github.com/kikito/luv.js */
+/*! luv 0.0.1 (2013-11-14) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
@@ -3423,23 +3423,26 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
     return {x: gx * this.cellSize, y: gy * this.cellSize};
   },
 
-  drawInCanvas: function(canvas) {
+  drawCells: function(canvas) {
     for(var y in this.rows) {
       if(!this.rows.hasOwnProperty(y)) { continue; }
       var row = this.rows[y];
       for(var x in row) {
         if(!row.hasOwnProperty(x)) { continue; }
         var corner = this.fromGrid(x,y);
+        var cell = row[x];
         canvas.strokeRectangle(corner.x, corner.y, this.cellSize, this.cellSize);
+        canvas.print(cell.itemCount, corner.x + 5, corner.y + 10);
       }
     }
+  },
 
+  drawItems: function(canvas) {
     for(var id in this.aabbs) {
       if(!this.aabbs.hasOwnProperty(id)) { continue; }
       var aabb = this.aabbs[id];
       canvas.strokeRectangle(aabb.l, aabb.t, aabb.w, aabb.h);
     }
-
   }
 });
 
