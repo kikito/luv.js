@@ -31,6 +31,9 @@ describe("Luv.Collider.World", function(){
       expect(function() { w.add({}, 1,2,3); }).to.Throw(Error);
       expect(function() { w.add({}, 1/0,2,3); }).to.Throw(Error);
       expect(function() { w.add({}, 0/0,2,3); }).to.Throw(Error);
+      expect(function() { w.add({}, null,2,3); }).to.Throw(Error);
+      expect(function() { w.add({}, [],2,3); }).to.Throw(Error);
+      expect(function() { w.add({}, '',2,3); }).to.Throw(Error);
     });
     it("checks that w,h are not negative", function() {
       var w = Luv.Collider.World();

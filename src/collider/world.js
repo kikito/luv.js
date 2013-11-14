@@ -246,13 +246,13 @@ var sortByTi = function(a,b) {
 };
 
 var assertIsNumber = function(value, name) {
-  if(!isFinite(value) || isNaN(value)) {
+  if(typeof value != 'number' || !isFinite(value)) {
     throw new Error( name + " must be a number, was " + value);
   }
 };
 
 var assertIsPositiveNumber = function(value, name) {
-  if(!isFinite(value) || isNaN(value) || value < 0) {
+  if(typeof value != 'number' || !isFinite(value) || value < 0) {
     throw new Error( name + " must be a positive number, was " + value);
   }
 };
