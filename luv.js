@@ -3094,11 +3094,6 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
   },
 
   setDimensions: function(l,t,w,h) {
-    assertIsNumber(l, 'l');
-    assertIsNumber(t, 't');
-    assertIsPositiveNumber(w, 'w');
-    assertIsPositiveNumber(h, 'h');
-
     this.t   = t;
     this.l   = l;
     this.w   = w;
@@ -3263,18 +3258,6 @@ var getLiangBarskyIntersections = function(aabb, x,y, dx,dy, minT, maxT) {
   }
 };
 
-var assertIsNumber = function(value, name) {
-  if(!isFinite(value) || isNaN(value)) {
-    throw new Error( name + " must be a number, was " + value);
-  }
-};
-
-var assertIsPositiveNumber = function(value, name) {
-  if(!isFinite(value) || isNaN(value) || value < 0) {
-    throw new Error( name + " must be a positive number, was " + value);
-  }
-};
-
 }());
 
 // # world.js
@@ -3312,10 +3295,14 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
 
   add: function(item, l,t,w,h) {
 
+    assertIsObject(item);
+
     var key = this.itemsKey;
     if(item[key]) {
       throw new Error('item must not have the property ' + key + ' when inserting it in the world');
     }
+
+    assertValidDimensions(l,t,w,h);
 
     var id  = ++this.maxId;
 
@@ -3331,6 +3318,8 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
   },
 
   move: function(item, l,t,w,h) {
+    assertIsObject(item);
+
     var id  = item[this.itemsKey];
     if(!id) {
       throw new Error('item must have the property ' + this.itemsKey + ' in order to be moved');
@@ -3339,11 +3328,14 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
     if(!aabb) {
       throw new Error('item ' + id + ' is not in the world. Add it to the world before trying to move it');
     }
-    var prev_l = aabb.l,
-        prev_t = aabb.t;
 
     w = (typeof w === 'undefined' ? aabb.w : w);
     h = (typeof h === 'undefined' ? aabb.h : h);
+
+    assertValidDimensions(l,t,w,h);
+
+    var prev_l = aabb.l,
+        prev_t = aabb.t;
 
     if(aabb.w != w || aabb.h != h) {
       var prev_c = aabb.getCenter();
@@ -3361,6 +3353,8 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
   },
 
   check: function(item, prev_l, prev_t) {
+    assertIsObject(item);
+
     var id = item[this.itemsKey];
 
     if(!id) { throw new Error('item was not inserted into the world before being checked'); }
@@ -3416,6 +3410,7 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
   },
 
   remove: function(item) {
+    assertIsObject(item);
     var id  = item[this.itemsKey];
     if(!id) {
       throw new Error('item must have property ' + this.itemsKey + ' in order to be removed from the world');
@@ -3497,6 +3492,31 @@ var removeItemFromCells = function(world, id, aabb) {
 var sortByTi = function(a,b) {
   var diff = a.ti - b.ti;
   return diff ? (diff < 0 ? -1 : 1) : 0;
+};
+
+var assertIsNumber = function(value, name) {
+  if(!isFinite(value) || isNaN(value)) {
+    throw new Error( name + " must be a number, was " + value);
+  }
+};
+
+var assertIsPositiveNumber = function(value, name) {
+  if(!isFinite(value) || isNaN(value) || value < 0) {
+    throw new Error( name + " must be a positive number, was " + value);
+  }
+};
+
+var assertValidDimensions = function(l,t,w,h) {
+  assertIsNumber(l, 'l');
+  assertIsNumber(t, 't');
+  assertIsPositiveNumber(w, 'w');
+  assertIsPositiveNumber(h, 'h');
+};
+
+var assertIsObject = function(obj) {
+  if(typeof obj != 'object') {
+    throw new Error( "Expected an object, found " + obj);
+  }
 };
 
 })();

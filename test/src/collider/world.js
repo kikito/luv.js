@@ -22,6 +22,22 @@ describe("Luv.Collider.World", function(){
   });
 
   describe(".add", function() {
+    it("checks that item is an object and l,t,w,h are common numbers (not Nan or Infinite)", function() {
+      var w = Luv.Collider.World();
+      expect(function() { w.add(); }).to.Throw(Error);
+      expect(function() { w.add({}); }).to.Throw(Error);
+      expect(function() { w.add({}, 'a', 'b', 'c', 'd'); }).to.Throw(Error);
+      expect(function() { w.add({}, 1, 2); }).to.Throw(Error);
+      expect(function() { w.add({}, 1,2,3); }).to.Throw(Error);
+      expect(function() { w.add({}, 1/0,2,3); }).to.Throw(Error);
+      expect(function() { w.add({}, 0/0,2,3); }).to.Throw(Error);
+    });
+    it("checks that w,h are not negative", function() {
+      var w = Luv.Collider.World();
+      expect(function() { w.add({}, 1,2,-3,1); }).to.Throw(Error);
+      expect(function() { w.add({}, 1,2,3,-1); }).to.Throw(Error);
+      expect(function() { w.add({}, 1,2,3,0); }).to.not.Throw(Error);
+    });
     it("throws an error if the object already exists", function() {
       var obj = {},
           w   = Luv.Collider.World();
@@ -57,7 +73,6 @@ describe("Luv.Collider.World", function(){
   });
 
   describe('.move', function() {
-
     describe('when the object is not there', function() {
       it('throws an error', function() {
         var world = Luv.Collider.World();

@@ -1950,10 +1950,6 @@ window.Luv = function() {
             this.setDimensions(l, t, w, h);
         },
         setDimensions: function(l, t, w, h) {
-            assertIsNumber(l, "l");
-            assertIsNumber(t, "t");
-            assertIsPositiveNumber(w, "w");
-            assertIsPositiveNumber(h, "h");
             this.t = t;
             this.l = l;
             this.w = w;
@@ -2113,16 +2109,6 @@ window.Luv = function() {
             return lb;
         }
     };
-    var assertIsNumber = function(value, name) {
-        if (!isFinite(value) || isNaN(value)) {
-            throw new Error(name + " must be a number, was " + value);
-        }
-    };
-    var assertIsPositiveNumber = function(value, name) {
-        if (!isFinite(value) || isNaN(value) || value < 0) {
-            throw new Error(name + " must be a positive number, was " + value);
-        }
-    };
 })();
 
 (function() {
@@ -2151,10 +2137,12 @@ window.Luv = function() {
             return this.itemCount;
         },
         add: function(item, l, t, w, h) {
+            assertIsObject(item);
             var key = this.itemsKey;
             if (item[key]) {
                 throw new Error("item must not have the property " + key + " when inserting it in the world");
             }
+            assertValidDimensions(l, t, w, h);
             var id = ++this.maxId;
             item[key] = id;
             this.aabbs[id] = AABB(l, t, w, h);
@@ -2164,6 +2152,7 @@ window.Luv = function() {
             return this.check(item);
         },
         move: function(item, l, t, w, h) {
+            assertIsObject(item);
             var id = item[this.itemsKey];
             if (!id) {
                 throw new Error("item must have the property " + this.itemsKey + " in order to be moved");
@@ -2172,9 +2161,10 @@ window.Luv = function() {
             if (!aabb) {
                 throw new Error("item " + id + " is not in the world. Add it to the world before trying to move it");
             }
-            var prev_l = aabb.l, prev_t = aabb.t;
             w = typeof w === "undefined" ? aabb.w : w;
             h = typeof h === "undefined" ? aabb.h : h;
+            assertValidDimensions(l, t, w, h);
+            var prev_l = aabb.l, prev_t = aabb.t;
             if (aabb.w != w || aabb.h != h) {
                 var prev_c = aabb.getCenter();
                 prev_l = prev_c.x - w / 2;
@@ -2188,6 +2178,7 @@ window.Luv = function() {
             return this.check(item, prev_l, prev_t);
         },
         check: function(item, prev_l, prev_t) {
+            assertIsObject(item);
             var id = item[this.itemsKey];
             if (!id) {
                 throw new Error("item was not inserted into the world before being checked");
@@ -2233,6 +2224,7 @@ window.Luv = function() {
             return collisions.sort(sortByTi);
         },
         remove: function(item) {
+            assertIsObject(item);
             var id = item[this.itemsKey];
             if (!id) {
                 throw new Error("item must have property " + this.itemsKey + " in order to be removed from the world");
@@ -2322,5 +2314,26 @@ window.Luv = function() {
     var sortByTi = function(a, b) {
         var diff = a.ti - b.ti;
         return diff ? diff < 0 ? -1 : 1 : 0;
+    };
+    var assertIsNumber = function(value, name) {
+        if (!isFinite(value) || isNaN(value)) {
+            throw new Error(name + " must be a number, was " + value);
+        }
+    };
+    var assertIsPositiveNumber = function(value, name) {
+        if (!isFinite(value) || isNaN(value) || value < 0) {
+            throw new Error(name + " must be a positive number, was " + value);
+        }
+    };
+    var assertValidDimensions = function(l, t, w, h) {
+        assertIsNumber(l, "l");
+        assertIsNumber(t, "t");
+        assertIsPositiveNumber(w, "w");
+        assertIsPositiveNumber(h, "h");
+    };
+    var assertIsObject = function(obj) {
+        if (typeof obj != "object") {
+            throw new Error("Expected an object, found " + obj);
+        }
     };
 })();
