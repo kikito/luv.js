@@ -3094,6 +3094,11 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
   },
 
   setDimensions: function(l,t,w,h) {
+    assertIsNumber(l, 'l');
+    assertIsNumber(t, 't');
+    assertIsPositiveNumber(w, 'w');
+    assertIsPositiveNumber(h, 'h');
+
     this.t   = t;
     this.l   = l;
     this.w   = w;
@@ -3255,6 +3260,18 @@ var getLiangBarskyIntersections = function(aabb, x,y, dx,dy, minT, maxT) {
     lb.dx = dx;
     lb.dy = dy;
     return lb;
+  }
+};
+
+var assertIsNumber = function(value, name) {
+  if(!isFinite(value) || isNaN(value)) {
+    throw new Error( name + " must be a number, was " + value);
+  }
+};
+
+var assertIsPositiveNumber = function(value, name) {
+  if(!isFinite(value) || isNaN(value) || value < 0) {
+    throw new Error( name + " must be a positive number, was " + value);
   }
 };
 

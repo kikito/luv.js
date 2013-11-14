@@ -16,6 +16,19 @@ describe('Luv.Collider.AABB', function() {
         10,   20, 100, 200,  110, 220
       ]);
     });
+    it("checks that l,t,w,h are common numbers (not Nan or Infinite)", function() {
+      expect(function() { AABB(); }).to.Throw(Error);
+      expect(function() { AABB('a', 'b', 'c', 'd'); }).to.Throw(Error);
+      expect(function() { AABB(1,2); }).to.Throw(Error);
+      expect(function() { AABB(1,2,3); }).to.Throw(Error);
+      expect(function() { AABB(1/0,2,3); }).to.Throw(Error);
+      expect(function() { AABB(0/0,2,3); }).to.Throw(Error);
+    });
+    it("checks that w,h are not negative", function() {
+      expect(function() { AABB(1,2,-3,1); }).to.Throw(Error);
+      expect(function() { AABB(1,2,3,-1); }).to.Throw(Error);
+      expect(function() { AABB(1,2,3,0); }).to.not.Throw(Error);
+    });
   });
 
   describe('clone', function() {
