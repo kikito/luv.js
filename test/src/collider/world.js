@@ -56,6 +56,24 @@ describe("Luv.Collider.World", function(){
         var w = Luv.Collider.World();
         expect(w.add({}, 0,0,1,1)).to.deep.equal([]);
       });
+      it('creates as many cells as needed to hold the item', function(){
+        var world = Luv.Collider.World();
+
+        world.add({}, 0,0,10,10); // adss one cell
+        expect(world.countCells()).to.equal(1);
+
+        world.add({}, 100,100,10,10); // adds a separate single cell
+        expect(world.countCells()).to.equal(2);
+
+        world.add({}, 0,0,100,10); // occupies 2 cells, but just adds one (the other is already added)
+        expect(world.countCells()).to.equal(3);
+
+        world.add({}, 0,0,100,10); // occupies 2 cells, but just adds one (the other is already added)
+        expect(world.countCells()).to.equal(3);
+
+        world.add({}, 300,300,64,64); // adds 8 new cells
+        expect(world.countCells()).to.equal(7);
+      });
     });
     describe("when the world is not empty", function() {
       it("returns a list with the collisions", function(){
@@ -115,7 +133,7 @@ describe("Luv.Collider.World", function(){
     });
   });
 
-  describe(':check', function() {
+  describe('.check', function() {
     describe('when the item does not exist', function() {
       it('throws an error', function() {
         var world = Luv.Collider.World();
@@ -203,7 +221,7 @@ describe("Luv.Collider.World", function(){
     });
   });
 
-  describe(':remove', function() {
+  describe('.remove', function() {
     it('throws an error if the item does not exist', function() {
       var world = Luv.Collider.World();
       expect(function(){ world.remove({}); }).to.Throw(Error);
@@ -223,7 +241,7 @@ describe("Luv.Collider.World", function(){
     });
   });
 
-  describe(':toGrid', function() {
+  describe('.toGrid', function() {
     it('returns the coordinates of the cell containing a point', function() {
       var w = Luv.Collider.World();
       expect(w.toGrid(0,0)).to.deep.equal({x:0, y:0});
@@ -233,7 +251,7 @@ describe("Luv.Collider.World", function(){
     });
   });
 
-  describe(':fromGrid', function() {
+  describe('.fromGrid', function() {
     it('returns the world left,top corner of the given cell', function() {
       var w = Luv.Collider.World();
       expect(w.fromGrid(0,0)).to.deep.equal({x: 0, y:0});

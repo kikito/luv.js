@@ -31,6 +31,19 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
     return this.itemCount;
   },
 
+  countCells: function() {
+    var rows = this.rows,
+        count = 0;
+    for(var y in rows) {
+      if(!rows.hasOwnProperty(y)) { continue; }
+      var row = rows[y];
+      for(var x in row) {
+        if(row.hasOwnProperty(x)) { count++; }
+      }
+    }
+    return count;
+  },
+
   add: function(item, l,t,w,h) {
 
     assertIsObject(item);
