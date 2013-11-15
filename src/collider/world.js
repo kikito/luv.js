@@ -148,7 +148,7 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
           }
           visited[other_id] = true;
           var oaabb = this.aabbs[other_id],
-              col  = aabb.collide(oaabb, vx, vy);
+              col  = collideAABBs(aabb, oaabb, vx, vy);
           if(col) {
             col.item = this.items[other_id];
             collisions.push(col);
@@ -208,6 +208,41 @@ Luv.Collider.World = Luv.Class('Luv.Collider.World', {
     }
   }
 });
+
+var collideAABBs = function(aabb, other, vx, vy) {
+  var collision, md, point, ti, t0t1, t0, t1;
+  var prev_aabb = aabb;
+
+  if(vx !== 0 || vy !== 0) {
+    prev_aabb = Luv.Collider.AABB(aabb.l - vx, aabb.t - vy, aabb.w, aabb.h);
+  }
+
+  md = prev_aabb.getMinkowskyDifference(other);
+
+  if(md.containsPoint(0,0)) { // prev_aabb was intersecting with other
+    point     = md.getNearestPointInPerimeter(0,0);
+    collision = {dx: point.x-vx, dy: point.y-vy, ti: 0, tunneling: false };
+  } else {
+    t0t1 = md.getLiangBarskyIndices(0,0, vx,vy, 0,1);
+    if(t0t1) {
+      t0 = t0t1.t0;
+      t1 = t0t1.t1;
+      if     (0 < t0 && t0 < 1) { ti = t0; }
+      else if(0 < t1 && t1 < 1) { ti = t1; }
+
+      if(ti) { // this tunnels into other
+        collision = {dx: vx*ti-vx, dy: vy*ti-vy, ti: ti, tunneling: true};
+      } else {
+        md = aabb.getMinkowskyDifference(other);
+        if(md.containsPoint(0,0)) {
+          point     = md.getNearestPointInPerimeter(0,0);
+          collision = {dx: point.x, dy: point.y, ti: 1, tunneling: false };
+        }
+      }
+    }
+  }
+  return collision;
+};
 
 var addItemToCells = function(world, id, aabb) {
   var c   = aabb.toGrid(world.cellSize);

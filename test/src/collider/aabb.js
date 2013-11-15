@@ -58,9 +58,9 @@ describe('Luv.Collider.AABB', function() {
     });
   });
 
-  describe('getMinkowskyDiff', function() {
+  describe('getMinkowskyDifference', function() {
     it("returns the minkowsky diff of two aabbs", function() {
-      var md = AABB(10,20,100,200).getMinkowskyDiff(AABB(45,30, 20, 10));
+      var md = AABB(10,20,100,200).getMinkowskyDifference(AABB(45,30, 20, 10));
       expect([md.l, md.t, md.w, md.h]).to.deep.equal([-65,-190,120,210]);
     });
   });

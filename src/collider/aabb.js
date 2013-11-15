@@ -34,13 +34,54 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
            this.t < other.b && this.b > other.t;
   },
 
-  getMinkowskyDiff: function(other) {
+  getMinkowskyDifference: function(other) {
     return Luv.Collider.AABB(
       other.l - this.r,
       other.t - this.b,
       other.w + this.w,
       other.h + this.h
     );
+  },
+
+  getLiangBarskyIndices: function(x,y,dx,dy,minT,maxT) {
+    var t0 = minT || 0,
+        t1 = maxT || 1,
+        p, q, r;
+
+    for(var side = 0; side < 4; side++) {
+      switch(side) {
+        case 0:
+          p = -dx;
+          q = x - this.l;
+          break;
+        case 1:
+          p = dx;
+          q = this.r - x;
+          break;
+        case 2:
+          p = -dy;
+          q = y - this.t;
+          break;
+        default:
+          p = dy;
+          q = this.b - y;
+      }
+
+      if(p === 0){
+        if(q < 0) { return; }
+      } else {
+        r = q / p;
+        if(p < 0){
+          if(r > t1){ return; }
+          else if(r > t0){ t0 = r; }
+        } else { // p > 0
+          if(r < t0){ return; }
+          else if(r < t1){ t1 = r; }
+        }
+      }
+    }
+
+    return { t0: t0, t1: t1 };
   },
 
   getSegmentIntersection: function(x0,y0,x1,y1) {
@@ -78,85 +119,10 @@ Luv.Collider.AABB = Luv.Class('Luv.Collider.AABB', {
       x: Math.abs(this.l - x) < Math.abs(this.r - x) ? this.l : this.r,
       y: Math.abs(this.t - y) < Math.abs(this.b - y) ? this.t : this.b
     };
-  },
-
-  collide: function(other, vx, vy) {
-    var collision, m, p, ti, lbi, t0, t1;
-    var pastThis = this;
-
-    if(vx !== 0 || vy !== 0) {
-      pastThis = Luv.Collider.AABB(this.l - vx, this.t - vy, this.w, this.h);
-    }
-
-    m = pastThis.getMinkowskyDiff(other);
-
-    if(m.containsPoint(0,0)) { // pastThis was intersecting with other
-      p         = m.getNearestPointInPerimeter(0,0);
-      collision = {dx: p.x-vx, dy: p.y-vy, ti: 0, tunneling: false };
-    } else {
-      lbi = getLiangBarskyIndices(m, 0,0, vx,vy, 0,1);
-      if(lbi) {
-        t0 = lbi.t0;
-        t1 = lbi.t1;
-        if     (0 < t0 && t0 < 1) { ti = t0; }
-        else if(0 < t1 && t1 < 1) { ti = t1; }
-
-        if(ti) { // this tunnels into other
-          collision = {dx: vx*ti-vx, dy: vy*ti-vy, ti: ti, tunneling: true};
-        } else {
-          m = this.getMinkowskyDiff(other);
-          if(m.containsPoint(0,0)) {
-            p         = m.getNearestPointInPerimeter(0,0);
-            collision = {dx: p.x, dy: p.y, ti: 1, tunneling: false };
-          }
-        }
-      }
-    }
-    return collision;
   }
-
 });
 
-var getLiangBarskyIndices = function(aabb, x,y,dx,dy,minT,maxT) {
-  var t0 = minT || 0,
-      t1 = maxT || 1,
-      p, q, r;
 
-  for(var side = 0; side < 4; side++) {
-    switch(side) {
-      case 0:
-        p = -dx;
-        q = x - aabb.l;
-        break;
-      case 1:
-        p = dx;
-        q = aabb.r - x;
-        break;
-      case 2:
-        p = -dy;
-        q = y - aabb.t;
-        break;
-      default:
-        p = dy;
-        q = aabb.b - y;
-    }
-
-    if(p === 0){
-      if(q < 0) { return; }
-    } else {
-      r = q / p;
-      if(p < 0){
-        if(r > t1){ return; }
-        else if(r > t0){ t0 = r; }
-      } else { // p > 0
-        if(r < t0){ return; }
-        else if(r < t1){ t1 = r; }
-      }
-    }
-  }
-
-  return { t0: t0, t1: t1 };
-};
 
 var getLiangBarskyIntersections = function(aabb, x,y, dx,dy, minT, maxT) {
   var lb = getLiangBarskyIndices(aabb, x,y,dx,dy,minT,maxT);
