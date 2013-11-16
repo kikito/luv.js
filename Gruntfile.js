@@ -19,6 +19,7 @@ module.exports = function(grunt) {
     "src/graphics/*",
     "src/collider.js",
     "src/collider/aabb.js",
+    "src/collider/collision.js",
     "src/collider/world.js"
   ];
   var testFiles = "test/**/*.js";

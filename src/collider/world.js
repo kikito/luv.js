@@ -8,14 +8,14 @@ var AABB = Luv.Collider.AABB;
 
 Luv.Collider.World = Luv.Class('Luv.Collider.World', {
   init: function(cellSize, id) {
-    this.cellSize = cellSize || DEFAULT_CELLSIZE;
+    this.cellSize   = cellSize || DEFAULT_CELLSIZE;
+    this.id         = id       || 'world';
+    this.itemsKey   = '_' + this.id + '_id';
     this.items      = {};
     this.aabbs      = {};
     this.rows       = {};
     this.itemCount  = 0;
     this.maxId      = 0;
-    this.id         = id || 'world';
-    this.itemsKey   = '_' + this.id + '_id';
   },
 
   getAABB: function(item) {
