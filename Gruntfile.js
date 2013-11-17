@@ -139,6 +139,6 @@ module.exports = function(grunt) {
   grunt.registerTask('compile', 'generate luv.js and luv.min.js from src/', ['jshint:dist', 'concat', 'umd', 'uglify']);
 
   // Default task(s).
-  grunt.registerTask('default', ['jshint:test', 'compile' ,'mocha']);
+  grunt.registerTask('default', ['jshint:test', 'compile', 'mocha']);
 
 };
