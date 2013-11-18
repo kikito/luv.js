@@ -77,6 +77,14 @@ module.exports = function(grunt) {
         dest: '<%= pkg.name %>.illiterate.js'
       }
     },
+    umd: {
+      all: {
+        src: '<%= pkg.name %>.js',
+        objectToExport: 'Luv',
+        amdModuleId: 'Luv',
+        globalAlias: 'Luv'
+      }
+    },
     watch: {
       dist: {
         files: srcFiles.concat(testFiles),
@@ -93,6 +101,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-umd');
 
   grunt.registerTask('mocha', 'Run all tests using mocha-phantomjs (needs mocha-phantomjs to be installed globally)', function(){
     exec("mocha-phantomjs test/index.html");
@@ -127,7 +136,7 @@ module.exports = function(grunt) {
     ]);
   });
 
-  grunt.registerTask('compile', 'generate luv.js and luv.min.js from src/', ['jshint:dist', 'concat', 'uglify']);
+  grunt.registerTask('compile', 'generate luv.js and luv.min.js from src/', ['jshint:dist', 'concat', 'umd', 'uglify']);
 
   // Default task(s).
   grunt.registerTask('default', ['jshint:test', 'compile', 'mocha']);

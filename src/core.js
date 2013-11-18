@@ -1,7 +1,6 @@
 // # core.js
 
-// Global Luv variable definition
-window.Luv = (function() {
+var Luv = (function() {
 
 // ## Luv.js Class System
 

@@ -1,10 +1,20 @@
-/*! luv 0.0.1 (2013-11-06) - https://github.com/kikito/luv.js */
+(function(root, factory) {
+    if(typeof exports === 'object') {
+        module.exports = factory();
+    }
+    else if(typeof define === 'function' && define.amd) {
+        define('Luv', [], factory);
+    }
+    else {
+        root.Luv = factory();
+    }
+}(this, function() {
+/*! luv 0.0.1 (2013-11-17) - https://github.com/kikito/luv.js */
 /*! Minimal HTML5 game development lib */
 /*! Enrique Garcia Cota */
 // # core.js
 
-// Global Luv variable definition
-window.Luv = (function() {
+var Luv = (function() {
 
 // ## Luv.js Class System
 
@@ -3062,3 +3072,6 @@ var parseRange = function(r) {
 };
 
 }());
+
+    return Luv;
+}));
