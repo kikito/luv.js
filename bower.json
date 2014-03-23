@@ -1,0 +1,33 @@
+{
+  "name": "luv.js",
+  "main": "luv.js",
+  "version": "0.0.1",
+  "homepage": "http://kikito.github.io/luv.js/",
+  "authors": [
+    "Enrique Garcia Cota"
+  ],
+  "description": "Minimal HTML5 game development lib",
+  "moduleType": [
+    "amd",
+    "globals"
+  ],
+  "keywords": [
+    "game",
+    "love2d",
+    "love"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "docco",
+    "examples",
+    "test",
+    "Gruntfile.js",
+    "generate-gh-pages.sh",
+    ""
+  ]
+}
