@@ -2,6 +2,10 @@ luv.js
 ======
 A javascript/coffeescript html5 game library heavily inspired by [LÖVE](http://love2d.org).
 
+## Deprecated and unmaintained
+This project is deprecated and unmaintained. It was created as an experiment to learn javascript,
+and it succeed on that regard. It has not been kept up to date with modern browsers.
+
 ## Examples
 
 * Please visit the [Luv.js testing page](http://kikito.github.com/luv.js/examples/) for examples.
